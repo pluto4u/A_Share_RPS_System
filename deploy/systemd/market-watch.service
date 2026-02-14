@@ -1,0 +1,14 @@
+[Unit]
+Description=A股情绪监控服务
+After=network.target
+
+[Service]
+Type=oneshot
+User=youruser
+WorkingDirectory=/path/to/A_Share_RPS_System
+ExecStart=/usr/bin/python3 /path/to/A_Share_RPS_System/cloud_runner.py --full
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

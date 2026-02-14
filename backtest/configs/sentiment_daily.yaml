@@ -1,0 +1,15 @@
+# 日线情绪择时回测配置
+backtest:
+  start_date: "2018-01-01"
+  end_date: "2026-12-31"
+  benchmark: "000300"        # 沪深300
+  initial_capital: 1000000   # 初始资金 100 万
+
+sentiment:
+  freeze_threshold: 10.0     # 广度冰点阈值 (%)
+  score_bands:               # 评分 → 仓位映射
+    - { min: 80, position: 80 }
+    - { min: 60, position: 60 }
+    - { min: 40, position: 30 }
+    - { min: 20, position: 10 }
+    - { min: 0,  position: 0  }
