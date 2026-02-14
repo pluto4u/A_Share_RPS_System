@@ -1,0 +1,63 @@
+name: A股情绪监控
+
+on:
+  # 1. 手动触发（手机 GitHub App 点一下就能跑）
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: '运行模式'
+        required: true
+        default: 'quick'
+        type: choice
+        options:
+          - quick
+          - full
+
+  # 2. 定时触发：工作日每天 15:05 (UTC+8 = UTC 07:05)
+  schedule:
+    - cron: '5 7 * * 1-5'
+
+jobs:
+  sentiment-analysis:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 设置 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: 安装依赖
+        run: pip install -r requirements.txt
+
+      - name: 写入飞书配置
+        run: |
+          cat > feishu_config.json << 'CONF'
+          {
+              "webhook_url": "${{ secrets.FEISHU_WEBHOOK_URL }}",
+              "webhook_secret": "${{ secrets.FEISHU_WEBHOOK_SECRET }}",
+              "app_id": "${{ secrets.FEISHU_APP_ID }}",
+              "app_secret": "${{ secrets.FEISHU_APP_SECRET }}",
+              "bitable_app_token": "${{ secrets.FEISHU_BITABLE_APP_TOKEN }}",
+              "bitable_table_id_rps": "${{ secrets.FEISHU_BITABLE_TABLE_RPS }}",
+              "bitable_table_id_sentiment": "${{ secrets.FEISHU_BITABLE_TABLE_SENTIMENT }}"
+          }
+          CONF
+
+      - name: 运行情绪监控（快速模式）
+        if: github.event.inputs.mode != 'full' && github.event_name != 'schedule'
+        run: python market_gambler_watch.py --feishu
+
+      - name: 运行情绪监控（完整模式）
+        if: github.event.inputs.mode == 'full' || github.event_name == 'schedule'
+        run: python market_gambler_watch.py --full --feishu
+
+      - name: 运行 RPS 选股（仅定时任务）
+        if: github.event_name == 'schedule'
+        run: python rps_system.py --feishu
+        continue-on-error: true
