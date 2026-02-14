@@ -709,6 +709,23 @@ def main():
         try:
             from feishu_bot import push_market_report
 
+            trend_gate = 100
+            if args.full:
+                major_index_below_ma = any(
+                    (not d.get("error")) and d.get("ma20_status") == "跌破"
+                    for d in idx_data
+                )
+                if major_index_below_ma:
+                    trend_gate = 0
+
+            breadth_cap = 100
+            if args.full:
+                try:
+                    if breadth_pct < FREEZE_THRESHOLD:
+                        breadth_cap = 10
+                except NameError:
+                    pass
+
             report_data = {
                 "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M"),
                 "status": status,
@@ -716,6 +733,8 @@ def main():
                 "all_spot": all_spot,
                 "zt_pools": zt_pools,
                 "money_effect": avg_ret,
+                "trend_gate": trend_gate,
+                "breadth_cap": breadth_cap,
                 "etf_signal": {
                     "vol_today": vol_today,
                     "vol_avg5": vol_avg5,

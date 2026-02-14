@@ -25,6 +25,7 @@ import time
 from datetime import datetime
 
 import requests
+from sentiment_engine import apply_breadth_cap, final_position, score_to_position
 
 # ╔══════════════════════════════════════════════════════════════════════════════╗
 # ║  配置加载                                                                   ║
@@ -227,11 +228,16 @@ def get_position_advice(score):
     (str, str, str)
         仓位百分比, 判定, 建议
     """
-    if   score >= 80: return "80%", "强势", "积极进攻，买入强势股突破"
-    elif score >= 60: return "60%", "偏强", "稳健持仓，关注回踩机会"
-    elif score >= 40: return "30%", "中性", "精选个股，控制仓位"
-    elif score >= 20: return "10%", "偏弱", "极度精选，防御为主"
-    else:             return "0%",  "冰点", "空仓等待，不要抄底"
+    position = score_to_position(score)
+    if position == 80:
+        return "80%", "强势", "积极进攻，买入强势股突破"
+    if position == 60:
+        return "60%", "偏强", "稳健持仓，关注回踩机会"
+    if position == 30:
+        return "30%", "中性", "精选个股，控制仓位"
+    if position == 10:
+        return "10%", "偏弱", "极度精选，防御为主"
+    return "0%", "冰点", "空仓等待，不要抄底"
 
 
 # ╔══════════════════════════════════════════════════════════════════════════════╗
@@ -263,6 +269,16 @@ def build_market_card(report_data):
     """
     score, score_details = calculate_sentiment_score(report_data)
     pos_pct, pos_level, pos_advice = get_position_advice(score)
+    pos_raw = int(str(pos_pct).replace("%", ""))
+    trend_gate = int(report_data.get("trend_gate", 100))
+    breadth_cap = int(report_data.get("breadth_cap", 100))
+    if "breadth" in report_data and report_data["breadth"]:
+        breadth_cap = apply_breadth_cap(
+            breadth_cap,
+            breadth_pct=float(report_data["breadth"].get("pct", 100.0)),
+            freeze_threshold=10.0,
+        )
+    pos_final = final_position(pos_raw, trend_gate, breadth_cap)
 
     # ── 卡片颜色 ──
     if   score >= 70: template = "green"
@@ -380,7 +396,8 @@ def build_market_card(report_data):
     verdict_md = (
         f"**📋 综合评分**\n"
         f"{score_bar}  **{score}/100**  [{pos_level}]\n\n"
-        f"**建议仓位: {pos_pct}**  — {pos_advice}\n\n"
+        f"**建议仓位: {pos_pct}**  — {pos_advice}\n"
+        f"**最终仓位: {pos_final}%**  (趋势门控 {trend_gate}% / 广度上限 {breadth_cap}%)\n\n"
         f"明细: {detail_lines}"
     )
     elements.append({"tag": "markdown", "content": verdict_md})
@@ -800,6 +817,44 @@ def update_bitable_sentiment(report_data, score, score_details):
 
 
 # ╔══════════════════════════════════════════════════════════════════════════════╗
+# ║  统一每日情绪快照                                                            ║
+# ╚══════════════════════════════════════════════════════════════════════════════╝
+
+def build_sentiment_snapshot(report_data):
+    """
+    将 report_data 汇总为一个标准化的每日情绪快照 dict。
+
+    返回字段至少包含:
+        date, score, position_raw, trend_gate, breadth_cap, position_final
+    """
+    score, score_details = calculate_sentiment_score(report_data)
+    pos_pct, pos_level, pos_advice = get_position_advice(score)
+    pos_raw = int(str(pos_pct).replace("%", ""))
+
+    trend_gate = int(report_data.get("trend_gate", 100))
+    breadth_cap_val = int(report_data.get("breadth_cap", 100))
+    if "breadth" in report_data and report_data["breadth"]:
+        breadth_cap_val = apply_breadth_cap(
+            breadth_cap_val,
+            breadth_pct=float(report_data["breadth"].get("pct", 100.0)),
+            freeze_threshold=10.0,
+        )
+    pos_final = final_position(pos_raw, trend_gate, breadth_cap_val)
+
+    return {
+        "date": report_data.get("timestamp", ""),
+        "score": score,
+        "score_details": score_details,
+        "position_raw": pos_raw,
+        "position_level": pos_level,
+        "position_advice": pos_advice,
+        "trend_gate": trend_gate,
+        "breadth_cap": breadth_cap_val,
+        "position_final": pos_final,
+    }
+
+
+# ╔══════════════════════════════════════════════════════════════════════════════╗
 # ║  高层调用接口 — 一键推送                                                     ║
 # ╚══════════════════════════════════════════════════════════════════════════════╝
 
@@ -817,7 +872,20 @@ def push_market_report(report_data):
     # 1. 计算情绪评分
     score, score_details = calculate_sentiment_score(report_data)
     pos_pct, pos_level, _ = get_position_advice(score)
-    print(f"  [情绪评分] {score}/100  [{pos_level}]  建议仓位 {pos_pct}")
+    pos_raw = int(str(pos_pct).replace("%", ""))
+    trend_gate = int(report_data.get("trend_gate", 100))
+    breadth_cap = int(report_data.get("breadth_cap", 100))
+    if "breadth" in report_data and report_data["breadth"]:
+        breadth_cap = apply_breadth_cap(
+            breadth_cap,
+            breadth_pct=float(report_data["breadth"].get("pct", 100.0)),
+            freeze_threshold=10.0,
+        )
+    pos_final = final_position(pos_raw, trend_gate, breadth_cap)
+    print(
+        f"  [情绪评分] {score}/100  [{pos_level}]  建议仓位 {pos_pct}  |  "
+        f"最终仓位 {pos_final}%"
+    )
 
     # 2. 推送 Webhook 卡片
     card = build_market_card(report_data)
