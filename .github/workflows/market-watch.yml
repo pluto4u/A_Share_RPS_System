@@ -1,4 +1,4 @@
-name: A股情绪监控
+name: "A股情绪监控"
 
 on:
   # 1. 手动触发（手机 GitHub App 点一下就能跑）
