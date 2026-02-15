@@ -147,6 +147,15 @@ def detect_market_status():
     return "盘后"
 
 
+def is_trading_session(now=None):
+    """是否位于A股交易时段 (工作日 09:30-11:30, 13:00-15:00)"""
+    now = now or datetime.now()
+    if now.weekday() >= 5:
+        return False
+    t = now.hour * 100 + now.minute
+    return (930 <= t <= 1130) or (1300 <= t <= 1500)
+
+
 def find_trade_dates():
     """
     通过沪深300指数历史确定最近两个交易日。
@@ -741,17 +750,11 @@ def show_rps_result(result, reasons):
 # ║  主函数                                                                     ║
 # ╚══════════════════════════════════════════════════════════════════════════════╝
 
-def main():
-    parser = argparse.ArgumentParser(description="A股市场情绪监控 v2.0")
-    parser.add_argument("--full", action="store_true",
-                        help="完整模式: 包含 MA20 广度 + RPS 筛选 (耗时 3-5 分钟)")
-    parser.add_argument("--feishu", action="store_true",
-                        help="推送结果到飞书群 (需先配置 feishu_config.json)")
-    args = parser.parse_args()
-
+def run_once(full=False, feishu=False):
+    """执行单轮情绪监控流程。"""
     wall_start = time.time()
     status = detect_market_status()
-    mode_label = "完整模式" if args.full else "快速模式"
+    mode_label = "完整模式" if full else "快速模式"
 
     banner(
         f"A股市场情绪监控  {datetime.now().strftime('%Y-%m-%d %H:%M')}"
@@ -781,12 +784,12 @@ def main():
     show_sentiment(all_spot, zt_pools)
     avg_ret = show_money_effect(filtered_spot, prev_date)
     show_etf_signal(vol_today, vol_avg5, vol_ratio)
-    has_clearing = show_etf_volume_clearing(clearing_data)
+    show_etf_volume_clearing(clearing_data)
 
     # ══════════════════════════════════════════════════════════════════════════
     #  第三阶段: 完整模式 (慢) — MA20 广度 + RPS 筛选
     # ══════════════════════════════════════════════════════════════════════════
-    if args.full:
+    if full:
         banner("深度分析 (完整模式)")
         hist_data = fetch_history_batch(filtered_spot["代码"].tolist())
 
@@ -819,12 +822,12 @@ def main():
     # ══════════════════════════════════════════════════════════════════════════
     #  飞书推送 (可选)
     # ══════════════════════════════════════════════════════════════════════════
-    if args.feishu:
+    if feishu:
         try:
             from feishu_bot import push_market_report
 
             trend_gate = 100
-            if args.full:
+            if full:
                 major_index_below_ma = any(
                     (not d.get("error")) and d.get("ma20_status") == "跌破"
                     for d in idx_data
@@ -833,7 +836,7 @@ def main():
                     trend_gate = 0
 
             breadth_cap = 100
-            if args.full:
+            if full:
                 try:
                     if breadth_pct < FREEZE_THRESHOLD:
                         breadth_cap = 10
@@ -858,7 +861,7 @@ def main():
             }
             # 完整模式下附带广度数据
             try:
-                if args.full and breadth_pct is not None:
+                if full and breadth_pct is not None:
                     report_data["breadth"] = {
                         "pct": breadth_pct, "above": above, "total": total,
                     }
@@ -881,6 +884,85 @@ def main():
     print(f"  完成  |  耗时 {int(m)} 分 {s:.0f} 秒  |  {mode_label}")
     print("=" * 66)
     print()
+
+    return {
+        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "status": status,
+        "mode": mode_label,
+    }
+
+
+def run_loop(full=False, feishu=False, interval_minutes=15, session_only=False, max_loops=None):
+    """
+    周期运行情绪监控。
+
+    Parameters
+    ----------
+    full : bool
+        完整模式
+    feishu : bool
+        是否推送飞书
+    interval_minutes : int
+        周期分钟数
+    session_only : bool
+        仅交易时段运行
+    max_loops : int | None
+        最多循环次数，仅用于测试；None 表示无限循环
+    """
+    loop_count = 0
+    interval_sec = max(1, int(interval_minutes)) * 60
+
+    print(f"[loop] 启动周期模式: 每 {int(interval_sec / 60)} 分钟执行一次")
+    if session_only:
+        print("[loop] 仅交易时段运行: 周一至周五 09:30-11:30, 13:00-15:00")
+
+    while True:
+        loop_count += 1
+        now = datetime.now()
+        print(f"\n[loop] 第 {loop_count} 轮 | {now.strftime('%Y-%m-%d %H:%M:%S')}")
+
+        if session_only and not is_trading_session(now):
+            print("[loop] 当前非交易时段，跳过本轮")
+        else:
+            try:
+                run_once(full=full, feishu=feishu)
+            except Exception as e:
+                print(f"[loop] 单轮执行异常: {e}")
+
+        if max_loops is not None and loop_count >= max_loops:
+            print("[loop] 达到 max_loops，退出循环")
+            break
+
+        time.sleep(interval_sec)
+
+
+def main():
+    parser = argparse.ArgumentParser(description="A股市场情绪监控 v2.0")
+    parser.add_argument("--full", action="store_true",
+                        help="完整模式: 包含 MA20 广度 + RPS 筛选 (耗时 3-5 分钟)")
+    parser.add_argument("--feishu", action="store_true",
+                        help="推送结果到飞书群 (需先配置 feishu_config.json)")
+    parser.add_argument("--loop", action="store_true",
+                        help="循环模式: 按固定周期持续执行")
+    parser.add_argument("--interval-minutes", type=int, default=15,
+                        help="循环模式周期(分钟), 默认15")
+    parser.add_argument("--session-only", action="store_true",
+                        help="循环模式仅在交易时段运行(09:30-11:30, 13:00-15:00)")
+    args = parser.parse_args()
+
+    if args.loop:
+        try:
+            run_loop(
+                full=args.full,
+                feishu=args.feishu,
+                interval_minutes=args.interval_minutes,
+                session_only=args.session_only,
+            )
+        except KeyboardInterrupt:
+            print("\n[loop] 收到中断信号，已退出")
+        return
+
+    run_once(full=args.full, feishu=args.feishu)
 
 
 if __name__ == "__main__":

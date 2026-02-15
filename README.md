@@ -23,6 +23,12 @@
 python market_gambler_watch.py            # 快速模式
 python market_gambler_watch.py --full     # 完整模式
 python market_gambler_watch.py --full --feishu  # 推送飞书群
+
+# 盘中循环监控（默认每15分钟一轮，建议工作时段使用）
+python market_gambler_watch.py --loop --interval-minutes 15 --session-only --feishu
+
+# 盘中循环 + 完整模式（更耗时）
+python market_gambler_watch.py --loop --interval-minutes 15 --session-only --full --feishu
 ```
 
 ---
@@ -80,6 +86,7 @@ python backtest_sentiment_daily.py --start 2018-01-01 --end 2026-12-31
 python cloud_runner.py                  # 正式执行
 python cloud_runner.py --dry-run        # 试运行
 python cloud_runner.py --full           # 完整模式
+python cloud_runner.py --session-only   # 仅交易时段执行（云端定时推荐）
 ```
 
 **部署示例** (systemd):

@@ -13,8 +13,9 @@ on:
           - quick
           - full
 
-  # 2. 定时触发：工作日每天 15:05 (UTC+8 = UTC 07:05)
+  # 2. 定时触发：工作日每15分钟 (UTC+8交易时段由 session-only 守卫控制)
   schedule:
+    - cron: '*/15 1-7 * * 1-5'
     - cron: '5 7 * * 1-5'
 
 jobs:
@@ -38,12 +39,13 @@ jobs:
       - name: 写入飞书配置
         env:
           FEISHU_BOT: ${{ secrets.FEISHU_BOT }}
+          FEISHU_WEBHOOK_SECRET: ${{ secrets.FEISHU_WEBHOOK_SECRET }}
         run: |
           python -c "
           import json, os
           cfg = {
               'webhook_url': os.environ.get('FEISHU_BOT', ''),
-              'webhook_secret': '',
+              'webhook_secret': os.environ.get('FEISHU_WEBHOOK_SECRET', ''),
               'app_id': '',
               'app_secret': '',
               'bitable_app_token': '',
@@ -60,10 +62,18 @@ jobs:
         run: python market_gambler_watch.py --feishu
 
       - name: 运行情绪监控（完整模式）
-        if: github.event.inputs.mode == 'full' || github.event_name == 'schedule'
+        if: github.event.inputs.mode == 'full' && github.event_name != 'schedule'
+        run: python market_gambler_watch.py --full --feishu
+
+      - name: 运行情绪监控（盘中15分钟）
+        if: github.event_name == 'schedule' && github.event.schedule == '*/15 1-7 * * 1-5'
+        run: python cloud_runner.py --session-only
+
+      - name: 运行情绪监控（收盘后）
+        if: github.event_name == 'schedule' && github.event.schedule == '5 7 * * 1-5'
         run: python market_gambler_watch.py --full --feishu
 
       - name: 运行 RPS 选股（仅定时任务）
-        if: github.event_name == 'schedule'
+        if: github.event_name == 'schedule' && github.event.schedule == '5 7 * * 1-5'
         run: python rps_system.py --feishu
         continue-on-error: true

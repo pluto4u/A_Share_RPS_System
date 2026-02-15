@@ -105,6 +105,29 @@ curl http://localhost:8000/health
 
 **生产环境建议**: 用 supervisor / PM2 / systemd 管理 API 进程
 
+### 方式 4: 火山函数服务 (FC) 预留入口
+
+项目已提供函数入口文件：`volcengine_handler.py`
+
+- 入口函数：`handler(event, context)`
+- 复用逻辑：内部调用 `cloud_runner.run_once(...)`
+- 建议触发器：定时触发（工作日每15分钟）
+
+示例 event:
+
+```json
+{
+  "dry_run": false,
+  "full_mode": false,
+  "session_only": true
+}
+```
+
+建议配置：
+- Runtime: Python 3.12
+- 部署包包含项目根目录全部代码与依赖
+- 环境变量或密文中配置飞书 webhook 与 secret
+
 ---
 
 ## 本地测试
@@ -200,6 +223,16 @@ sudo journalctl -u market-watch.service -n 50
 # Cron
 tail -f /var/log/market_watch.log
 ```
+
+---
+
+## GitHub Actions 盘中调度说明
+
+当前工作流已配置：
+- 工作日每15分钟触发一次（盘中用 `session_only` 自动过滤非交易时段）
+- 工作日 15:05 (UTC+8) 额外执行一次收盘完整任务（含 RPS）
+
+如需调整频率，可编辑 `.github/workflows/market-watch.yml` 的 `schedule.cron`。
 
 ---
 
