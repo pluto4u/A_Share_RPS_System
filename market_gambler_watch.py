@@ -869,15 +869,28 @@ def run_once(full=False, feishu=False):
     status = detect_market_status()
     mode_label = "完整模式" if full else "快速模式"
 
-    banner(
-        f"A股市场情绪监控  {datetime.now().strftime('%Y-%m-%d %H:%M')}"
-        f"  [{status}] [{mode_label}]"
-    )
-
     # ══════════════════════════════════════════════════════════════════════════
     #  第一阶段: 数据采集 (快速)
     # ══════════════════════════════════════════════════════════════════════════
     latest_date, prev_date = find_trade_dates()
+
+    # 时间戳使用实际数据交易日，盘中追加当前时刻
+    if latest_date:
+        trade_date_fmt = f"{latest_date[:4]}-{latest_date[4:6]}-{latest_date[6:]}"
+    else:
+        trade_date_fmt = datetime.now().strftime("%Y-%m-%d")
+
+    if status == "盘中":
+        display_ts = f"{trade_date_fmt} {datetime.now().strftime('%H:%M')} (实时)"
+    elif status in ("盘前", "午休"):
+        display_ts = f"{trade_date_fmt} {datetime.now().strftime('%H:%M')} ({status})"
+    else:
+        display_ts = f"{trade_date_fmt} (收盘数据)"
+
+    banner(
+        f"A股市场情绪监控  {display_ts}  [{status}] [{mode_label}]"
+    )
+
     if latest_date:
         print(f"  交易日: 最新 {latest_date} / 前一 {prev_date}")
 
@@ -957,7 +970,7 @@ def run_once(full=False, feishu=False):
                     pass
 
             report_data = {
-                "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M"),
+                "timestamp": display_ts,
                 "status": status,
                 "idx_data": idx_data,
                 "all_spot": all_spot,
@@ -999,7 +1012,7 @@ def run_once(full=False, feishu=False):
     print()
 
     return {
-        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "timestamp": display_ts,
         "status": status,
         "mode": mode_label,
     }
