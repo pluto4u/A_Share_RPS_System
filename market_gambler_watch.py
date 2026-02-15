@@ -70,6 +70,16 @@ MAX_WORKERS      = 8        # 并发线程数
 RETRY_TIMES      = 2        # API 重试次数
 RETRY_DELAY      = 0.5      # 重试间隔 (秒)
 
+# ── 中小盘量能清空监控 ──
+VOLUME_CLEARING_ETFS = [
+    ("510500", "中证500ETF"),
+    ("512100", "中证1000ETF"),
+]
+VOL_MA_PERIOD       = 20     # 量能均线天数
+VOL_CLEARING_THRESH = 0.5    # 量能清空阈值 (今日量 < MA20量 × 0.5)
+VOL_SHRINK_THRESH   = 0.7    # 缩量阈值
+VOL_SURGE_THRESH    = 1.8    # 放量阈值
+
 # ── 涨幅分布区间 ──
 CHANGE_BINS = [
     (-999, -7,  "< -7% "),
@@ -292,6 +302,64 @@ def fetch_etf_volume():
     ratio = vol_today / vol_avg5 if vol_avg5 > 0 else 0.0
     print(f"量比 {ratio:.2f}x")
     return vol_today, vol_avg5, ratio
+
+
+# ╔══════════════════════════════════════════════════════════════════════════════╗
+# ║  数据采集 — 中小盘ETF量能清空                                                ║
+# ╚══════════════════════════════════════════════════════════════════════════════╝
+
+def fetch_etf_volume_clearing():
+    """
+    获取中证500ETF / 中证1000ETF 的量能状态。
+    判断是否出现「量能清空」（地量）信号。
+
+    返回 list[dict], 每项包含:
+        name, code, vol_today, vol_ma20, vol_ratio, status
+    """
+    print(f"  [5] 拉取中小盘ETF量能 ", end="", flush=True)
+    end = datetime.now().strftime("%Y%m%d")
+    start = (datetime.now() - timedelta(days=60)).strftime("%Y%m%d")
+    results = []
+
+    for code, name in VOLUME_CLEARING_ETFS:
+        df = safe_call(
+            ak.fund_etf_hist_em,
+            symbol=code, period="daily",
+            start_date=start, end_date=end, adjust="qfq",
+        )
+        if df is None or len(df) < VOL_MA_PERIOD + 1:
+            results.append({
+                "name": name, "code": code,
+                "vol_today": 0, "vol_ma20": 0, "vol_ratio": 0,
+                "status": "数据不足", "error": True,
+            })
+            print("x", end="", flush=True)
+            continue
+
+        vol_today = float(df["成交量"].iloc[-1])
+        vol_ma20 = float(df["成交量"].iloc[-(VOL_MA_PERIOD + 1):-1].mean())
+        vol_ratio = vol_today / vol_ma20 if vol_ma20 > 0 else 0.0
+
+        # 判定量能状态
+        if vol_ratio <= VOL_CLEARING_THRESH:
+            status = "量能清空"    # 极度缩量 → 卖压枯竭
+        elif vol_ratio <= VOL_SHRINK_THRESH:
+            status = "缩量"       # 温和缩量
+        elif vol_ratio <= VOL_SURGE_THRESH:
+            status = "正常"
+        else:
+            status = "放量"       # 资金涌入或出逃
+
+        results.append({
+            "name": name, "code": code,
+            "vol_today": vol_today, "vol_ma20": vol_ma20,
+            "vol_ratio": round(vol_ratio, 3), "status": status,
+            "error": False,
+        })
+        print(".", end="", flush=True)
+
+    print(" 完成")
+    return results
 
 
 # ╔══════════════════════════════════════════════════════════════════════════════╗
@@ -540,6 +608,50 @@ def show_etf_signal(vol_today, vol_avg5, vol_ratio):
 
 
 # ╔══════════════════════════════════════════════════════════════════════════════╗
+# ║  分析 & 展示 — 中小盘量能清空                                                ║
+# ╚══════════════════════════════════════════════════════════════════════════════╝
+
+def show_etf_volume_clearing(clearing_data):
+    """展示中证500/1000 ETF 量能清空检测结果"""
+    section("中小盘量能监控 (500/1000 ETF)")
+
+    has_clearing = False
+    for d in clearing_data:
+        if d.get("error"):
+            print(f"  {d['name']:<12} 数据不足")
+            continue
+
+        # 状态标记
+        status = d["status"]
+        if status == "量能清空":
+            tag = "!! 量能清空 !!"
+            has_clearing = True
+        elif status == "缩量":
+            tag = "* 缩量 *"
+        elif status == "放量":
+            tag = "! 放量 !"
+        else:
+            tag = "正常"
+
+        print(
+            f"  {d['name']:<12}"
+            f"  今量 {d['vol_today']/1e4:>8,.0f}万手"
+            f"  MA{VOL_MA_PERIOD}均量 {d['vol_ma20']/1e4:>8,.0f}万手"
+            f"  量比 {d['vol_ratio']:.2f}x"
+            f"  [{tag}]"
+        )
+
+    if has_clearing:
+        print()
+        print("  !!  =============================================  !!")
+        print("  !!    中小盘量能清空！卖压枯竭信号                    !!")
+        print("  !!    关注止跌企稳后的反弹机会                       !!")
+        print("  !!  =============================================  !!")
+
+    return has_clearing
+
+
+# ╔══════════════════════════════════════════════════════════════════════════════╗
 # ║  分析 & 展示 — 全市场广度 (完整模式)                                         ║
 # ╚══════════════════════════════════════════════════════════════════════════════╝
 
@@ -658,6 +770,7 @@ def main():
     today_str  = latest_date or datetime.now().strftime("%Y%m%d")
     zt_pools   = fetch_zt_pools(today_str)
     vol_today, vol_avg5, vol_ratio = fetch_etf_volume()
+    clearing_data = fetch_etf_volume_clearing()
 
     # ══════════════════════════════════════════════════════════════════════════
     #  第二阶段: 快速分析 & 展示
@@ -668,6 +781,7 @@ def main():
     show_sentiment(all_spot, zt_pools)
     avg_ret = show_money_effect(filtered_spot, prev_date)
     show_etf_signal(vol_today, vol_avg5, vol_ratio)
+    has_clearing = show_etf_volume_clearing(clearing_data)
 
     # ══════════════════════════════════════════════════════════════════════════
     #  第三阶段: 完整模式 (慢) — MA20 广度 + RPS 筛选
@@ -740,6 +854,7 @@ def main():
                     "vol_avg5": vol_avg5,
                     "ratio": vol_ratio,
                 },
+                "volume_clearing": clearing_data,
             }
             # 完整模式下附带广度数据
             try:

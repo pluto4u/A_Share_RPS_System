@@ -1,7 +1,7 @@
 name: "A股情绪监控"
 
 on:
-  # 1. 手动触发（手机 GitHub App 点一下就能跑）
+  # 1. 手动触发（手机浏览器点一下就能跑）
   workflow_dispatch:
     inputs:
       mode:
@@ -36,18 +36,24 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: 写入飞书配置
+        env:
+          FEISHU_BOT: ${{ secrets.FEISHU_BOT }}
         run: |
-          cat > feishu_config.json << 'CONF'
-          {
-              "webhook_url": "${{ secrets.FEISHU_WEBHOOK_URL }}",
-              "webhook_secret": "${{ secrets.FEISHU_WEBHOOK_SECRET }}",
-              "app_id": "${{ secrets.FEISHU_APP_ID }}",
-              "app_secret": "${{ secrets.FEISHU_APP_SECRET }}",
-              "bitable_app_token": "${{ secrets.FEISHU_BITABLE_APP_TOKEN }}",
-              "bitable_table_id_rps": "${{ secrets.FEISHU_BITABLE_TABLE_RPS }}",
-              "bitable_table_id_sentiment": "${{ secrets.FEISHU_BITABLE_TABLE_SENTIMENT }}"
+          python -c "
+          import json, os
+          cfg = {
+              'webhook_url': os.environ.get('FEISHU_BOT', ''),
+              'webhook_secret': '',
+              'app_id': '',
+              'app_secret': '',
+              'bitable_app_token': '',
+              'bitable_table_id_rps': '',
+              'bitable_table_id_sentiment': ''
           }
-          CONF
+          with open('feishu_config.json', 'w') as f:
+              json.dump(cfg, f, indent=2, ensure_ascii=False)
+          print('feishu_config.json written, webhook configured:', bool(cfg['webhook_url']))
+          "
 
       - name: 运行情绪监控（快速模式）
         if: github.event.inputs.mode != 'full' && github.event_name != 'schedule'

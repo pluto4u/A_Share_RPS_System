@@ -25,7 +25,12 @@ import time
 from datetime import datetime
 
 import requests
-from sentiment_engine import apply_breadth_cap, final_position, score_to_position
+from sentiment_engine import (
+    apply_breadth_cap,
+    final_position,
+    score_to_position,
+    volume_clearing_score,
+)
 
 # ╔══════════════════════════════════════════════════════════════════════════════╗
 # ║  配置加载                                                                   ║
@@ -86,8 +91,9 @@ def send_card(card_body):
         发送是否成功
     """
     url = _get("webhook_url")
-    if not url or "你的HOOK_ID" in url:
+    if not url or "你的HOOK_ID" in url or len(url.strip()) < 20:
         print("  [飞书] webhook_url 未配置，跳过推送")
+        print("  [飞书] 请在 feishu_config.json 中填写飞书机器人 webhook 地址")
         return False
 
     secret = _get("webhook_secret")
@@ -202,7 +208,7 @@ def calculate_sentiment_score(report_data):
     elif zb_rate < 50: scores["炸板率"] = 25
     else:              scores["炸板率"] = 0
 
-    # ── 5. ETF 量比 (15%) — 适中最好 ──
+    # ── 5. ETF 量比 (10%) — 适中最好 ──
     vol_ratio = report_data["etf_signal"].get("ratio")
     if   vol_ratio is None:                          scores["量比"] = 50
     elif 1.0 <= vol_ratio <= 1.5:                    scores["量比"] = 100
@@ -210,10 +216,15 @@ def calculate_sentiment_score(report_data):
     elif 1.5 < vol_ratio <= 2.0:                     scores["量比"] = 50
     else:                                            scores["量比"] = 25
 
+    # ── 6. 中小盘量能清空 (10%) — 量能清空=卖压枯竭=底部信号 ──
+    clearing_data = report_data.get("volume_clearing", [])
+    vc_score, vc_desc = volume_clearing_score(clearing_data)
+    scores["中小盘量能"] = vc_score
+
     # ── 加权求和 ──
     weights = {
-        "涨跌比": 0.25, "赚钱效应": 0.25, "涨跌停比": 0.20,
-        "炸板率": 0.15, "量比": 0.15,
+        "涨跌比": 0.25, "赚钱效应": 0.20, "涨跌停比": 0.15,
+        "炸板率": 0.15, "量比": 0.10, "中小盘量能": 0.15,
     }
     total = sum(scores[k] * weights[k] for k in weights)
     return round(total), scores
@@ -374,7 +385,39 @@ def build_market_card(report_data):
     elements.append({"tag": "markdown", "content": etf_md})
     elements.append({"tag": "hr"})
 
-    # ━━ Section 5: 广度 (完整模式) ━━
+    # ━━ Section 5: 中小盘量能清空 ━━
+    clearing_data = report_data.get("volume_clearing", [])
+    if clearing_data:
+        vc_score, vc_desc = volume_clearing_score(clearing_data)
+        vc_lines = []
+        for d in clearing_data:
+            if d.get("error"):
+                vc_lines.append(f"  {d['name']}: 数据不足")
+                continue
+            status = d["status"]
+            if status == "量能清空":
+                icon = "🔴"
+            elif status == "缩量":
+                icon = "🟡"
+            elif status == "放量":
+                icon = "🟠"
+            else:
+                icon = "🟢"
+            vc_lines.append(
+                f"  {icon} {d['name']}  量比 **{d['vol_ratio']:.2f}x**  [{status}]"
+            )
+        clearing_warn = ""
+        if vc_desc in ("全面清空", "部分清空"):
+            clearing_warn = "\n🚨 **卖压枯竭信号！关注止跌后反弹机会**"
+        vc_md = (
+            f"**📉 中小盘量能** ({vc_desc})\n"
+            + "\n".join(vc_lines)
+            + clearing_warn
+        )
+        elements.append({"tag": "markdown", "content": vc_md})
+        elements.append({"tag": "hr"})
+
+    # ━━ Section 6: 广度 (完整模式) ━━
     breadth = report_data.get("breadth")
     if breadth:
         pct = breadth["pct"]
@@ -389,7 +432,7 @@ def build_market_card(report_data):
         })
         elements.append({"tag": "hr"})
 
-    # ━━ Section 6: 综合评分 & 仓位建议 ━━
+    # ━━ Section 7: 综合评分 & 仓位建议 ━━
     detail_lines = "  |  ".join(f"{k} {v}" for k, v in score_details.items())
     score_bar = "🟩" * (score // 10) + "⬜" * (10 - score // 10)
 
