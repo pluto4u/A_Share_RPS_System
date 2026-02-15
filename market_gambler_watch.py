@@ -156,6 +156,27 @@ def is_trading_session(now=None):
     return (930 <= t <= 1130) or (1300 <= t <= 1500)
 
 
+def trading_minutes_elapsed(now=None):
+    """
+    计算今日已过交易分钟数 (满额 240 分钟)。
+    用于盘中量能归一化: 预测全天量 = 实际量 / (已过分钟 / 240)。
+    """
+    now = now or datetime.now()
+    t = now.hour * 60 + now.minute  # 当前时间(分钟)
+    morning_start, morning_end = 9 * 60 + 30, 11 * 60 + 30  # 570, 690
+    afternoon_start, afternoon_end = 13 * 60, 15 * 60         # 780, 900
+
+    elapsed = 0
+    # 上午段
+    if t >= morning_start:
+        elapsed += min(t, morning_end) - morning_start
+    # 下午段
+    if t >= afternoon_start:
+        elapsed += min(t, afternoon_end) - afternoon_start
+
+    return max(1, min(elapsed, 240))  # 至少1分钟避免除零
+
+
 def find_trade_dates():
     """
     通过沪深300指数历史确定最近两个交易日。
@@ -184,12 +205,17 @@ def fetch_spot():
     返回 (all_df, filtered_df)
       all_df:      含 ST、北交所，用于涨跌统计
       filtered_df: 去 ST、北交所、停牌，用于后续分析
+
+    Raises
+    ------
+    RuntimeError
+        当无法获取数据时抛出，循环模式下由外层捕获并继续
     """
     print("  [1] 拉取全市场行情 ...", end=" ", flush=True)
     df = safe_call(ak.stock_zh_a_spot_em)
     if df is None or df.empty:
         print("失败!")
-        sys.exit(1)
+        raise RuntimeError("无法获取全市场行情数据，本轮跳过")
 
     # 全量（仅去停牌）
     all_df = df[df["最新价"].notna() & (df["最新价"] > 0)].copy()
@@ -206,42 +232,65 @@ def fetch_spot():
 def fetch_index_overview():
     """
     获取所有监控指数: 最新价 + 涨跌幅 + MA20状态 + 量比。
-    通过 index_zh_a_hist 获取近60天日线计算。
+    盘中使用实时接口获取价格，日线接口仅用于 MA20 计算。
     """
     print("  [2] 拉取指数数据 ", end="", flush=True)
     results = []
+
+    # ── 第一步: 一次性拉取全部指数实时快照 ──
+    spot_df = safe_call(ak.stock_zh_index_spot_em)
+    spot_map = {}
+    if spot_df is not None and not spot_df.empty:
+        for _, row in spot_df.iterrows():
+            spot_map[str(row["代码"])] = row
+
+    # ── 第二步: 逐个指数拉日线算 MA20 (盘中MA20不变，缓存即可) ──
     end_date = datetime.now().strftime("%Y%m%d")
     start_date = (datetime.now() - timedelta(days=60)).strftime("%Y%m%d")
 
     for code, name in WATCH_INDICES:
+        spot = spot_map.get(code)
+
+        # 实时数据
+        if spot is not None:
+            close = float(spot["最新价"])
+            change_pct = float(spot["涨跌幅"]) if "涨跌幅" in spot.index else 0.0
+            vol_ratio = float(spot["量比"]) if "量比" in spot.index and pd.notna(spot["量比"]) else 0.0
+        else:
+            # 回退到日线
+            close, change_pct, vol_ratio = 0.0, 0.0, 0.0
+
+        # 日线用于 MA20
         hist = safe_call(
             ak.index_zh_a_hist,
             symbol=code, period="daily",
             start_date=start_date, end_date=end_date,
         )
-        if hist is None or hist.empty:
+
+        ma20_val = None
+        ma20_status = "N/A"
+        trade_date = datetime.now().strftime("%Y%m%d")
+
+        if hist is not None and not hist.empty:
+            trade_date = str(hist["日期"].iloc[-1]).replace("-", "")
+            if len(hist) >= MA_PERIOD:
+                ma20_val = float(hist["收盘"].rolling(MA_PERIOD).mean().iloc[-1])
+                ma20_status = "站上" if close > ma20_val else "跌破"
+
+            # 若实时快照缺失，用日线补
+            if spot is None:
+                latest = hist.iloc[-1]
+                close = float(latest["收盘"])
+                change_pct = float(latest["涨跌幅"]) if "涨跌幅" in hist.columns else 0.0
+                vol = float(latest["成交量"]) if "成交量" in hist.columns else 0
+                if len(hist) >= 6 and "成交量" in hist.columns:
+                    avg5 = float(hist["成交量"].iloc[-6:-1].mean())
+                    vol_ratio = vol / avg5 if avg5 > 0 else 0.0
+
+        if close == 0.0 and spot is None and (hist is None or hist.empty):
             results.append({"name": name, "error": True})
             print("x", end="", flush=True)
             continue
-
-        latest = hist.iloc[-1]
-        close = float(latest["收盘"])
-        change_pct = float(latest["涨跌幅"]) if "涨跌幅" in hist.columns else 0.0
-        volume = float(latest["成交量"]) if "成交量" in hist.columns else 0
-        trade_date = str(latest["日期"]).replace("-", "")
-
-        # MA20
-        ma20_val = None
-        ma20_status = "N/A"
-        if len(hist) >= MA_PERIOD:
-            ma20_val = float(hist["收盘"].rolling(MA_PERIOD).mean().iloc[-1])
-            ma20_status = "站上" if close > ma20_val else "跌破"
-
-        # 量比 = 今日成交量 / 前5日均量
-        vol_ratio = 0.0
-        if len(hist) >= 6 and "成交量" in hist.columns:
-            avg5 = float(hist["成交量"].iloc[-6:-1].mean())
-            vol_ratio = volume / avg5 if avg5 > 0 else 0.0
 
         results.append({
             "name": name, "close": close, "change_pct": change_pct,
@@ -292,24 +341,69 @@ def fetch_zt_pools(date_str):
     }
 
 
+def _fetch_etf_spot_map():
+    """一次性获取全部 ETF 实时快照，返回 {代码: row} 字典"""
+    df = safe_call(ak.fund_etf_spot_em)
+    if df is None or df.empty:
+        return {}
+    result = {}
+    for _, row in df.iterrows():
+        result[str(row["代码"])] = row
+    return result
+
+
+# 模块级缓存：同一轮执行中共享 ETF 实时数据
+_etf_spot_cache = None
+
+
+def _get_etf_spot():
+    global _etf_spot_cache
+    if _etf_spot_cache is None:
+        _etf_spot_cache = _fetch_etf_spot_map()
+    return _etf_spot_cache
+
+
+def _reset_etf_spot_cache():
+    global _etf_spot_cache
+    _etf_spot_cache = None
+
+
 def fetch_etf_volume():
-    """获取 510300 ETF 量比"""
+    """获取 510300 ETF 量比 (盘中用实时数据 + 时间归一化)"""
     print(f"  [4] 拉取 {ETF_CODE} ETF 量比 ...", end=" ", flush=True)
+
+    # 历史5日均量
     end = datetime.now().strftime("%Y%m%d")
     start = (datetime.now() - timedelta(days=30)).strftime("%Y%m%d")
-    df = safe_call(
+    hist = safe_call(
         ak.fund_etf_hist_em,
         symbol=ETF_CODE, period="daily",
         start_date=start, end_date=end, adjust="qfq",
     )
-    if df is None or len(df) < 6:
+    if hist is None or len(hist) < 6:
         print("数据不足")
         return None, None, None
 
-    vol_today = float(df["成交量"].iloc[-1])
-    vol_avg5 = float(df["成交量"].iloc[-6:-1].mean())
-    ratio = vol_today / vol_avg5 if vol_avg5 > 0 else 0.0
-    print(f"量比 {ratio:.2f}x")
+    vol_avg5 = float(hist["成交量"].iloc[-6:-1].mean())
+
+    # 实时今日成交量
+    spot = _get_etf_spot().get(ETF_CODE)
+    if spot is not None and pd.notna(spot.get("成交量")):
+        vol_today = float(spot["成交量"])
+    else:
+        vol_today = float(hist["成交量"].iloc[-1])
+
+    # 盘中时间归一化：预估全天量 = 实际量 / (已过分钟 / 240)
+    status = detect_market_status()
+    if status == "盘中" or status == "午休":
+        elapsed = trading_minutes_elapsed()
+        vol_projected = vol_today / elapsed * 240
+        ratio = vol_projected / vol_avg5 if vol_avg5 > 0 else 0.0
+        print(f"实时量 {vol_today/1e4:.0f}万手 (预估全天 {vol_projected/1e4:.0f}万手) 量比 {ratio:.2f}x")
+    else:
+        ratio = vol_today / vol_avg5 if vol_avg5 > 0 else 0.0
+        print(f"量比 {ratio:.2f}x")
+
     return vol_today, vol_avg5, ratio
 
 
@@ -320,7 +414,7 @@ def fetch_etf_volume():
 def fetch_etf_volume_clearing():
     """
     获取中证500ETF / 中证1000ETF 的量能状态。
-    判断是否出现「量能清空」（地量）信号。
+    盘中使用实时成交量 + 时间归一化预估全天量。
 
     返回 list[dict], 每项包含:
         name, code, vol_today, vol_ma20, vol_ratio, status
@@ -328,15 +422,20 @@ def fetch_etf_volume_clearing():
     print(f"  [5] 拉取中小盘ETF量能 ", end="", flush=True)
     end = datetime.now().strftime("%Y%m%d")
     start = (datetime.now() - timedelta(days=60)).strftime("%Y%m%d")
+    etf_spot = _get_etf_spot()
+    status_now = detect_market_status()
+    is_intraday = status_now in ("盘中", "午休")
+    elapsed = trading_minutes_elapsed() if is_intraday else 240
     results = []
 
     for code, name in VOLUME_CLEARING_ETFS:
-        df = safe_call(
+        # 历史均量
+        hist = safe_call(
             ak.fund_etf_hist_em,
             symbol=code, period="daily",
             start_date=start, end_date=end, adjust="qfq",
         )
-        if df is None or len(df) < VOL_MA_PERIOD + 1:
+        if hist is None or len(hist) < VOL_MA_PERIOD + 1:
             results.append({
                 "name": name, "code": code,
                 "vol_today": 0, "vol_ma20": 0, "vol_ratio": 0,
@@ -345,24 +444,37 @@ def fetch_etf_volume_clearing():
             print("x", end="", flush=True)
             continue
 
-        vol_today = float(df["成交量"].iloc[-1])
-        vol_ma20 = float(df["成交量"].iloc[-(VOL_MA_PERIOD + 1):-1].mean())
-        vol_ratio = vol_today / vol_ma20 if vol_ma20 > 0 else 0.0
+        vol_ma20 = float(hist["成交量"].iloc[-(VOL_MA_PERIOD + 1):-1].mean())
+
+        # 实时今日成交量
+        spot = etf_spot.get(code)
+        if spot is not None and pd.notna(spot.get("成交量")):
+            vol_today = float(spot["成交量"])
+        else:
+            vol_today = float(hist["成交量"].iloc[-1])
+
+        # 盘中归一化：预估全天量
+        if is_intraday:
+            vol_projected = vol_today / elapsed * 240
+        else:
+            vol_projected = vol_today
+
+        vol_ratio = vol_projected / vol_ma20 if vol_ma20 > 0 else 0.0
 
         # 判定量能状态
         if vol_ratio <= VOL_CLEARING_THRESH:
-            status = "量能清空"    # 极度缩量 → 卖压枯竭
+            clearing_status = "量能清空"
         elif vol_ratio <= VOL_SHRINK_THRESH:
-            status = "缩量"       # 温和缩量
+            clearing_status = "缩量"
         elif vol_ratio <= VOL_SURGE_THRESH:
-            status = "正常"
+            clearing_status = "正常"
         else:
-            status = "放量"       # 资金涌入或出逃
+            clearing_status = "放量"
 
         results.append({
             "name": name, "code": code,
             "vol_today": vol_today, "vol_ma20": vol_ma20,
-            "vol_ratio": round(vol_ratio, 3), "status": status,
+            "vol_ratio": round(vol_ratio, 3), "status": clearing_status,
             "error": False,
         })
         print(".", end="", flush=True)
@@ -752,6 +864,7 @@ def show_rps_result(result, reasons):
 
 def run_once(full=False, feishu=False):
     """执行单轮情绪监控流程。"""
+    _reset_etf_spot_cache()         # 每轮重新拉取实时数据
     wall_start = time.time()
     status = detect_market_status()
     mode_label = "完整模式" if full else "快速模式"
