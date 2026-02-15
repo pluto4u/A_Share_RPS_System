@@ -31,6 +31,7 @@ from sentiment_engine import (
     score_to_position,
     volume_clearing_score,
 )
+from sentiment_history import save_snapshot, analyze_trend
 
 # ╔══════════════════════════════════════════════════════════════════════════════╗
 # ║  配置加载                                                                   ║
@@ -58,9 +59,20 @@ def _load_config():
 
 
 def _get(key, default=""):
-    """从配置中获取值"""
+    """
+    从配置中获取值，优先级：环境变量 > 配置文件。
+    环境变量名规则: FEISHU_ + key.upper()  (如 webhook_secret → FEISHU_WEBHOOK_SECRET)
+    """
+    # 环境变量优先 (CI/云端场景)
+    env_key = f"FEISHU_{key.upper()}"
+    env_val = os.environ.get(env_key, "").strip()
+    if env_val:
+        return env_val
+
     cfg = _load_config()
-    return cfg.get(key, default)
+    val = cfg.get(key, default)
+    # 去除意外空白
+    return val.strip() if isinstance(val, str) else val
 
 
 # ╔══════════════════════════════════════════════════════════════════════════════╗
@@ -99,8 +111,12 @@ def send_card(card_body):
     secret = _get("webhook_secret")
     if secret:
         ts = str(int(time.time()))
+        sign = _gen_sign(secret, ts)
         card_body["timestamp"] = ts
-        card_body["sign"] = _gen_sign(secret, ts)
+        card_body["sign"] = sign
+        print(f"  [飞书] 签名: ts={ts}, secret长度={len(secret)}, sign={sign[:8]}...")
+    else:
+        print("  [飞书] 无签名 (webhook_secret 未配置)")
 
     try:
         resp = requests.post(url, json=card_body, timeout=10)
@@ -110,6 +126,11 @@ def send_card(card_body):
             return True
         else:
             print(f"  [飞书] 推送失败: {data}")
+            if data.get("code") == 19021:
+                print("  [飞书] → 签名校验失败！请确认:")
+                print("  [飞书]   1. webhook_secret 是否与飞书机器人的「签名校验」密钥一致")
+                print("  [飞书]   2. GitHub Secrets 中 FEISHU_WEBHOOK_SECRET 是否已设置")
+                print(f"  [飞书]   3. 当前 secret 来源: {'环境变量' if os.environ.get('FEISHU_WEBHOOK_SECRET') else '配置文件'}")
             return False
     except Exception as e:
         print(f"  [飞书] 推送异常: {e}")
@@ -444,6 +465,34 @@ def build_market_card(report_data):
         f"明细: {detail_lines}"
     )
     elements.append({"tag": "markdown", "content": verdict_md})
+
+    # ━━ Section 8: 情绪趋势 ━━
+    trend = report_data.get("_trend")
+    if trend and trend.get("prev_score") is not None:
+        delta = trend.get("delta", 0)
+        arrow = "📈" if delta > 0 else "📉" if delta < 0 else "➡️"
+        trend_parts = [f"{arrow} 较上日 **{'+' if delta > 0 else ''}{delta}分**"]
+
+        streak = trend.get("streak", 0)
+        if abs(streak) >= 2:
+            s_icon = "🔥" if streak > 0 else "❄️"
+            trend_parts.append(f"{s_icon} {trend['streak_label']}")
+
+        if trend.get("ma3") is not None:
+            trend_parts.append(f"3日均值 **{trend['ma3']}**")
+        if trend.get("ma5") is not None:
+            trend_parts.append(f"5日均值 **{trend['ma5']}**")
+
+        trend_md = "**📊 情绪趋势**\n" + "  |  ".join(trend_parts)
+
+        # 连跌预警
+        if streak <= -3:
+            trend_md += "\n🚨 **情绪连续走弱，注意防守！**"
+        elif streak >= 3:
+            trend_md += "\n✅ **情绪持续回暖，可适度乐观**"
+
+        elements.append({"tag": "hr"})
+        elements.append({"tag": "markdown", "content": trend_md})
 
     # ━━ 底部备注 ━━
     elements.append({
@@ -930,11 +979,36 @@ def push_market_report(report_data):
         f"最终仓位 {pos_final}%"
     )
 
-    # 2. 推送 Webhook 卡片
+    # 2. 保存情绪历史 & 趋势分析
+    ts_raw = report_data.get("timestamp", "")
+    # 提取日期: "2026-02-14 (收盘数据)" → "2026-02-14"
+    date_part = ts_raw[:10] if len(ts_raw) >= 10 else datetime.now().strftime("%Y-%m-%d")
+    time_part = datetime.now().strftime("%H:%M")
+    try:
+        save_snapshot(
+            date_str=date_part,
+            time_str=time_part,
+            score=score,
+            position=pos_final,
+            status=report_data.get("status", ""),
+            score_details=score_details,
+        )
+        print(f"  [历史] 已记录: {date_part} {time_part} → {score}分 / {pos_final}%")
+    except Exception as e:
+        print(f"  [历史] 保存失败: {e}")
+
+    trend = analyze_trend()
+    if trend.get("summary"):
+        print(f"  [趋势] {trend['summary']}")
+
+    # 注入趋势到 report_data 供卡片使用
+    report_data["_trend"] = trend
+
+    # 3. 推送 Webhook 卡片
     card = build_market_card(report_data)
     send_card(card)
 
-    # 3. 写入多维表格
+    # 4. 写入多维表格
     update_bitable_sentiment(report_data, score, score_details)
 
     print("  ────────────────────────────────────────────")
