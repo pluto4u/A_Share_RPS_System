@@ -22,3 +22,18 @@ def test_backtest_outputs_metrics_dict():
     assert "annual_return" in metrics
     assert "max_drawdown" in metrics
     assert "calmar" in metrics
+    assert "win_rate" in metrics
+    assert "profit_factor" in metrics
+    assert "max_loss_streak" in metrics
+
+
+def test_backtest_risk_context_can_cap_exposure():
+    risk_context_df = pd.DataFrame({
+        "date": pd.date_range("2024-01-01", periods=60, freq="B"),
+        "daily_pnl_pct": [-0.2] * 60,
+        "rolling_drawdown_pct": [-9.0] * 60,
+        "loss_streak": [1] * 60,
+    })
+    uncapped = run_backtest(_mock_price_df(), _mock_signal_df())
+    capped = run_backtest(_mock_price_df(), _mock_signal_df(), risk_context_df=risk_context_df)
+    assert capped["total_return"] <= uncapped["total_return"]

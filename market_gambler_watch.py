@@ -34,6 +34,8 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
+from risk_engine import evaluate_risk_controls
+
 warnings.filterwarnings("ignore")
 
 # ── Windows 终端中文修复 ─────────────────────────────────────────────────────
@@ -772,6 +774,41 @@ def show_etf_volume_clearing(clearing_data):
     return has_clearing
 
 
+def show_risk_controls(avg_ret, zt_pools, history_trend=None):
+    """
+    展示三层风控状态。
+    盘中场景缺少完整净值序列，这里使用保守代理变量:
+      - daily_pnl_pct        <- 赚钱效应(avg_ret)
+      - rolling_drawdown_pct <- 跌停/涨停强弱代理
+      - loss_streak          <- 历史情绪连跌天数
+    """
+    section("三层风控状态")
+
+    zt_n = zt_pools.get("zt_n", 0)
+    dt_n = zt_pools.get("dt_n", 0)
+    # 跌停显著高于涨停时，给一个更保守的回撤代理值
+    drawdown_proxy = -9.0 if dt_n > max(1, zt_n) else -3.0
+    loss_streak = 0
+    if history_trend and history_trend.get("streak", 0) < 0:
+        loss_streak = abs(int(history_trend["streak"]))
+
+    risk_result = evaluate_risk_controls(
+        position_before_risk=80,  # 监控面板采用满攻状态评估可用上限
+        context={
+            "daily_pnl_pct": float(avg_ret) if avg_ret is not None else 0.0,
+            "rolling_drawdown_pct": drawdown_proxy,
+            "loss_streak": loss_streak,
+        },
+    )
+
+    print(f"  风控状态      : {risk_result['risk_state']}")
+    print(f"  仓位上限(风控后): {risk_result['position_cap_after_risk']}%")
+    print(f"  禁止开新仓    : {'是' if risk_result['halt_new_entries'] else '否'}")
+    reason = risk_result["halt_reason"] if risk_result["halt_reason"] else "无"
+    print(f"  触发原因      : {reason}")
+    return risk_result
+
+
 # ╔══════════════════════════════════════════════════════════════════════════════╗
 # ║  分析 & 展示 — 全市场广度 (完整模式)                                         ║
 # ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -911,6 +948,13 @@ def run_once(full=False, feishu=False):
     avg_ret = show_money_effect(filtered_spot, prev_date)
     show_etf_signal(vol_today, vol_avg5, vol_ratio)
     show_etf_volume_clearing(clearing_data)
+    try:
+        from sentiment_history import analyze_trend
+
+        trend = analyze_trend()
+    except Exception:
+        trend = None
+    risk_result = show_risk_controls(avg_ret, zt_pools, trend)
 
     # ══════════════════════════════════════════════════════════════════════════
     #  第三阶段: 完整模式 (慢) — MA20 广度 + RPS 筛选
@@ -984,6 +1028,7 @@ def run_once(full=False, feishu=False):
                     "ratio": vol_ratio,
                 },
                 "volume_clearing": clearing_data,
+                "risk_state": risk_result,
             }
             # 完整模式下附带广度数据
             try:
