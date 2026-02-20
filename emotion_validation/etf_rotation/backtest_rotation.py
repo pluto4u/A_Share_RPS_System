@@ -255,15 +255,28 @@ def run_backtest(start_date: str = '2024-01-01',
         rot_ret = etf_daily_return(etf_data, rot_holdings, date)
         bh_ret  = etf_daily_return(etf_data, [base_etf],   date)
 
+        # 3.5 防御打折逻辑 (Strategy D only)
+        # 用户的洞察: 当非银/证券、消费/酒等防守板块进入动量轮动前列时，往往意味着主线崩溃，大盘处于"垃圾时间"或纯护盘期
+        # 此时应强行压降总仓位（即便情绪因子较高）
+        defensive_etfs = {'512070', '512880', '515650', '512690'}
+        defensive_count = sum(1 for h in rot_holdings if h in defensive_etfs)
+        
+        adj_s5_pos_d = s5_pos
+        if defensive_count > 0:
+            # 增加一层过滤: 非银或消费进入配置视野时，强行降低仓位
+            # 1只防守基: S5仓位减半
+            # 2只防守基: S5仓位变为原来的 1/4 (例如满仓时也只能给 25% 的仓位，完美符合消费/非银最多只能小仓位的要求)
+            adj_s5_pos_d = s5_pos * (0.5 ** defensive_count)
+
         nav_A *= (1 + rot_ret)
         nav_B *= (1 + bh_ret)
         nav_C *= (1 + bh_ret  * s5_pos)   # S5 仓位 × 市场收益
-        nav_D *= (1 + rot_ret * s5_pos)
+        nav_D *= (1 + rot_ret * adj_s5_pos_d)
 
         nav_A_list.append({'trade_date': date, 'nav': nav_A, 'pos': 1.0,    'holdings': ','.join(rot_holdings)})
         nav_B_list.append({'trade_date': date, 'nav': nav_B, 'pos': 1.0,    'holdings': base_etf})
         nav_C_list.append({'trade_date': date, 'nav': nav_C, 'pos': s5_pos, 'holdings': base_etf})
-        nav_D_list.append({'trade_date': date, 'nav': nav_D, 'pos': s5_pos, 'holdings': ','.join(rot_holdings)})
+        nav_D_list.append({'trade_date': date, 'nav': nav_D, 'pos': adj_s5_pos_d, 'holdings': ','.join(rot_holdings)})
 
         # 4. 月末决策（次日执行）
         if date in month_ends:
