@@ -123,10 +123,12 @@ def get_month_end_dates(all_dates: pd.Series) -> set:
     return set(all_dates.groupby(all_dates.dt.to_period('M')).last())
 
 
-def etf_daily_return(etf_data: dict, symbols: list, date) -> float:
-    """等权持仓的当日收益率"""
-    total, cnt = 0.0, 0
-    for sym in symbols:
+def etf_daily_return(etf_data: dict, holdings: list, date) -> float:
+    """按权重持仓的当日收益率"""
+    total = 0.0
+    for item in holdings:
+        sym = item['symbol'] if isinstance(item, dict) else item
+        w = item['weight'] if isinstance(item, dict) else (1.0 / len(holdings))
         if sym not in etf_data:
             continue
         row = etf_data[sym]
@@ -136,9 +138,8 @@ def etf_daily_return(etf_data: dict, symbols: list, date) -> float:
         pct = row['pct_chg'].iloc[0]
         if pd.isna(pct):
             continue
-        total += pct / 100
-        cnt   += 1
-    return total / cnt if cnt > 0 else 0.0
+        total += (pct / 100.0) * w
+    return total
 
 
 def calc_metrics(nav_series: pd.Series, label: str, n_trades: int = 0) -> dict:
@@ -212,7 +213,7 @@ def run_backtest(start_date: str = '2024-01-01',
     # A: ETF轮动（无S5），B: 510300买持，C: S5+510300，D: S5+ETF轮动
     nav_A = nav_B = nav_C = nav_D = float(INIT)
 
-    rot_holdings    = [base_etf]   # A & D 当前持仓
+    rot_holdings    = [{'symbol': base_etf, 'weight': 1.0, 'is_defensive': False}]   # A & D 当前持仓
     pending_hold    = None         # T-1 决策
     prev_s5_pos     = 0.5          # 上一期 S5 仓位（用于计算换仓成本）
 
@@ -227,17 +228,17 @@ def run_backtest(start_date: str = '2024-01-01',
 
         # 1. 执行昨日 ETF 换仓决策
         if pending_hold is not None:
-            old_set = set(rot_holdings)
-            new_set = set(pending_hold)
-            if old_set != new_set:
-                n_ch    = len(old_set.symmetric_difference(new_set))
+            old_symbols = {h['symbol'] if isinstance(h, dict) else h for h in rot_holdings}
+            new_symbols = {h['symbol'] if isinstance(h, dict) else h for h in pending_hold}
+            if old_symbols != new_symbols:
+                n_ch    = len(old_symbols.symmetric_difference(new_symbols))
                 friction = COST * n_ch
                 nav_A  *= (1 - friction)
                 nav_D  *= (1 - friction)
                 trade_log.append({
                     'date'   : date.strftime('%Y-%m-%d'),
-                    'from'   : ','.join(sorted(old_set)),
-                    'to'     : ','.join(sorted(new_set)),
+                    'from'   : ','.join(sorted(old_symbols)),
+                    'to'     : ','.join(sorted(new_symbols)),
                     'changes': n_ch,
                 })
             rot_holdings = pending_hold
@@ -253,37 +254,35 @@ def run_backtest(start_date: str = '2024-01-01',
 
         # 3. 当日收益
         rot_ret = etf_daily_return(etf_data, rot_holdings, date)
-        bh_ret  = etf_daily_return(etf_data, [base_etf],   date)
+        bh_ret  = etf_daily_return(etf_data, [{'symbol': base_etf, 'weight': 1.0}], date)
 
-        # 3.5 防御打折逻辑 (Strategy D only)
-        # 用户的洞察: 当非银/证券、消费/酒等防守板块进入动量轮动前列时，往往意味着主线崩溃，大盘处于"垃圾时间"或纯护盘期
-        # 此时应强行压降总仓位（即便情绪因子较高）
-        defensive_etfs = {'512070', '512880', '515650', '512690'}
-        defensive_count = sum(1 for h in rot_holdings if h in defensive_etfs)
+        # 检查市场是否处于防守状态（由策略引擎判断，包含非银/消费）
+        is_defensive = any(h.get('is_defensive', False) for h in rot_holdings) if isinstance(rot_holdings[0], dict) else False
         
         adj_s5_pos_d = s5_pos
-        if defensive_count > 0:
-            # 增加一层过滤: 非银或消费进入配置视野时，强行降低仓位
-            # 1只防守基: S5仓位减半
-            # 2只防守基: S5仓位变为原来的 1/4 (例如满仓时也只能给 25% 的仓位，完美符合消费/非银最多只能小仓位的要求)
-            adj_s5_pos_d = s5_pos * (0.5 ** defensive_count)
+        # 取消双重惩罚，因为回测显示强行降仓会导致踏空护盘主升浪
+        # if is_defensive:
+        #     adj_s5_pos_d = s5_pos * 0.5
 
         nav_A *= (1 + rot_ret)
         nav_B *= (1 + bh_ret)
         nav_C *= (1 + bh_ret  * s5_pos)   # S5 仓位 × 市场收益
         nav_D *= (1 + rot_ret * adj_s5_pos_d)
+        
+        rot_symbols_str = ','.join(sorted({h['symbol'] if isinstance(h, dict) else h for h in rot_holdings}))
 
-        nav_A_list.append({'trade_date': date, 'nav': nav_A, 'pos': 1.0,    'holdings': ','.join(rot_holdings)})
+        nav_A_list.append({'trade_date': date, 'nav': nav_A, 'pos': 1.0,    'holdings': rot_symbols_str})
         nav_B_list.append({'trade_date': date, 'nav': nav_B, 'pos': 1.0,    'holdings': base_etf})
         nav_C_list.append({'trade_date': date, 'nav': nav_C, 'pos': s5_pos, 'holdings': base_etf})
-        nav_D_list.append({'trade_date': date, 'nav': nav_D, 'pos': adj_s5_pos_d, 'holdings': ','.join(rot_holdings)})
+        nav_D_list.append({'trade_date': date, 'nav': nav_D, 'pos': adj_s5_pos_d, 'holdings': rot_symbols_str})
 
         # 4. 月末决策（次日执行）
         if date in month_ends:
             score    = emotion_map.get(date, 50.0)
             new_h    = rot_strategy.get_holdings(etf_data, score, date)
-            pending_hold = [h['symbol'] for h in new_h] if new_h else [base_etf]
-            logger.debug(f"  {date.date()} 月末决策: {pending_hold} (情绪={score:.1f}, S5={s5_pos:.0%})")
+            pending_hold = new_h if new_h else [{'symbol': base_etf, 'weight': 1.0, 'is_defensive': False}]
+            pending_symbols = [h['symbol'] for h in pending_hold]
+            logger.debug(f"  {date.date()} 月末决策: {pending_symbols} (情绪={score:.1f}, S5={s5_pos:.0%})")
 
     # ---- 构造 DataFrame ----
     df_A = pd.DataFrame(nav_A_list)
