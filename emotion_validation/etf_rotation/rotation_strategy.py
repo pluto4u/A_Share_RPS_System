@@ -54,8 +54,8 @@ class ETFRotationStrategy:
 
     def __init__(self,
                  top_n: int = 2,
-                 fast_window: int = 10,
-                 slow_window: int = 20,
+                 fast_window: int = 5,
+                 slow_window: int = 10,
                  fast_weight: float = 0.5):
         self.top_n        = top_n
         self.fast_window  = fast_window

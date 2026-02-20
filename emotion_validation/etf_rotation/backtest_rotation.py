@@ -118,6 +118,10 @@ def load_emotion_scores() -> pd.DataFrame:
     return df.sort_values('trade_date').reset_index(drop=True)
 
 
+def get_week_end_dates(all_dates: pd.Series) -> set:
+    """每周最后一个交易日的集合（通常是周五）"""
+    return set(all_dates.groupby(all_dates.dt.to_period('W')).last())
+
 def get_month_end_dates(all_dates: pd.Series) -> set:
     """每月最后一个交易日的集合"""
     return set(all_dates.groupby(all_dates.dt.to_period('M')).last())
@@ -205,6 +209,7 @@ def run_backtest(start_date: str = '2024-01-01',
 
     # ---- 预计算 ----
     month_ends   = get_month_end_dates(all_dates)
+    week_ends    = get_week_end_dates(all_dates)
     rot_strategy = ETFRotationStrategy(top_n=top_n)
     s5_positions = build_s5_positions(emotion_df, all_dates)
     emotion_map  = dict(zip(emotion_df['trade_date'], emotion_df['emotion_score']))
@@ -268,13 +273,14 @@ def run_backtest(start_date: str = '2024-01-01',
         nav_C_list.append({'trade_date': date, 'nav': nav_C, 'pos': s5_pos, 'holdings': base_etf})
         nav_D_list.append({'trade_date': date, 'nav': nav_D, 'pos': s5_pos, 'holdings': rot_symbols_str})
 
-        # 4. 月末决策（次日执行）
-        if date in month_ends:
+        # 4. 周末/月末决策（次日执行）
+        # 改为每周轮动，以匹配 5天/10天的极速动量窗口
+        if date in week_ends:
             score    = emotion_map.get(date, 50.0)
             new_h    = rot_strategy.get_holdings(etf_data, score, date)
             pending_hold = new_h if new_h else [{'symbol': base_etf, 'weight': 1.0, 'is_defensive': False}]
             pending_symbols = [h['symbol'] for h in pending_hold]
-            logger.debug(f"  {date.date()} 月末决策: {pending_symbols} (情绪={score:.1f}, S5={s5_pos:.0%})")
+            logger.debug(f"  {date.date()} 周末决策: {pending_symbols} (情绪={score:.1f}, S5={s5_pos:.0%})")
 
     # ---- 构造 DataFrame ----
     df_A = pd.DataFrame(nav_A_list)
