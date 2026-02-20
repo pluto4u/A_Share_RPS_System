@@ -41,6 +41,31 @@ _CONFIG = None
 _CONFIG_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "feishu_config.json")
 
 
+def push_text_message(text: str):
+    """推送纯文本警报消息"""
+    config = _load_config()
+    webhook = config.get("webhook_url")
+    if not webhook:
+        print("[Feishu] 未配置 webhook_url，跳过推送纯文本")
+        return
+
+    payload = {"msg_type": "text", "content": {"text": text}}
+    secret = config.get("secret", "")
+    if secret:
+        t = str(int(time.time()))
+        s = f"{t}\n{secret}"
+        payload["timestamp"] = t
+        payload["sign"] = base64.b64encode(hmac.new(s.encode('utf-8'), b"", hashlib.sha256).digest()).decode('utf-8')
+
+    try:
+        r = requests.post(webhook, json=payload, timeout=10)
+        if r.status_code == 200:
+            print("[Feishu] 纯文本警报已推")
+        else:
+            print(f"[Feishu] 推送纯文本失败: {r.status_code} {r.text}")
+    except Exception as e:
+        print(f"[Feishu] 纯文本推送异常: {e}")
+
 def _load_config():
     """加载 feishu_config.json，缓存到模块级变量"""
     global _CONFIG

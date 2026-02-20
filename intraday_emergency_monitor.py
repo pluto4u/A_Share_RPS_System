@@ -28,10 +28,56 @@ from market_gambler_watch import is_trading_session
 from feishu_bot import push_text_message
 
 def get_today_ecology_fast() -> pd.Series:
-    """极速拉取今日生态快照"""
-    logging.info("拉取实时盘口数据...")
+    """
+    极速拉取今日生态快照 (Direct API)
+    耗时: < 1秒
+    """
+    import urllib.request
+    import json
+    
+    logging.info("拉取实时盘口数据 (Direct API)...")
     try:
-        spot = ak.stock_zh_a_spot_em()
+        # 直接调东方财富高速接口，一次拉取所有 A 股核心字段
+        import urllib.request
+        import json
+        from concurrent.futures import ThreadPoolExecutor
+        
+        all_data = []
+        
+        def fetch_page(pn):
+            url = (
+                f"http://push2.eastmoney.com/api/qt/clist/get"
+                f"?pn={pn}&pz=100&po=1&np=1&ut=bd1d9ddb04089700cf9c27f6f7426281"
+                f"&fltt=2&invt=2&fid=f3"
+                f"&fs=m:0+t:6,m:0+t:80,m:1+t:2,m:1+t:23,m:0+t:81+s:2048"
+                f"&fields=f2,f3,f6"  # f2=最新价, f3=涨跌幅, f6=成交额
+            )
+            req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+            try:
+                with urllib.request.urlopen(req, timeout=5) as r:
+                    page_data = json.loads(r.read())['data']
+                    if page_data and 'diff' in page_data:
+                        return page_data['diff']
+            except Exception as e:
+                logging.error(f"第 {pn} 页拉取失败: {e}")
+            return []
+
+        # 东方财富由于某些未公开限制，pz>100 时可能会截断或返回异常，我们使用更稳定的 pz=100 分60页并发拉取
+        with ThreadPoolExecutor(max_workers=20) as executor:
+            results = executor.map(fetch_page, range(1, 61))
+            
+        for res in results:
+            if res:
+                all_data.extend(res)
+            
+        spot = pd.DataFrame(all_data)
+        spot = spot.rename(columns={'f2': '最新价', 'f3': '涨跌幅', 'f6': '成交额'})
+        
+        # 清洗数据: 剔除停牌和无涨跌幅的股票 (值为 "-")
+        spot['涨跌幅'] = pd.to_numeric(spot['涨跌幅'], errors='coerce')
+        spot['成交额'] = pd.to_numeric(spot['成交额'], errors='coerce')
+        spot = spot.dropna(subset=['涨跌幅'])
+        
     except Exception as e:
         logging.error(f"无法拉取实时盘口: {e}")
         return pd.Series()
