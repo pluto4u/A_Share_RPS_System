@@ -256,25 +256,17 @@ def run_backtest(start_date: str = '2024-01-01',
         rot_ret = etf_daily_return(etf_data, rot_holdings, date)
         bh_ret  = etf_daily_return(etf_data, [{'symbol': base_etf, 'weight': 1.0}], date)
 
-        # 检查市场是否处于防守状态（由策略引擎判断，包含非银/消费）
-        is_defensive = any(h.get('is_defensive', False) for h in rot_holdings) if isinstance(rot_holdings[0], dict) else False
-        
-        adj_s5_pos_d = s5_pos
-        # 取消双重惩罚，因为回测显示强行降仓会导致踏空护盘主升浪
-        # if is_defensive:
-        #     adj_s5_pos_d = s5_pos * 0.5
-
         nav_A *= (1 + rot_ret)
         nav_B *= (1 + bh_ret)
         nav_C *= (1 + bh_ret  * s5_pos)   # S5 仓位 × 市场收益
-        nav_D *= (1 + rot_ret * adj_s5_pos_d)
+        nav_D *= (1 + rot_ret * s5_pos)
         
         rot_symbols_str = ','.join(sorted({h['symbol'] if isinstance(h, dict) else h for h in rot_holdings}))
 
         nav_A_list.append({'trade_date': date, 'nav': nav_A, 'pos': 1.0,    'holdings': rot_symbols_str})
         nav_B_list.append({'trade_date': date, 'nav': nav_B, 'pos': 1.0,    'holdings': base_etf})
         nav_C_list.append({'trade_date': date, 'nav': nav_C, 'pos': s5_pos, 'holdings': base_etf})
-        nav_D_list.append({'trade_date': date, 'nav': nav_D, 'pos': adj_s5_pos_d, 'holdings': rot_symbols_str})
+        nav_D_list.append({'trade_date': date, 'nav': nav_D, 'pos': s5_pos, 'holdings': rot_symbols_str})
 
         # 4. 月末决策（次日执行）
         if date in month_ends:

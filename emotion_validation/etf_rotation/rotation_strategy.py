@@ -54,9 +54,9 @@ class ETFRotationStrategy:
 
     def __init__(self,
                  top_n: int = 2,
-                 fast_window: int = 20,
-                 slow_window: int = 60,
-                 fast_weight: float = 0.6):
+                 fast_window: int = 10,
+                 slow_window: int = 20,
+                 fast_weight: float = 0.5):
         self.top_n        = top_n
         self.fast_window  = fast_window
         self.slow_window  = slow_window
@@ -158,22 +158,7 @@ class ETFRotationStrategy:
         as_of_date = pd.Timestamp(as_of_date)
 
         scores = self.compute_scores(etf_data, as_of_date, emotion_score)
-        # ---- 4. 判断"防守/垃圾时间"信号 ----
-        # 提取全市场纯动量排名前 3 的 ETF
-        top3_symbols = scores['symbol'].head(3).tolist()
-        
-        # 定义观察池（非银、消费等防守/护盘主力）
-        observe_etfs = {'512070', '512880', '515650', '512690'} # 非银, 证券, 消费, 酒
-        
-        # 如果排名前 3 中出现了防守型/护盘型 ETF，说明大盘缺乏进攻主线
-        is_defensive_market = any(sym in observe_etfs for sym in top3_symbols)
-        
-        # ---- 5. 过滤可买入的候选池 ----
-        # 规则: 排除掉"只能观察不能买"的品种 (非银/证券)
-        do_not_buy = {'512070', '512880'} 
-        buyable_scores = scores[scores['eligible'] & ~scores['symbol'].isin(do_not_buy)]
-        
-        candidates = buyable_scores.head(self.top_n)
+        candidates = scores[scores['eligible']].head(self.top_n)
 
         if candidates.empty:
             # 兜底: 强制持有沪深300 ETF
@@ -185,19 +170,13 @@ class ETFRotationStrategy:
         weight = 1.0 / len(candidates)
         holdings = []
         for _, row in candidates.iterrows():
-            # 规则: 消费的配置最多 2 成 (0.2)
-            final_weight = weight
-            if row['symbol'] in {'515650', '512690'}: # 消费, 酒
-                final_weight = min(weight, 0.2)
-                
             holdings.append({
                 'symbol'         : row['symbol'],
                 'name'           : row['name'],
                 'sector'         : row['sector'],
                 'momentum_score' : row['momentum_score'],
-                'weight'         : round(final_weight, 4),
+                'weight'         : round(weight, 4),
                 'regime'         : row['regime'],
-                'is_defensive'   : is_defensive_market, # 将防守信号传递出去
             })
         return holdings
 
