@@ -17,16 +17,22 @@ env/
 .idea/
 *.swp
 *.swo
+.cursor/
 
 # Testing
 .pytest_cache/
 htmlcov/
 .coverage
 
+# Data files (large, from akshare/local cache)
+backtest/data/
+backtest/reports/
+
+# Backups
+A_share_projects_backup_*/
+
 # Output artifacts
 output/
-backtest/reports/*.html
-backtest/reports/*.csv
 *.log
 
 # OS
@@ -37,3 +43,6 @@ Desktop.ini
 # Secrets / config overrides
 .env
 feishu_config.local.json
+
+# OpenCode config (personal)
+opencode.json

@@ -1,0 +1,52 @@
+# 情绪验证系统配置
+
+data:
+  data_dir: backtest/data
+  stock_daily: stock_daily.parquet
+  index_daily: index_daily.parquet
+  ecology_cache: ecology_cache.csv
+
+emotion_engine:
+  rolling_window: 60
+  weights:
+    F1_limit_up: 0.10
+    F2_board_height: 0.05
+    F3_ad_ratio: 0.12
+    F4_limit_down: 0.08
+    F5_big_loss: 0.05
+    F6_premium: 0.07
+    F7_broken_rate: 0.08
+    F8_realized_vol: 0.08
+    F9_turnover: 0.04
+    F10_vol_price_div: 0.06
+    F11_gap: 0.04
+    F12_mkt_range: 0.04
+    F13_rsi_extreme: 0.05
+    F15_margin: 0.06
+    F19_sector_conc: 0.03
+    F20_new_hl_ratio: 0.05
+  regime_thresholds:
+    high: 65
+    low: 40
+
+backtest:
+  initial_capital: 1000000
+  cost_rate: 0.003
+  benchmarks:
+    - symbol: "000300"
+      name: "沪深300"
+    - symbol: "399006"
+      name: "创业板指"
+    - symbol: "000852"
+      name: "中证1000"
+
+validation:
+  lag_prediction_max_lag: 5
+  time_periods:
+    H1_2024: ["2024-01-01", "2024-06-30"]
+    H2_2024: ["2024-07-01", "2024-12-31"]
+    H1_2025: ["2025-01-01", "2025-06-30"]
+    H2_2025: ["2025-07-01", "2025-12-31"]
+
+reporting:
+  output_dir: backtest/reports/emotion_validation
