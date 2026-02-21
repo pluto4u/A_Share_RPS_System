@@ -7,6 +7,7 @@
 - "情绪回测"、"跑回测"、"验证策略" → 情绪验证回测
 - "ETF回测"、"轮动回测"、"ETF轮动" → ETF轮动回测
 - "今日信号"、"出信号"、"daily signal" → 今日实盘信号
+- "跑今日操作"、"14:40任务"、"daily action" → 今日操作指令（含数据更新）
 - "全量验证"、"跑全套"、"full pipeline" → 全量Pipeline
 
 ## 快速模式（默认，约15秒）
@@ -50,6 +51,14 @@ cd /root/projects/A_Share_RPS_System && python daily_signal.py
 ```
 
 输出当日操作建议：目标仓位、行动建议、是否触发紧急状态。
+
+## 今日操作指令（14:40 定时任务用，先更新数据再出单）
+
+```bash
+cd /root/projects/A_Share_RPS_System && python today_action.py --update
+```
+
+输出：情绪分、目标仓位、ETF 持仓、资金分配、操作建议。供 OpenClaw cron 每日 14:40 触发。
 
 ## 注意事项
 
