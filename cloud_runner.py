@@ -68,7 +68,38 @@ def main():
     parser.add_argument("--dry-run", action="store_true", help="试运行，不推送飞书")
     parser.add_argument("--full", action="store_true", help="完整模式 (含广度 + RPS)")
     parser.add_argument("--session-only", action="store_true", help="仅交易时段执行")
+    parser.add_argument("--pipeline", action="store_true", help="触发完整的量化计算（更新数据、情绪分、轮动及策略执行）")
     args = parser.parse_args()
+
+    # 如果是全流程跑批指令
+    if args.pipeline:
+        print(f"[cloud_runner] 触发全量量化流水线 | {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        import subprocess
+        try:
+            # 1. 获取全A日线及16因子计算 (耗时30秒-2分钟)
+            subprocess.run([sys.executable, "-m", "emotion_validation.pipeline"], check=True)
+            # 2. 更新 ETF 池日线数据 (耗时15秒)
+            subprocess.run([sys.executable, "-c", "from emotion_validation.etf_rotation.etf_data import ETFDataManager; ETFDataManager().fetch_all()"], check=True)
+            # 3. 运行回测与 5/10日极速动量轮动筛选 (耗时10秒)
+            subprocess.run([sys.executable, "-m", "emotion_validation.etf_rotation.backtest_rotation"], check=True)
+            # 4. 生成今日交易指令与S5判定 (包含紧急情况防守)
+            # 将输出写入临时文件以便飞书推送
+            with open("daily_signal_output.txt", "w", encoding="utf-8") as f:
+                subprocess.run([sys.executable, "daily_signal.py"], stdout=f, stderr=subprocess.STDOUT, check=True)
+            
+            # 5. 推送飞书
+            from feishu_bot import FeishuBot
+            with open("daily_signal_output.txt", "r", encoding="utf-8") as f:
+                msg = f.read()
+            bot = FeishuBot()
+            bot.send_text(msg)
+            print("[cloud_runner] 全量量化流水线执行成功并已推送")
+            return 0
+        except Exception as e:
+            print(f"[cloud_runner] 流水线执行失败: {e}")
+            from feishu_bot import FeishuBot
+            FeishuBot().send_text(f"🚨 量化流水线执行失败:\n{str(e)}")
+            return 1
 
     exit_code = run_once(
         dry_run=args.dry_run,

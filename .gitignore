@@ -46,3 +46,7 @@ feishu_config.local.json
 
 # OpenCode config (personal)
 opencode.json
+
+# Server backup archives
+projects.tar.gz
+projects/
