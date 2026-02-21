@@ -273,9 +273,8 @@ def run_backtest(start_date: str = '2024-01-01',
         nav_C_list.append({'trade_date': date, 'nav': nav_C, 'pos': s5_pos, 'holdings': base_etf})
         nav_D_list.append({'trade_date': date, 'nav': nav_D, 'pos': s5_pos, 'holdings': rot_symbols_str})
 
-        # 4. 周末/月末决策（次日执行）
-        # 改为每周轮动，以匹配 5天/10天的极速动量窗口
-        if date in week_ends:
+        # 4. 月末决策（次日执行）
+        if date in month_ends:
             score    = emotion_map.get(date, 50.0)
             new_h    = rot_strategy.get_holdings(etf_data, score, date)
             pending_hold = new_h if new_h else [{'symbol': base_etf, 'weight': 1.0, 'is_defensive': False}]
