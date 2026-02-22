@@ -15,7 +15,7 @@
 2. 飞书已配对：`openclaw pairing approve feishu <code>`
 3. 技能已配置：`skills/openclaw_skill_emotion_monitor.md` 在项目根目录下（git 管理）
 4. 项目路径：`/root/workspace/a_-share_-rps_-system`
-5. TOS 环境变量：`/etc/a_share_rps/tos.env` 已创建并包含 AK/SK/ROLE 等
+5. TOS 环境变量：`tos.env` 已创建并包含 AK/SK/ROLE 等
 
 ## 技能关键词映射（需与 cron 消息一致）
 
@@ -101,7 +101,7 @@ openclaw cron edit <job-id> --enabled false
 - 「拉取TOS」→ `tos_storage.py sync-down`
 - 「TOS状态」→ `tos_storage.py status`
 
-技能文件位于项目 `skills/` 目录，git pull 后即可用。OpenClaw workspace 指向项目根目录时会自动识别。所有命令已内置 `source /etc/a_share_rps/tos.env` 和 `source venv/bin/activate`。
+技能文件位于项目 `skills/` 目录，git pull 后即可用。OpenClaw workspace 指向项目根目录时会自动识别。所有命令已内置 `source tos.env` 和 `source venv/bin/activate`。
 
 ---
 

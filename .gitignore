@@ -42,6 +42,7 @@ Desktop.ini
 
 # Secrets / config overrides
 .env
+tos.env
 feishu_config.local.json
 tos_config.json
 
