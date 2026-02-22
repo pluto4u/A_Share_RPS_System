@@ -14,15 +14,19 @@
 1. OpenClaw Gateway 已启动：`openclaw gateway` 或 systemd 服务运行中
 2. 飞书已配对：`openclaw pairing approve feishu <code>`
 3. 技能已配置：`openclaw_skill_emotion_monitor.md` 在 workspace 的 skills 中
-4. 项目路径：`/root/projects/A_Share_RPS_System`（或你的实际路径）
+4. 项目路径：`/root/workspace/a_-share_-rps_-system`
+5. TOS 环境变量：`/etc/a_share_rps/tos.env` 已创建并包含 AK/SK/ROLE 等
 
 ## 技能关键词映射（需与 cron 消息一致）
 
 | 消息内容 | 触发命令 |
 |----------|----------|
-| 跑全套 / 全量验证 / full pipeline | 完整 pipeline（情绪+ETF+回测+信号） |
+| 跑全套 / 全量验证 / full pipeline | cloud_runner.py --pipeline --tos（含TOS同步） |
 | 今日信号 / 出信号 / daily signal | daily_signal.py |
 | 情绪监控 / 跑一下监控 / 看看盘面 | cloud_runner.py --session-only（快速，约 15 秒） |
+| 同步TOS / 上传TOS / 备份数据 | tos_storage.py sync-up --force |
+| 拉取TOS / 下载TOS / 同步云端 | tos_storage.py sync-down |
+| TOS状态 / 查看数据状态 / 数据在哪 | tos_storage.py status |
 
 ---
 
@@ -90,7 +94,14 @@ openclaw cron edit <job-id> --enabled false
 
 ## 技能配置
 
-`openclaw_skill_emotion_monitor.md` 已包含「跑今日操作」触发词，对应 `today_action.py --update`。确保该技能文件在 OpenClaw workspace 的 skills 目录中。
+`openclaw_skill_emotion_monitor.md` 已包含以下触发词：
+- 「跑今日操作」→ `today_action.py --update`
+- 「跑全套」→ `cloud_runner.py --pipeline --tos`（含 TOS 数据同步）
+- 「同步TOS」→ `tos_storage.py sync-up --force`
+- 「拉取TOS」→ `tos_storage.py sync-down`
+- 「TOS状态」→ `tos_storage.py status`
+
+确保该技能文件在 OpenClaw workspace 的 skills 目录中。所有命令已内置 `source /etc/a_share_rps/tos.env` 和 `source venv/bin/activate`。
 
 ---
 
