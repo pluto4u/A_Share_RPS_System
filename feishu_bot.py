@@ -1061,3 +1061,136 @@ def push_rps_report(report_data, selected_output_df=None):
     update_bitable_rps(df)
 
     print("  ────────────────────────────────────────────")
+
+
+# ╔══════════════════════════════════════════════════════════════════════════════╗
+# ║  消息卡片构建 — 今日操作指令/实盘信号                                        ║
+# ╚══════════════════════════════════════════════════════════════════════════════╝
+
+def build_daily_action_card(sig, holdings, scores):
+    """
+    构建今日操作指令的飞书交互式卡片。
+    """
+    ts = sig['date']
+    score = sig['score']
+    zone_cn = sig['zone_cn']
+    action = sig['action']
+    cur_pct = int(sig['current_pos'] * 100)
+    tgt_pct = int(sig['target_pos'] * 100)
+
+    # 卡片颜色
+    if score >= 70: template = "red"  # 红色代表偏热/上涨
+    elif score >= 40: template = "orange"
+    elif score >= 20: template = "blue"
+    else: template = "green"  # 绿色代表偏冷/下跌，这里用颜色区分情绪，也可以按你的喜好，这里遵循通用习惯（红涨绿跌）或反之。
+    # 稍微调整颜色映射，因为前面是：70->green, 40->blue, 20->orange, else->red
+    # 保持一致:
+    if score >= 70: template = "red"  # A股红涨
+    elif score >= 40: template = "orange"
+    elif score >= 20: template = "blue"
+    else: template = "green"
+
+    elements = []
+
+    # ━━ Section 1: 情绪与仓位 ━━
+    trend_arrow = "📈" if sig['chg_1d'] > 0 else "📉" if sig['chg_1d'] < 0 else "➡️"
+    
+    score_md = (
+        f"**🎯 情绪得分:** **{score:.1f} / 100** [{zone_cn}]\n"
+        f"较上日: {sig['chg_1d']:+.1f} pts {trend_arrow} | 近3日: {sig['chg_3d']:+.1f} pts"
+    )
+    elements.append({"tag": "markdown", "content": score_md})
+    
+    pos_md = (
+        f"**📊 仓位建议:**\n"
+        f"• **当前持仓:** {cur_pct}%\n"
+        f"• **目标仓位:** {tgt_pct}% (基于 S5 策略)\n"
+        f"• **距上次调仓:** {sig['days_since_change']} 天"
+    )
+    if sig['days_until_next'] > 0:
+        pos_md += f" (冷却期剩余 {sig['days_until_next']} 天)"
+    elements.append({"tag": "markdown", "content": pos_md})
+    elements.append({"tag": "hr"})
+
+    # ━━ Section 2: 操作指令 ━━
+    if action == 'ADJUST':
+        action_color = "🔴" if tgt_pct > cur_pct else "🟢"
+    elif action == 'EMERGENCY':
+        action_color = "🚨"
+    elif action == 'PENDING':
+        action_color = "⏳"
+    else:
+        action_color = "✅"
+        
+    elements.append({
+        "tag": "markdown",
+        "content": f"**💡 今日操作:**\n{action_color} {sig['action_cn']}"
+    })
+    elements.append({"tag": "hr"})
+
+    # ━━ Section 3: ETF 持仓 ━━
+    if holdings:
+        etf_lines = []
+        for h in holdings:
+            sym = h['symbol']
+            name = h.get('name', sym) # 如果外部没有传name，回退到sym
+            weight = h.get('weight', 0) * 100
+            mom = h.get('momentum_score', 0)
+            etf_lines.append(f"• **{name}** ({sym}): {weight:.0f}% (动量: {mom:+.1f}%)")
+        
+        elements.append({
+            "tag": "markdown",
+            "content": "**🛒 本周 ETF 轮动目标:**\n" + "\n".join(etf_lines)
+        })
+        elements.append({"tag": "hr"})
+
+    # ━━ Section 4: 近 5 日情绪 ━━
+    from daily_signal import score_to_target
+    recent_lines = []
+    recent = scores.tail(5)
+    for _, row in recent.iterrows():
+        d = row['trade_date'].strftime('%m-%d')
+        s = row['emotion_score']
+        t = int(score_to_target(s) * 100)
+        marker = " ⬅️ 今日" if d == ts[-5:] else ""
+        recent_lines.append(f"{d} | 得分: {s:>5.1f} | 仓位: {t:>3}%{marker}")
+
+    elements.append({
+        "tag": "markdown",
+        "content": "**📅 近 5 日回顾:**\n```\n" + "\n".join(recent_lines) + "\n```"
+    })
+
+    # ━━ 底部备注 ━━
+    elements.append({
+        "tag": "note",
+        "elements": [{
+            "tag": "plain_text",
+            "content": f"A股操作指令 v1.0 | S5 线性防抖策略 | {ts}",
+        }],
+    })
+
+    card = {
+        "msg_type": "interactive",
+        "card": {
+            "config": {"wide_screen_mode": True},
+            "header": {
+                "title": {
+                    "tag": "plain_text",
+                    "content": f"⚡ 今日实盘信号 & 操作指令  |  {ts}",
+                },
+                "template": template,
+            },
+            "elements": elements,
+        },
+    }
+    return card
+
+
+def push_daily_action_report(sig, holdings, scores):
+    """
+    一键推送今日操作指令卡片
+    """
+    print("\n  ── 飞书推送 ──────────────────────────────────")
+    card = build_daily_action_card(sig, holdings, scores)
+    send_card(card)
+    print("  ────────────────────────────────────────────")

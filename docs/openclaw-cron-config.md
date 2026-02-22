@@ -95,7 +95,7 @@ openclaw cron edit <job-id> --enabled false
 ## 技能配置
 
 `skills/openclaw_skill_emotion_monitor.md` 已包含以下触发词：
-- 「跑今日操作」→ `today_action.py --update`
+- 「跑今日操作」→ `today_action.py --update --feishu`
 - 「跑全套」→ `cloud_runner.py --pipeline --tos`（含 TOS 数据同步）
 - 「同步TOS」→ `tos_storage.py sync-up --force`
 - 「拉取TOS」→ `tos_storage.py sync-down`

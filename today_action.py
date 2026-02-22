@@ -153,6 +153,8 @@ def main():
     parser = argparse.ArgumentParser(description='今日操作指令')
     parser.add_argument('--update', action='store_true',
                         help='先更新情绪数据再出信号')
+    parser.add_argument('--feishu', action='store_true',
+                        help='是否将结果推送为飞书互动卡片')
     args = parser.parse_args()
 
     if args.update:
@@ -182,6 +184,13 @@ def main():
 
     # 3. 输出完整操作指令
     print_action(sig, holdings, scores)
+
+    if args.feishu:
+        from feishu_bot import push_daily_action_report
+        if holdings:
+            for h in holdings:
+                h['name'] = ETF_NAME.get(h['symbol'], h['symbol'])
+        push_daily_action_report(sig, holdings, scores)
 
 
 if __name__ == '__main__':

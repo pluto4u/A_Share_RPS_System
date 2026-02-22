@@ -338,6 +338,12 @@ def log_signal(sig: dict):
 
 
 def main():
+    import argparse
+    parser = argparse.ArgumentParser(description='今日实盘信号')
+    parser.add_argument('--feishu', action='store_true',
+                        help='是否将结果推送为飞书互动卡片')
+    args = parser.parse_args()
+
     scores = load_scores()
     
     # Try to load ecology data for emergency checks
@@ -351,6 +357,10 @@ def main():
     sig    = get_signal(scores, ecology)
     print_signal(sig, scores)
     log_signal(sig)
+
+    if args.feishu:
+        from feishu_bot import push_daily_action_report
+        push_daily_action_report(sig, None, scores)
 
 
 if __name__ == '__main__':

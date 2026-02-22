@@ -50,18 +50,18 @@ cd /root/workspace/a_-share_-rps_-system && set -a && source tos.env && set +a &
 ## 今日实盘信号（含紧急拦截器+反转信号）
 
 ```bash
-cd /root/workspace/a_-share_-rps_-system && set -a && source tos.env && set +a && source venv/bin/activate && python daily_signal.py
+cd /root/workspace/a_-share_-rps_-system && set -a && source tos.env && set +a && source venv/bin/activate && python daily_signal.py --feishu
 ```
 
-输出当日操作建议：目标仓位、行动建议、是否触发紧急状态。
+输出当日操作建议，并向群内推送飞书互动卡片。
 
 ## 今日操作指令（14:40 定时任务用，先更新数据再出单）
 
 ```bash
-cd /root/workspace/a_-share_-rps_-system && set -a && source tos.env && set +a && source venv/bin/activate && python today_action.py --update
+cd /root/workspace/a_-share_-rps_-system && set -a && source tos.env && set +a && source venv/bin/activate && python today_action.py --update --feishu
 ```
 
-输出：情绪分、目标仓位、ETF 持仓、资金分配、操作建议。供 OpenClaw cron 每日 14:40 触发。
+输出：情绪分、目标仓位、ETF 持仓、操作建议。供 OpenClaw cron 每日 14:40 触发，自动推送互动卡片。
 
 ## 全量Pipeline（含TOS数据同步，约5-8分钟）
 

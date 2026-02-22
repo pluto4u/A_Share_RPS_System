@@ -116,16 +116,10 @@ def main():
             subprocess.run([sys.executable, "-c", "from emotion_validation.etf_rotation.etf_data import ETFDataManager; ETFDataManager().fetch_all()"], check=True)
             # 3. 运行回测与 5/10日极速动量轮动筛选 (耗时10秒)
             subprocess.run([sys.executable, "-m", "emotion_validation.etf_rotation.backtest_rotation"], check=True)
-            # 4. 生成今日交易指令与S5判定 (包含紧急情况防守)
+            # 4. 生成今日交易指令与S5判定并推送精美飞书卡片
+            print("[cloud_runner] 执行 today_action.py 并推送飞书卡片...")
             with open("daily_signal_output.txt", "w", encoding="utf-8") as f:
-                subprocess.run([sys.executable, "daily_signal.py"], stdout=f, stderr=subprocess.STDOUT, check=True)
-            
-            # 5. 推送飞书
-            from feishu_bot import FeishuBot
-            with open("daily_signal_output.txt", "r", encoding="utf-8") as f:
-                msg = f.read()
-            bot = FeishuBot()
-            bot.send_text(msg)
+                subprocess.run([sys.executable, "today_action.py", "--feishu"], stdout=f, stderr=subprocess.STDOUT, check=True)
 
             # TOS 同步: 流水线完成后将更新的数据上传 TOS
             if args.tos:
