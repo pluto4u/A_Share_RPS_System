@@ -16,13 +16,13 @@
 ## 快速模式（默认，约15秒）
 
 ```bash
-cd /root/workspace/a_-share_-rps_-system && set -a && source tos.env && set +a && source venv/bin/activate && python cloud_runner.py --session-only
+cd /root/workspace/a_-share_-rps_-system && set -a && source tos.env && set +a && source venv/bin/activate && python cloud_runner.py --session-only > /tmp/rps_runner.log 2>&1 && echo "✅ 情绪监控完成，卡片已推送到群" || echo "❌ 执行失败，日志: $(tail -3 /tmp/rps_runner.log)"
 ```
 
 ## 完整模式（含广度+RPS，约3-5分钟）
 
 ```bash
-cd /root/workspace/a_-share_-rps_-system && set -a && source tos.env && set +a && source venv/bin/activate && python cloud_runner.py --full
+cd /root/workspace/a_-share_-rps_-system && set -a && source tos.env && set +a && source venv/bin/activate && python cloud_runner.py --full > /tmp/rps_runner.log 2>&1 && echo "✅ 完整监控完成，卡片已推送到群" || echo "❌ 执行失败，日志: $(tail -3 /tmp/rps_runner.log)"
 ```
 
 ## 试运行（不推送飞书，仅验证流程）
@@ -34,58 +34,44 @@ cd /root/workspace/a_-share_-rps_-system && set -a && source tos.env && set +a &
 ## 情绪验证回测（含16因子+S5策略+实验套件）
 
 ```bash
-cd /root/workspace/a_-share_-rps_-system && set -a && source tos.env && set +a && source venv/bin/activate && python -m emotion_validation.pipeline
+cd /root/workspace/a_-share_-rps_-system && set -a && source tos.env && set +a && source venv/bin/activate && python -m emotion_validation.pipeline > /tmp/rps_backtest.log 2>&1 && echo "✅ 回测完成，结果在 backtest/reports/emotion_validation/" || echo "❌ 回测失败，日志: $(tail -3 /tmp/rps_backtest.log)"
 ```
-
-结果输出到 `backtest/reports/emotion_validation/` 目录。
 
 ## ETF轮动回测（S5仓位+月度轮动+闪崩反转/衰竭反转）
 
 ```bash
-cd /root/workspace/a_-share_-rps_-system && set -a && source tos.env && set +a && source venv/bin/activate && python -m emotion_validation.etf_rotation.backtest_rotation
+cd /root/workspace/a_-share_-rps_-system && set -a && source tos.env && set +a && source venv/bin/activate && python -m emotion_validation.etf_rotation.backtest_rotation > /tmp/rps_etf.log 2>&1 && echo "✅ ETF轮动回测完成，结果在 backtest/reports/etf_rotation/" || echo "❌ 回测失败，日志: $(tail -3 /tmp/rps_etf.log)"
 ```
-
-结果输出到 `backtest/reports/etf_rotation/` 目录。
 
 ## 今日实盘信号（含紧急拦截器+反转信号）
 
 ```bash
-cd /root/workspace/a_-share_-rps_-system && set -a && source tos.env && set +a && source venv/bin/activate && python daily_signal.py --feishu
+cd /root/workspace/a_-share_-rps_-system && set -a && source tos.env && set +a && source venv/bin/activate && python daily_signal.py --feishu > /tmp/rps_signal.log 2>&1 && echo "✅ 实盘信号已通过卡片推送到群" || echo "❌ 信号生成失败，日志: $(tail -3 /tmp/rps_signal.log)"
 ```
-
-输出当日操作建议，并向群内推送飞书互动卡片。
 
 ## 今日操作指令（14:40 定时任务用，先更新数据再出单）
 
 ```bash
-cd /root/workspace/a_-share_-rps_-system && set -a && source tos.env && set +a && source venv/bin/activate && python today_action.py --update --feishu
+cd /root/workspace/a_-share_-rps_-system && set -a && source tos.env && set +a && source venv/bin/activate && python today_action.py --update --feishu > /tmp/rps_action.log 2>&1 && echo "✅ 操作指令已通过卡片推送到群" || echo "❌ 操作指令失败，日志: $(tail -3 /tmp/rps_action.log)"
 ```
-
-输出：情绪分、目标仓位、ETF 持仓、操作建议。供 OpenClaw cron 每日 14:40 触发，自动推送互动卡片。
 
 ## 全量Pipeline（含TOS数据同步，约5-8分钟）
 
 ```bash
-cd /root/workspace/a_-share_-rps_-system && set -a && source tos.env && set +a && source venv/bin/activate && python cloud_runner.py --pipeline --tos
+cd /root/workspace/a_-share_-rps_-system && set -a && source tos.env && set +a && source venv/bin/activate && python cloud_runner.py --pipeline --tos > /tmp/rps_pipeline.log 2>&1 && echo "✅ 全量Pipeline完成，数据已同步TOS，卡片已推送" || echo "❌ Pipeline失败，日志: $(tail -5 /tmp/rps_pipeline.log)"
 ```
-
-执行流程：从TOS下载最新数据 → 跑完整pipeline → 将结果上传回TOS → 推送飞书。
 
 ## 上传数据到TOS（将云端数据同步到对象存储）
 
 ```bash
-cd /root/workspace/a_-share_-rps_-system && set -a && source tos.env && set +a && source venv/bin/activate && python tos_storage.py sync-up --force
+cd /root/workspace/a_-share_-rps_-system && set -a && source tos.env && set +a && source venv/bin/activate && python tos_storage.py sync-up --force 2>&1 | tail -5
 ```
-
-将云端 backtest/data、backtest/reports、output 下的数据增量上传到 TOS goldenkey 桶。
 
 ## 从TOS下载数据（从对象存储拉取最新数据到云端）
 
 ```bash
-cd /root/workspace/a_-share_-rps_-system && set -a && source tos.env && set +a && source venv/bin/activate && python tos_storage.py sync-down
+cd /root/workspace/a_-share_-rps_-system && set -a && source tos.env && set +a && source venv/bin/activate && python tos_storage.py sync-down 2>&1 | tail -5
 ```
-
-从 TOS 增量下载数据到云端本地（如本地笔记本曾修改并上传了新版本）。
 
 ## 查看数据同步状态
 
@@ -93,12 +79,11 @@ cd /root/workspace/a_-share_-rps_-system && set -a && source tos.env && set +a &
 cd /root/workspace/a_-share_-rps_-system && set -a && source tos.env && set +a && source venv/bin/activate && python tos_storage.py status
 ```
 
-对比云端本地与 TOS 的文件数量、大小、归属（cloud_ecs / local_laptop）。
-
 ## 注意事项
 
 - 交易时段: 9:30-11:30, 13:00-15:00（使用 `--session-only` 时非交易时段自动跳过）
-- 结果会自动推送到飞书群（通过 feishu_bot.py + feishu_config.json）
+- 结果会自动推送到飞书群（通过 webhook 互动卡片）
+- 所有命令的详细日志保存在 `/tmp/rps_*.log`，出错时自动显示最后几行
 - 如果执行失败，检查 akshare 数据源是否可用: `python -c "import akshare; print(akshare.__version__)"`
 - 新增依赖: pyarrow, matplotlib, scipy, scikit-learn, tos（首次需 `pip install -r requirements.txt`）
 - TOS 环境变量文件: `tos.env`（含 TOS_ACCESS_KEY, TOS_SECRET_KEY, TOS_ROLE=cloud_ecs 等）
