@@ -13,7 +13,7 @@
 
 1. OpenClaw Gateway 已启动：`openclaw gateway` 或 systemd 服务运行中
 2. 飞书已配对：`openclaw pairing approve feishu <code>`
-3. 技能已配置：`openclaw_skill_emotion_monitor.md` 在 workspace 的 skills 中
+3. 技能已配置：`skills/openclaw_skill_emotion_monitor.md` 在项目根目录下（git 管理）
 4. 项目路径：`/root/workspace/a_-share_-rps_-system`
 5. TOS 环境变量：`/etc/a_share_rps/tos.env` 已创建并包含 AK/SK/ROLE 等
 
@@ -94,14 +94,14 @@ openclaw cron edit <job-id> --enabled false
 
 ## 技能配置
 
-`openclaw_skill_emotion_monitor.md` 已包含以下触发词：
+`skills/openclaw_skill_emotion_monitor.md` 已包含以下触发词：
 - 「跑今日操作」→ `today_action.py --update`
 - 「跑全套」→ `cloud_runner.py --pipeline --tos`（含 TOS 数据同步）
 - 「同步TOS」→ `tos_storage.py sync-up --force`
 - 「拉取TOS」→ `tos_storage.py sync-down`
 - 「TOS状态」→ `tos_storage.py status`
 
-确保该技能文件在 OpenClaw workspace 的 skills 目录中。所有命令已内置 `source /etc/a_share_rps/tos.env` 和 `source venv/bin/activate`。
+技能文件位于项目 `skills/` 目录，git pull 后即可用。OpenClaw workspace 指向项目根目录时会自动识别。所有命令已内置 `source /etc/a_share_rps/tos.env` 和 `source venv/bin/activate`。
 
 ---
 
