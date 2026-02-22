@@ -9,6 +9,8 @@
     python cloud_runner.py                  # 正式执行
     python cloud_runner.py --dry-run        # 试运行 (不推送飞书)
     python cloud_runner.py --full           # 完整模式 (含广度 + RPS)
+    python cloud_runner.py --pipeline       # 全量量化流水线
+    python cloud_runner.py --pipeline --tos # 全量流水线 + TOS 数据同步
 ================================================================================
 """
 
@@ -16,6 +18,32 @@ import argparse
 import sys
 import traceback
 from datetime import datetime
+
+
+def _tos_sync_before_pipeline():
+    """流水线执行前: 从 TOS 增量下载最新数据"""
+    try:
+        from tos_storage import TosStorage
+        storage = TosStorage()
+        print(f"[cloud_runner] TOS 同步 (角色={storage.role}): 下载远端数据...")
+        stats = storage.sync_download()
+        print(f"[cloud_runner] TOS 下载完成: {stats['downloaded']} 文件, "
+              f"{stats['total_mb']:.1f} MB, 跳过: {stats['skipped']}")
+    except Exception as e:
+        print(f"[cloud_runner] TOS 下载失败 (非致命，继续执行): {e}")
+
+
+def _tos_sync_after_pipeline():
+    """流水线执行后: 将更新的数据增量上传到 TOS (cloud_ecs 身份自动跳过冲突检测)"""
+    try:
+        from tos_storage import TosStorage
+        storage = TosStorage()
+        print(f"[cloud_runner] TOS 同步 (角色={storage.role}): 上传更新数据...")
+        stats = storage.sync_upload(force=True)
+        print(f"[cloud_runner] TOS 上传完成: {stats['uploaded']} 文件, "
+              f"{stats['total_mb']:.1f} MB, 跳过: {stats['skipped']}")
+    except Exception as e:
+        print(f"[cloud_runner] TOS 上传失败 (非致命): {e}")
 
 
 def run_once(dry_run=False, full_mode=False, session_only=False):
@@ -69,12 +97,18 @@ def main():
     parser.add_argument("--full", action="store_true", help="完整模式 (含广度 + RPS)")
     parser.add_argument("--session-only", action="store_true", help="仅交易时段执行")
     parser.add_argument("--pipeline", action="store_true", help="触发完整的量化计算（更新数据、情绪分、轮动及策略执行）")
+    parser.add_argument("--tos", action="store_true", help="流水线前后自动同步 TOS 数据（需配置 tos_config.json）")
     args = parser.parse_args()
 
     # 如果是全流程跑批指令
     if args.pipeline:
         print(f"[cloud_runner] 触发全量量化流水线 | {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
         import subprocess
+
+        # TOS 同步: 流水线开始前从 TOS 下载最新数据
+        if args.tos:
+            _tos_sync_before_pipeline()
+
         try:
             # 1. 获取全A日线及16因子计算 (耗时30秒-2分钟)
             subprocess.run([sys.executable, "-m", "emotion_validation.pipeline"], check=True)
@@ -83,7 +117,6 @@ def main():
             # 3. 运行回测与 5/10日极速动量轮动筛选 (耗时10秒)
             subprocess.run([sys.executable, "-m", "emotion_validation.etf_rotation.backtest_rotation"], check=True)
             # 4. 生成今日交易指令与S5判定 (包含紧急情况防守)
-            # 将输出写入临时文件以便飞书推送
             with open("daily_signal_output.txt", "w", encoding="utf-8") as f:
                 subprocess.run([sys.executable, "daily_signal.py"], stdout=f, stderr=subprocess.STDOUT, check=True)
             
@@ -93,6 +126,11 @@ def main():
                 msg = f.read()
             bot = FeishuBot()
             bot.send_text(msg)
+
+            # TOS 同步: 流水线完成后将更新的数据上传 TOS
+            if args.tos:
+                _tos_sync_after_pipeline()
+
             print("[cloud_runner] 全量量化流水线执行成功并已推送")
             return 0
         except Exception as e:

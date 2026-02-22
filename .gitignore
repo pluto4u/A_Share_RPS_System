@@ -43,6 +43,7 @@ Desktop.ini
 # Secrets / config overrides
 .env
 feishu_config.local.json
+tos_config.json
 
 # OpenCode config (personal)
 opencode.json
