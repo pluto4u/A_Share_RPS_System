@@ -1,7 +1,7 @@
 {
     "_说明": "飞书集成配置文件 — 请按注释填写你的实际值",
 
-    "webhook_url": "https://open.feishu.cn/open-apis/bot/v2/hook/你的HOOK_ID",
+    "webhook_url": "https://open.feishu.cn/open-apis/bot/v2/hook/989bfed5-7db2-40f7-8572-b771cc972ea5",
     "webhook_secret": "",
 
     "app_id": "",
