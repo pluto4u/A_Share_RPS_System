@@ -355,12 +355,17 @@ def main():
         ecology = None
         
     sig    = get_signal(scores, ecology)
-    print_signal(sig, scores)
-    log_signal(sig)
 
     if args.feishu:
+        print(f"[信号] {sig['date']} | {sig['score']:.1f}分 [{sig['zone_cn']}] | "
+              f"仓位 {int(sig['current_pos']*100)}%→{int(sig['target_pos']*100)}% | "
+              f"{sig['action']}")
         from feishu_bot import push_daily_action_report
         push_daily_action_report(sig, None, scores)
+    else:
+        print_signal(sig, scores)
+
+    log_signal(sig)
 
 
 if __name__ == '__main__':

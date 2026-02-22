@@ -129,8 +129,8 @@ def main():
             return 0
         except Exception as e:
             print(f"[cloud_runner] 流水线执行失败: {e}")
-            from feishu_bot import FeishuBot
-            FeishuBot().send_text(f"🚨 量化流水线执行失败:\n{str(e)}")
+            from feishu_bot import send_text
+            send_text(f"🚨 量化流水线执行失败:\n{str(e)}")
             return 1
 
     exit_code = run_once(

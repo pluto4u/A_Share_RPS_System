@@ -182,15 +182,22 @@ def main():
     if err:
         print(f"  警告: {err}")
 
-    # 3. 输出完整操作指令
-    print_action(sig, holdings, scores)
-
+    # 3. 输出
     if args.feishu:
-        from feishu_bot import push_daily_action_report
         if holdings:
             for h in holdings:
                 h['name'] = ETF_NAME.get(h['symbol'], h['symbol'])
+        etf_summary = ""
+        if holdings:
+            names = [ETF_NAME.get(h['symbol'], h['symbol']) for h in holdings]
+            etf_summary = f" | ETF: {'+'.join(names)}"
+        print(f"[操作] {sig['date']} | {sig['score']:.1f}分 [{sig['zone_cn']}] | "
+              f"仓位 {int(sig['current_pos']*100)}%→{int(sig['target_pos']*100)}% | "
+              f"{sig['action']}{etf_summary}")
+        from feishu_bot import push_daily_action_report
         push_daily_action_report(sig, holdings, scores)
+    else:
+        print_action(sig, holdings, scores)
 
 
 if __name__ == '__main__':
