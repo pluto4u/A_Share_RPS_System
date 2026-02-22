@@ -1069,8 +1069,10 @@ def push_rps_report(report_data, selected_output_df=None):
 
 def build_daily_action_card(sig, holdings, scores):
     """
-    构建今日操作指令的飞书交互式卡片。
+    构建今日实盘信号的飞书交互式卡片 — 风格与 build_market_card 完全一致。
     """
+    from daily_signal import score_to_target, score_to_zone
+
     ts = sig['date']
     score = sig['score']
     zone_cn = sig['zone_cn']
@@ -1078,86 +1080,127 @@ def build_daily_action_card(sig, holdings, scores):
     cur_pct = int(sig['current_pos'] * 100)
     tgt_pct = int(sig['target_pos'] * 100)
 
-    # 卡片颜色
-    if score >= 70: template = "red"  # 红色代表偏热/上涨
-    elif score >= 40: template = "orange"
-    elif score >= 20: template = "blue"
-    else: template = "green"  # 绿色代表偏冷/下跌，这里用颜色区分情绪，也可以按你的喜好，这里遵循通用习惯（红涨绿跌）或反之。
-    # 稍微调整颜色映射，因为前面是：70->green, 40->blue, 20->orange, else->red
-    # 保持一致:
-    if score >= 70: template = "red"  # A股红涨
-    elif score >= 40: template = "orange"
-    elif score >= 20: template = "blue"
-    else: template = "green"
+    if   score >= 70: template = "green"
+    elif score >= 40: template = "blue"
+    elif score >= 20: template = "orange"
+    else:             template = "red"
 
     elements = []
 
-    # ━━ Section 1: 情绪与仓位 ━━
-    trend_arrow = "📈" if sig['chg_1d'] > 0 else "📉" if sig['chg_1d'] < 0 else "➡️"
-    
+    # ━━ Section 1: 情绪得分 ━━
+    score_bar = "🟩" * (int(score) // 10) + "⬜" * (10 - int(score) // 10)
+
+    if   score >= 87.5: zone_tag = "🔴过热"
+    elif score >= 62.5: zone_tag = "🟠偏热"
+    elif score >= 37.5: zone_tag = "🟡正常"
+    elif score >= 12.5: zone_tag = "🟢偏冷"
+    else:               zone_tag = "🟢极冷"
+
+    chg_1d_arrow = "↑" if sig['chg_1d'] > 0 else "↓" if sig['chg_1d'] < 0 else "→"
+
     score_md = (
-        f"**🎯 情绪得分:** **{score:.1f} / 100** [{zone_cn}]\n"
-        f"较上日: {sig['chg_1d']:+.1f} pts {trend_arrow} | 近3日: {sig['chg_3d']:+.1f} pts"
+        f"**🎯 情绪得分**\n"
+        f"{score_bar}  **{score:.1f}/100**  [{zone_cn}]\n"
+        f"变化: {chg_1d_arrow}**{sig['chg_1d']:+.1f}**pts (1日)，"
+        f"**{sig['chg_3d']:+.1f}**pts (3日)"
     )
     elements.append({"tag": "markdown", "content": score_md})
-    
+    elements.append({"tag": "hr"})
+
+    # ━━ Section 2: 仓位建议 ━━
+    pos_bar_cur = "🟩" * (cur_pct // 10) + "⬜" * (10 - cur_pct // 10)
+    pos_bar_tgt = "🟦" * (tgt_pct // 10) + "⬜" * (10 - tgt_pct // 10)
+
     pos_md = (
-        f"**📊 仓位建议:**\n"
-        f"• **当前持仓:** {cur_pct}%\n"
-        f"• **目标仓位:** {tgt_pct}% (基于 S5 策略)\n"
-        f"• **距上次调仓:** {sig['days_since_change']} 天"
+        f"**📊 仓位建议**\n"
+        f"当前持仓: {pos_bar_cur}  **{cur_pct}%**\n"
+        f"目标仓位: {pos_bar_tgt}  **{tgt_pct}%**  (情绪分 → 25% 步进)\n\n"
+        f"距上次调仓: **{sig['days_since_change']}** 天"
+        f"  (上次: {sig['last_change_date'] or '无'}"
+        f"  {int(sig['last_change_from']*100)}%→{int(sig['last_change_to']*100)}%)"
     )
     if sig['days_until_next'] > 0:
-        pos_md += f" (冷却期剩余 {sig['days_until_next']} 天)"
+        pos_md += f"\n冷却期剩余: **{sig['days_until_next']}** 天"
     elements.append({"tag": "markdown", "content": pos_md})
     elements.append({"tag": "hr"})
 
-    # ━━ Section 2: 操作指令 ━━
+    # ━━ Section 3: 操作建议 ━━
     if action == 'ADJUST':
-        action_color = "🔴" if tgt_pct > cur_pct else "🟢"
+        direction = "加仓" if tgt_pct > cur_pct else "减仓"
+        delta = abs(tgt_pct - cur_pct)
+        action_icon = "🔺" if tgt_pct > cur_pct else "🔻"
+        action_detail = (
+            f"{action_icon} **{direction}操作**: {cur_pct}% → {tgt_pct}%  (变动 {delta}%)"
+        )
     elif action == 'EMERGENCY':
-        action_color = "🚨"
+        action_detail = f"🚨 **紧急干预!**\n{sig['action_cn']}"
     elif action == 'PENDING':
-        action_color = "⏳"
+        action_detail = (
+            f"⏳ **待调仓**: 目标 {tgt_pct}%，"
+            f"还需等 **{sig['days_until_next']}** 天冷却期 (防止频繁换仓)"
+        )
+    elif action == 'CAUTION':
+        action_detail = f"⚠️ **高弹性区间**: 正常持仓 {cur_pct}%，注意随时兑现"
     else:
-        action_color = "✅"
-        
+        action_detail = f"✅ **无需操作**: 持仓维持 **{cur_pct}%**"
+
     elements.append({
         "tag": "markdown",
-        "content": f"**💡 今日操作:**\n{action_color} {sig['action_cn']}"
+        "content": f"**💡 操作建议**\n{action_detail}",
     })
     elements.append({"tag": "hr"})
 
-    # ━━ Section 3: ETF 持仓 ━━
+    # ━━ Section 4: ETF 轮动持仓 ━━
     if holdings:
+        total_capital = 1_000_000
+        target_invested = total_capital * tgt_pct / 100
+
         etf_lines = []
         for h in holdings:
             sym = h['symbol']
-            name = h.get('name', sym) # 如果外部没有传name，回退到sym
-            weight = h.get('weight', 0) * 100
+            name = h.get('name', sym)
+            weight = h.get('weight', 1.0 / len(holdings))
             mom = h.get('momentum_score', 0)
-            etf_lines.append(f"• **{name}** ({sym}): {weight:.0f}% (动量: {mom:+.1f}%)")
-        
-        elements.append({
-            "tag": "markdown",
-            "content": "**🛒 本周 ETF 轮动目标:**\n" + "\n".join(etf_lines)
-        })
+            amount = target_invested * weight
+            etf_lines.append(
+                f"  {sym}  {name:<10}  "
+                f"配比{weight*100:>3.0f}%  "
+                f"动量{mom:>+6.1f}%  "
+                f"约{amount/10000:.1f}万"
+            )
+
+        cash = total_capital - target_invested
+        etf_md = (
+            f"**🛒 ETF 轮动持仓** (假设总资金 100 万)\n"
+            f"```\n" + "\n".join(etf_lines) + f"\n```\n"
+            f"现金留存: **{cash/10000:.1f}** 万 ({100 - tgt_pct}%)"
+        )
+        elements.append({"tag": "markdown", "content": etf_md})
         elements.append({"tag": "hr"})
 
-    # ━━ Section 4: 近 5 日情绪 ━━
-    from daily_signal import score_to_target
-    recent_lines = []
-    recent = scores.tail(5)
+    # ━━ Section 5: 近 10 日情绪趋势 ━━
+    recent = scores.tail(10)
+    trend_lines = []
     for _, row in recent.iterrows():
         d = row['trade_date'].strftime('%m-%d')
         s = row['emotion_score']
+        z = score_to_zone(s)[1]
         t = int(score_to_target(s) * 100)
-        marker = " ⬅️ 今日" if d == ts[-5:] else ""
-        recent_lines.append(f"{d} | 得分: {s:>5.1f} | 仓位: {t:>3}%{marker}")
+        mini_bar = "█" * int(s / 10) + "░" * (10 - int(s / 10))
+        marker = "  ← 今日" if d == ts[-5:] else ""
+        trend_lines.append(
+            f"  {d}  {s:>5.1f}  {z:<4}  {t:>3}%  {mini_bar}{marker}"
+        )
 
     elements.append({
         "tag": "markdown",
-        "content": "**📅 近 5 日回顾:**\n```\n" + "\n".join(recent_lines) + "\n```"
+        "content": (
+            f"**📅 近 10 日情绪趋势**\n"
+            f"```\n"
+            f"  日期   分数  档位  目标仓  迷你图\n"
+            + "\n".join(trend_lines)
+            + "\n```"
+        ),
     })
 
     # ━━ 底部备注 ━━
@@ -1165,7 +1208,10 @@ def build_daily_action_card(sig, holdings, scores):
         "tag": "note",
         "elements": [{
             "tag": "plain_text",
-            "content": f"A股操作指令 v1.0 | S5 线性防抖策略 | {ts}",
+            "content": (
+                f"今日实盘信号 v2.0 | S5 线性防抖策略 (Sharpe 1.34 / 最大回撤 -9.2%) | "
+                f"{ts} | 14:50-14:57 完成操作"
+            ),
         }],
     })
 
@@ -1176,7 +1222,7 @@ def build_daily_action_card(sig, holdings, scores):
             "header": {
                 "title": {
                     "tag": "plain_text",
-                    "content": f"⚡ 今日实盘信号 & 操作指令  |  {ts}",
+                    "content": f"⚡ 今日实盘信号 ({ts})",
                 },
                 "template": template,
             },
@@ -1187,10 +1233,8 @@ def build_daily_action_card(sig, holdings, scores):
 
 
 def push_daily_action_report(sig, holdings, scores):
-    """
-    一键推送今日操作指令卡片
-    """
-    print("\n  ── 飞书推送 ──────────────────────────────────")
+    """一键推送今日操作指令卡片"""
+    print("\n  ── 飞书推送 (实盘信号卡片) ──────────────────")
     card = build_daily_action_card(sig, holdings, scores)
     send_card(card)
     print("  ────────────────────────────────────────────")
