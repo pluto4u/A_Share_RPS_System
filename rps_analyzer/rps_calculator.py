@@ -9,16 +9,18 @@ import numpy as np
 from typing import List
 
 
-def calculate_rps(df: pd.DataFrame, periods: List[int] = [50, 120, 250]) -> pd.DataFrame:
+def calculate_rps(df: pd.DataFrame, periods: List[int] = [50, 120, 250], verbose: bool = True) -> pd.DataFrame:
     """
     向量化计算全市场 RPS (相对价格强度)
 
     参数
     ----------
     df : pd.DataFrame
-        包含 ['trade_date', 'ts_code', 'close', 'vol', 'amount', 'turnover'] 的股票日线数据
+        包含 ['trade_date', 'ts_code', 'close', ...] 的股票日线数据
     periods : list
         计算周期，默认 [50, 120, 250]
+    verbose : bool
+        是否打印进度，默认 True
 
     返回
     -------
@@ -30,11 +32,13 @@ def calculate_rps(df: pd.DataFrame, periods: List[int] = [50, 120, 250]) -> pd.D
     # 确保数据按日期和代码排序
     df = df.sort_values(['trade_date', 'ts_code']).reset_index(drop=True)
 
-    print(f"[RPS] 开始计算，数据量: {len(df)} 行, {df['ts_code'].nunique()} 只股票")
-    print(f"[RPS] 计算周期: {periods}")
+    if verbose:
+        print(f"[RPS] 开始计算，数据量: {len(df)} 行, {df['ts_code'].nunique()} 只股票")
+        print(f"[RPS] 计算周期: {periods}")
 
     for n in periods:
-        print(f"[RPS] 计算 RPS_{n}...")
+        if verbose:
+            print(f"[RPS] 计算 RPS_{n}...")
 
         # 计算每只股票 N 日前的收盘价
         df[f'pre_close_{n}'] = df.groupby('ts_code')['close'].shift(n)
@@ -49,7 +53,8 @@ def calculate_rps(df: pd.DataFrame, periods: List[int] = [50, 120, 250]) -> pd.D
         # 清理中间变量
         df.drop(columns=[f'pre_close_{n}', f'roc_{n}'], inplace=True)
 
-    print(f"[RPS] 计算完成")
+    if verbose:
+        print(f"[RPS] 计算完成")
     return df
 
 

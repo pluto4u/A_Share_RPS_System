@@ -118,13 +118,17 @@ def load_emotion_scores() -> pd.DataFrame:
     return df.sort_values('trade_date').reset_index(drop=True)
 
 
-def get_week_end_dates(all_dates: pd.Series) -> set:
-    """每周最后一个交易日的集合（通常是周五）"""
-    return set(all_dates.groupby(all_dates.dt.to_period('W')).last())
-
-def get_month_end_dates(all_dates: pd.Series) -> set:
-    """每月最后一个交易日的集合"""
-    return set(all_dates.groupby(all_dates.dt.to_period('M')).last())
+def get_freq_end_dates(all_dates: pd.Series, freq: str) -> set:
+    """按指定频率获取重新平衡的日期集合"""
+    if freq == 'M':
+        return set(all_dates.groupby(all_dates.dt.to_period('M')).last())
+    elif freq == 'W' or freq == '5D':
+        return set(all_dates.groupby(all_dates.dt.to_period('W')).last())
+    elif freq == '3D':
+        # 每隔3个交易日触发一次
+        return set(all_dates.iloc[2::3])
+    else:
+        raise ValueError(f"Unknown frequency: {freq}")
 
 
 def etf_daily_return(etf_data: dict, holdings: list, date) -> float:
@@ -180,7 +184,8 @@ def calc_metrics(nav_series: pd.Series, label: str, n_trades: int = 0) -> dict:
 
 def run_backtest(start_date: str = '2024-01-01',
                  end_date:   str = None,
-                 top_n:      int = 2) -> dict:
+                 top_n:      int = 2,
+                 freq:       str = 'M') -> dict:
 
     from .etf_data import ETFDataManager
     from .rotation_strategy import ETFRotationStrategy
@@ -208,8 +213,7 @@ def run_backtest(start_date: str = '2024-01-01',
         raise ValueError(f"日期范围 {start_date}~{end_date} 内无 ETF 数据")
 
     # ---- 预计算 ----
-    month_ends   = get_month_end_dates(all_dates)
-    week_ends    = get_week_end_dates(all_dates)
+    rebalance_dates = get_freq_end_dates(all_dates, freq)
     rot_strategy = ETFRotationStrategy(top_n=top_n)
     s5_positions = build_s5_positions(emotion_df, all_dates)
     emotion_map  = dict(zip(emotion_df['trade_date'], emotion_df['emotion_score']))
@@ -273,13 +277,13 @@ def run_backtest(start_date: str = '2024-01-01',
         nav_C_list.append({'trade_date': date, 'nav': nav_C, 'pos': s5_pos, 'holdings': base_etf})
         nav_D_list.append({'trade_date': date, 'nav': nav_D, 'pos': s5_pos, 'holdings': rot_symbols_str})
 
-        # 4. 月末决策（次日执行）
-        if date in month_ends:
+        # 4. 换仓决策（次日执行）
+        if date in rebalance_dates:
             score    = emotion_map.get(date, 50.0)
             new_h    = rot_strategy.get_holdings(etf_data, score, date)
             pending_hold = new_h if new_h else [{'symbol': base_etf, 'weight': 1.0, 'is_defensive': False}]
             pending_symbols = [h['symbol'] for h in pending_hold]
-            logger.debug(f"  {date.date()} 周末决策: {pending_symbols} (情绪={score:.1f}, S5={s5_pos:.0%})")
+            logger.debug(f"  {date.date()} 换仓决策: {pending_symbols} (情绪={score:.1f}, S5={s5_pos:.0%})")
 
     # ---- 构造 DataFrame ----
     df_A = pd.DataFrame(nav_A_list)
@@ -374,9 +378,10 @@ def main():
     parser.add_argument('--start', default='2024-01-01', help='开始日期')
     parser.add_argument('--end',   default=None,         help='结束日期')
     parser.add_argument('--top-n', type=int, default=2,  help='持有 ETF 数量 (默认 2)')
+    parser.add_argument('--freq',  default='M', help='换仓频率 (M, W/5D, 3D)')
     args = parser.parse_args()
 
-    result = run_backtest(args.start, args.end, args.top_n)
+    result = run_backtest(args.start, args.end, args.top_n, args.freq)
     save_and_print(result)
 
 

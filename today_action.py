@@ -32,8 +32,9 @@ from daily_signal import (
     load_scores, score_to_target, score_to_zone,
     get_signal, MIN_DAYS_BETWEEN, MIN_DELTA
 )
+from config.dragon_strategy import DRAGON_STRATEGY
 from emotion_validation.etf_rotation.etf_data import ETFDataManager, ETF_POOL
-from emotion_validation.etf_rotation.rotation_strategy import ETFRotationStrategy
+from rps_analyzer.daily_scanner import get_dragon_pullback_candidates
 
 ETF_NAME = {code: name for code, name, _ in ETF_POOL}
 ETF_SECTOR = {code: sector for code, _, sector in ETF_POOL}
@@ -41,6 +42,7 @@ ETF_SECTOR = {code: sector for code, _, sector in ETF_POOL}
 
 def get_etf_holdings(emotion_score: float, as_of_date=None):
     """获取当前 ETF 轮动持仓建议"""
+    from emotion_validation.etf_rotation.rotation_strategy import ETFRotationStrategy
     mgr = ETFDataManager()
     etf_data = mgr.load_all()
     if not etf_data:
@@ -69,6 +71,17 @@ def print_action(sig: dict, holdings: list, scores: pd.DataFrame):
 
     # ---- 第一部分: 情绪 & 仓位 ----
     print()
+    
+    # 检查数据新鲜度
+    today_dt = datetime.strptime(today, '%Y-%m-%d')
+    real_today = datetime.now()
+    days_diff = (real_today - today_dt).days
+    
+    if days_diff > 2:
+        print(f"  [⚠️ 数据过期警告] 当前情绪数据停留在 {today} ({days_diff}天前)")
+        print("                 请先运行: python today_action.py --update")
+        print()
+        
     print(f"  [情绪] {score:.1f}分 ({zone_cn}) {trend}  "
           f"日变{sig['chg_1d']:+.1f}  三日变{sig['chg_3d']:+.1f}")
 
@@ -83,20 +96,20 @@ def print_action(sig: dict, holdings: list, scores: pd.DataFrame):
     if action == 'ADJUST':
         direction = "加仓" if tgt_pos > cur_pos else "减仓"
         delta = abs(tgt_pos - cur_pos)
-        print(f"  │  >>> {direction}操作: {cur_pos}% → {tgt_pos}%  (变动 {delta}%)         │")
+        print(f"  │  >>> {direction}操作: {cur_pos}% → {tgt_pos}%  (变动 {delta}%)".ljust(51 - len(direction) + 2, " ") + "│")
     elif action == 'EMERGENCY':
-        print(f"  │  !!! 紧急操作: {cur_pos}% → {tgt_pos}%                      │")
-        print(f"  │  {sig['action_cn'][:50]}│")
+        print(f"  │  !!! 紧急操作: {cur_pos}% → {tgt_pos}%".ljust(53, " ") + "│")
+        print(f"  │  {sig['action_cn'][:48]}".ljust(53, " ") + "│")
     elif action == 'PENDING':
         days_left = sig['days_until_next']
-        print(f"  │  等待中: 目标 {tgt_pos}%，冷却期还剩 {days_left} 天              │")
+        print(f"  │  等待中: 目标 {tgt_pos}%，冷却期还剩 {days_left} 天".ljust(52, " ") + "│")
     else:
-        print(f"  │  持仓不变: 维持 {cur_pos}%                                │")
+        print(f"  │  持仓不变: 维持 {cur_pos}%".ljust(53, " ") + "│")
     print("  └─────────────────────────────────────────────────────┘")
     print()
 
-    # ---- 第三部分: ETF 持仓 ----
-    print("  [ETF 轮动持仓]")
+    # ---- 第三部分: ETF 底仓持仓 ----
+    print("  [ETF 底仓防守持仓]")
     if holdings:
         for h in holdings:
             sym = h['symbol']
@@ -107,10 +120,42 @@ def print_action(sig: dict, holdings: list, scores: pd.DataFrame):
             print(f"    {sym} {name:<12} ({sector})  "
                   f"动量={mom:+.1f}%  配比={weight:.0f}%")
     else:
-        print("    (无法获取，请检查 ETF 数据)")
+        print("    (无建议底仓)")
     print()
 
-    # ---- 第四部分: 具体下单指令 ----
+    # ---- 第四部分: 龙回头极致低吸候选 (与 ETF 轮动独立) ----
+    print("  [个股 Alpha: 龙回头极致缩量低吸]")
+    min_score = DRAGON_STRATEGY["emotion"]["min_score_for_stock_entries"]
+    if score < min_score:
+        print(f"    --> 情绪偏冷/极冷 (S5 < {min_score})，系统强制休眠，拒绝任何个股开仓！")
+    else:
+        try:
+            alpha_picks, pool_meta = get_dragon_pullback_candidates(score, limit=5)
+            if pool_meta.get("pool_size", 0) > 0:
+                print(f"    (选股池: {pool_meta.get('pool_mode', '')} 共 {pool_meta['pool_size']} 只)")
+            if not alpha_picks:
+                print("    --> 今日未发现极致缩量冰点买点。耐心等待，宁缺毋滥。")
+            else:
+                for pick in alpha_picks:
+                    symbol = pick['symbol']
+                    price = pick['price']
+                    sl = pick['stop_loss']
+                    risk = pick['risk_pct']
+                    vol_r = pick['vol_ratio']
+                    print(f"    [{pick['type']}] {symbol:<12} "
+                          f"买点:{price:>7.2f} | 止损:{sl:>7.2f} | "
+                          f"风险:{risk:>4.1f}% | 缩量:{vol_r:.1%}")
+                print()
+                print("    卖出纪律:")
+                print("    1. 买入后 3 个交易日内不动 (T+1 保护期)")
+                print("    2. 盈利 +5% 后，止损自动上移至成本价 (保本续命)")
+                print("    3. 之后执行 15% 移动止盈 (从最高价回落 15% 即出)")
+                print("    4. 单票仓位上限 30%，满仓最多持有 3-4 只")
+        except Exception as e:
+            print(f"    --> 扫描个股池失败: {e}")
+    print()
+
+    # ---- 第五部分: 具体下单指令 ----
     print("  ┌─────────────────────────────────────────────────────┐")
     print("  │  具体操作 (假设总资金 100 万)                        │")
     print("  │─────────────────────────────────────────────────────│")
