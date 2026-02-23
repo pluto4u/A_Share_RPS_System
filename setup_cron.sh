@@ -4,7 +4,7 @@
 # 在云服务器上运行: bash setup_cron.sh
 # ============================================================================
 
-PROJECT_DIR="/root/projects/A_Share_RPS_System"
+PROJECT_DIR="/root/workspace/a_-share_-rps_-system"
 PYTHON_EXEC="/usr/bin/python3" # 或修改为您环境的 python 路径, 例如 /root/miniconda3/envs/quant/bin/python
 
 # 检查项目目录
@@ -26,15 +26,12 @@ crontab -l > /tmp/crontab_backup_$(date +%Y%m%d) 2>/dev/null
 
 # ----------------------------------------------------------------------------
 # Tier 1: 盘中极速防守层 (抓崩盘/熔断, 耗时<15秒)
-# 交易日 10:00, 10:30, 11:00, 11:30, 13:30, 14:00, 14:20 运行
+# 交易日 每10分钟运行一次，覆盖完整交易时段
 # ----------------------------------------------------------------------------
-0 10 * * 1-5 cd $PROJECT_DIR && $PYTHON_EXEC intraday_emergency_monitor.py >> /var/log/emotion_intraday.log 2>&1
-30 10 * * 1-5 cd $PROJECT_DIR && $PYTHON_EXEC intraday_emergency_monitor.py >> /var/log/emotion_intraday.log 2>&1
-0 11 * * 1-5 cd $PROJECT_DIR && $PYTHON_EXEC intraday_emergency_monitor.py >> /var/log/emotion_intraday.log 2>&1
-30 11 * * 1-5 cd $PROJECT_DIR && $PYTHON_EXEC intraday_emergency_monitor.py >> /var/log/emotion_intraday.log 2>&1
-30 13 * * 1-5 cd $PROJECT_DIR && $PYTHON_EXEC intraday_emergency_monitor.py >> /var/log/emotion_intraday.log 2>&1
-0 14 * * 1-5 cd $PROJECT_DIR && $PYTHON_EXEC intraday_emergency_monitor.py >> /var/log/emotion_intraday.log 2>&1
-20 14 * * 1-5 cd $PROJECT_DIR && $PYTHON_EXEC intraday_emergency_monitor.py >> /var/log/emotion_intraday.log 2>&1
+10,20,30,40,50 10 * * 1-5 cd $PROJECT_DIR && $PYTHON_EXEC intraday_emergency_monitor.py >> /var/log/emotion_intraday.log 2>&1
+0,10,20,30,40,50 11 * * 1-5 cd $PROJECT_DIR && $PYTHON_EXEC intraday_emergency_monitor.py >> /var/log/emotion_intraday.log 2>&1
+0,10,20,30,40,50 13 * * 1-5 cd $PROJECT_DIR && $PYTHON_EXEC intraday_emergency_monitor.py >> /var/log/emotion_intraday.log 2>&1
+0,10,20,30,40,50 14 * * 1-5 cd $PROJECT_DIR && $PYTHON_EXEC intraday_emergency_monitor.py >> /var/log/emotion_intraday.log 2>&1
 
 # ----------------------------------------------------------------------------
 # Tier 2: 尾盘决断进攻层 (全量日线+ETF轮动重度计算, 耗时~3分钟)
