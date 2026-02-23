@@ -1,14 +1,31 @@
-# 技能: A股情绪监控 + 数据维护
+# 技能: A股情绪监控 + ETF轮动 + RPS选股
 
 当用户提到以下任何关键词时，执行对应操作：
+
+## 三项核心功能
+
+| 功能 | 触发词 | 执行内容 |
+|------|--------|----------|
+| **情绪判断** | 情绪监控、看看盘面 | 快速情绪扫描 (cloud_runner --session-only) |
+| **ETF轮动** | ETF回测、轮动回测 | ETF 月度轮动回测 |
+| **RPS选股** | RPS选股、龙回头选股 | 龙回头低吸候选 (today_action 内含) |
+
+## 一键全量（情绪+ETF+RPS）
+
+| 触发词 | 执行 |
+|--------|------|
+| "跑今日操作"、"14:40任务"、"daily action" | today_action.py --update --feishu（情绪+ETF轮动+龙回头低吸） |
+| "全量验证"、"跑全套"、"full pipeline" | 全量 Pipeline（含 TOS 同步） |
+
+## 其他
+
 - "情绪监控"、"跑一下监控"、"看看盘面"、"market watch" → 快速模式
-- "完整监控"、"full监控"、"全面分析" → 完整模式
+- "完整监控"、"full监控"、"全面分析" → 完整模式（含广度+RPS）
 - "试运行"、"dry run"、"测试一下" → 试运行模式
 - "情绪回测"、"跑回测"、"验证策略" → 情绪验证回测
 - "ETF回测"、"轮动回测"、"ETF轮动" → ETF轮动回测
 - "今日信号"、"出信号"、"daily signal" → 今日实盘信号
-- "跑今日操作"、"14:40任务"、"daily action" → 今日操作指令（含数据更新）
-- "全量验证"、"跑全套"、"full pipeline" → 全量Pipeline（含TOS同步）
+- "RPS选股"、"跑RPS"、"RPS筛选" → rps_system.py --feishu（独立 RPS_50/120 选股）
 - "同步TOS"、"上传TOS"、"备份数据" → 上传数据到TOS
 - "拉取TOS"、"下载TOS"、"同步云端" → 从TOS下载数据
 - "TOS状态"、"查看数据状态"、"数据在哪" → 查看数据同步状态
@@ -49,10 +66,18 @@ cd /root/workspace/a_-share_-rps_-system && set -a && source tos.env && set +a &
 cd /root/workspace/a_-share_-rps_-system && set -a && source tos.env && set +a && source venv/bin/activate && python daily_signal.py --feishu > /tmp/rps_signal.log 2>&1 && echo "✅ 实盘信号已通过卡片推送到群" || echo "❌ 信号生成失败，日志: $(tail -3 /tmp/rps_signal.log)"
 ```
 
-## 今日操作指令（14:40 定时任务用，先更新数据再出单）
+## 今日操作指令（14:40 定时任务用，含情绪+ETF轮动+龙回头低吸）
 
 ```bash
 cd /root/workspace/a_-share_-rps_-system && set -a && source tos.env && set +a && source venv/bin/activate && python today_action.py --update --feishu > /tmp/rps_action.log 2>&1 && echo "✅ 操作指令已通过卡片推送到群" || echo "❌ 操作指令失败，日志: $(tail -3 /tmp/rps_action.log)"
+```
+
+> 内含：情绪判断 → S5 仓位 → ETF 轮动持仓 → 龙回头低吸候选（成交额前 1000 池）
+
+## RPS选股（独立 RPS_50/120 选股，可选）
+
+```bash
+cd /root/workspace/a_-share_-rps_-system && set -a && source tos.env && set +a && source venv/bin/activate && python rps_system.py --feishu > /tmp/rps_select.log 2>&1 && echo "✅ RPS选股已推送到群" || echo "❌ RPS选股失败，日志: $(tail -3 /tmp/rps_select.log)"
 ```
 
 ## 全量Pipeline（含TOS数据同步，约5-8分钟）
