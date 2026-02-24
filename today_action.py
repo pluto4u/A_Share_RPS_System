@@ -206,6 +206,8 @@ def main():
         print("正在更新数据...")
         import subprocess
         py = sys.executable
+        # 先增量更新底层日线仓库，再重算情绪与策略结果
+        subprocess.run([py, '-m', 'emotion_validation.data_layer.data_warehouse', '--update'], check=False)
         subprocess.run([py, '-m', 'emotion_validation.pipeline'], check=False)
         print()
 

@@ -341,8 +341,10 @@ class DataWarehouse:
         self._fetch_index_data(start_date, end_date)
 
         elapsed = time.time() - t0
+        latest_trade_date = pd.to_datetime(combined['trade_date'], errors='coerce').max()
+        last_update_date = latest_trade_date.strftime('%Y%m%d') if pd.notna(latest_trade_date) else end_date
         self._save_meta({
-            'last_update_date': end_date,
+            'last_update_date': last_update_date,
             'stock_count': combined['ts_code'].nunique(),
             'total_rows': len(combined),
             'updated_at': datetime.now().isoformat(),
