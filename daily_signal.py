@@ -357,6 +357,8 @@ def main():
     sig    = get_signal(scores, ecology)
 
     if args.feishu:
+        # 即使推送飞书，也打印完整日志，供 OpenClaw 大模型读取
+        print_signal(sig, scores)
         print(f"[信号] {sig['date']} | {sig['score']:.1f}分 [{sig['zone_cn']}] | "
               f"仓位 {int(sig['current_pos']*100)}%→{int(sig['target_pos']*100)}% | "
               f"{sig['action']}")

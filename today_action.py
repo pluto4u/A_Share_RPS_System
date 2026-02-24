@@ -236,6 +236,10 @@ def main():
         if holdings:
             names = [ETF_NAME.get(h['symbol'], h['symbol']) for h in holdings]
             etf_summary = f" | ETF: {'+'.join(names)}"
+        
+        # 即使推送飞书，也打印完整日志，供 OpenClaw 大模型读取
+        print_action(sig, holdings, scores)
+        
         print(f"[操作] {sig['date']} | {sig['score']:.1f}分 [{sig['zone_cn']}] | "
               f"仓位 {int(sig['current_pos']*100)}%→{int(sig['target_pos']*100)}% | "
               f"{sig['action']}{etf_summary}")
