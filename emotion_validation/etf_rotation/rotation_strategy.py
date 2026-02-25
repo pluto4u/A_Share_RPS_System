@@ -23,8 +23,8 @@ import numpy as np
 logger = logging.getLogger(__name__)
 
 # ETF 分类 (与 etf_data.py ETF_POOL 对应)
-SECTOR_DEFENSE  = {'防御', '宽基'}         # 极冷/偏冷时只允许持有
-SECTOR_BALANCED = {'防御', '宽基', '消费', '金融'}  # 偏冷时扩展候选池
+SECTOR_DEFENSE  = {'防御', '宽基', '债券'}         # 极冷/偏冷时只允许持有
+SECTOR_BALANCED = {'防御', '宽基', '消费', '金融', '债券'}  # 偏冷时扩展候选池
 
 
 def score_to_emotion_regime(score: float) -> str:
@@ -34,9 +34,9 @@ def score_to_emotion_regime(score: float) -> str:
     elif score >= 37.5:
         return 'NORMAL'        # 正常: 全池 (与 NORMAL_PLUS 合并)
     elif score >= 12.5:
-        return 'COLD'          # 偏冷: 仅防御+宽基+消费+金融
+        return 'COLD'          # 偏冷: 仅防御+宽基+消费+金融+债券
     else:
-        return 'FREEZE'        # 极冷: 仅沪深300 ETF (510300)
+        return 'FREEZE'        # 极冷: 仅避险资产 (债券)
 
 
 class ETFRotationStrategy:
@@ -50,7 +50,7 @@ class ETFRotationStrategy:
         fast_weight  : 短期动量权重 (默认 0.6)
     """
 
-    SAFE_HARBOR = '510300'   # 极冷时的避风港: 沪深300 ETF
+    SAFE_HARBOR_SECTOR = '债券'   # 极冷时的避风港板块
 
     def __init__(self,
                  top_n: int = 2,
@@ -68,6 +68,9 @@ class ETFRotationStrategy:
         计算单只 ETF 在 as_of_date 时的动量得分
 
         得分 = fast_weight * return_20d + slow_weight * return_60d
+        
+        优化点：如果波动率（最近20天极差或标准差）过大，应当对动量得分进行惩罚
+        这里简化为：使用 (涨幅) / (期间极差) 作为风险调整后的动量
 
         预热期降级逻辑 (避免冷启动空仓):
           数据 >= slow_window  → 完整双窗口得分
@@ -81,14 +84,31 @@ class ETFRotationStrategy:
             return None   # 数据太少，彻底排除
 
         close    = hist['close'].values
+        low      = hist['low'].values
+        high     = hist['high'].values
+        
+        # 风险调整收益 = 绝对涨幅 / 期间最大回撤或极差，简化为 涨幅 / (期间最高 - 期间最低)/期初价格
+        fast_period_close = close[-self.fast_window:]
+        fast_period_low = low[-self.fast_window:]
+        fast_period_high = high[-self.fast_window:]
+        
         ret_fast = close[-1] / close[-self.fast_window] - 1
+        range_fast = (fast_period_high.max() - fast_period_low.min()) / close[-self.fast_window]
+        range_fast = max(range_fast, 0.01) # 避免除以0
+        adj_ret_fast = ret_fast / range_fast * abs(ret_fast) # 保持符号，惩罚波动大
 
         if n >= self.slow_window:
+            slow_period_low = low[-self.slow_window:]
+            slow_period_high = high[-self.slow_window:]
             ret_slow = close[-1] / close[-self.slow_window] - 1
-            return self.fast_weight * ret_fast + self.slow_weight * ret_slow
+            range_slow = (slow_period_high.max() - slow_period_low.min()) / close[-self.slow_window]
+            range_slow = max(range_slow, 0.01)
+            adj_ret_slow = ret_slow / range_slow * abs(ret_slow)
+            
+            return self.fast_weight * adj_ret_fast + self.slow_weight * adj_ret_slow
 
         # 预热期：只用快线，权重自动变为 1.0
-        return ret_fast
+        return adj_ret_fast
 
     def compute_scores(self,
                        etf_data: Dict[str, pd.DataFrame],
@@ -115,7 +135,7 @@ class ETFRotationStrategy:
 
             # 按情绪档位决定是否进入候选池
             if regime == 'FREEZE':
-                eligible = (symbol == self.SAFE_HARBOR)
+                eligible = (sector == self.SAFE_HARBOR_SECTOR)
             elif regime == 'COLD':
                 eligible = (sector in SECTOR_BALANCED)
             else:
@@ -161,8 +181,8 @@ class ETFRotationStrategy:
         candidates = scores[scores['eligible']].head(self.top_n)
 
         if candidates.empty:
-            # 兜底: 强制持有沪深300 ETF
-            candidates = scores[scores['symbol'] == self.SAFE_HARBOR].head(1)
+            # 兜底: 强制持有避险资产 (债券)
+            candidates = scores[scores['sector'] == self.SAFE_HARBOR_SECTOR].head(self.top_n)
             if candidates.empty:
                 logger.warning("没有任何 ETF 数据，返回空持仓")
                 return []

@@ -18,11 +18,15 @@
 """
 
 import sys
+import math
 import logging
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from sentiment_engine import score_to_target_kelly, kelly_vol_adjustment, drawdown_elastic_multiplier
 
 logging.basicConfig(level=logging.WARNING, format='%(message)s')
 
@@ -52,11 +56,28 @@ def load_data():
     idx['pct_chg'] = idx['close'].pct_change() * 100
     idx = idx.dropna(subset=['pct_chg']).reset_index(drop=True)
 
-    merged = idx.merge(
-        scores[['trade_date', 'emotion_score']],
-        on='trade_date', how='left'
-    )
+    score_cols = ['trade_date', 'emotion_score']
+    if 'realized_vol_20d' in scores.columns:
+        score_cols.append('realized_vol_20d')
+
+    merged = idx.merge(scores[score_cols], on='trade_date', how='left')
     merged['emotion_score'] = merged['emotion_score'].ffill().fillna(50)
+
+    # If realized_vol_20d not in scores, try ecology_cache
+    if 'realized_vol_20d' not in merged.columns:
+        eco_csv = Path('backtest/data/ecology_cache.csv')
+        if eco_csv.exists():
+            eco = pd.read_csv(eco_csv)
+            eco['trade_date'] = pd.to_datetime(eco['trade_date'])
+            if 'realized_vol_20d' in eco.columns:
+                merged = merged.merge(
+                    eco[['trade_date', 'realized_vol_20d']],
+                    on='trade_date', how='left'
+                )
+
+    if 'realized_vol_20d' in merged.columns:
+        merged['realized_vol_20d'] = merged['realized_vol_20d'].ffill().fillna(0.22)
+
     return merged
 
 
@@ -291,6 +312,52 @@ def s5_score_linear(df):
     return backtest(df, pd.Series(positions, index=df.index), 'S5_LinearThrottle')
 
 
+def s6_kelly_vol_elastic(df):
+    """
+    S6: Kelly-Vol自适应 + 回撤弹性 + S5防抖
+
+    相比 S5:
+      1. 目标仓位 = S5线性基础 × Kelly波动率缩放 (高波自动压仓)
+      2. 实际仓位 ≤ 目标仓位 × 回撤弹性系数 (回撤>3%开始递减)
+      3. 防抖规则不变: 5天冷却期 + 15%变化门槛
+    """
+    score = df['emotion_score']
+    vol = df.get('realized_vol_20d', pd.Series(0.22, index=df.index))
+    close = df['close']
+
+    positions = []
+    cur_pos = 0.5
+    days_since_change = 0
+    nav = 1.0
+    peak_nav = 1.0
+
+    for i in range(len(df)):
+        days_since_change += 1
+
+        vol_val = vol.iloc[i] if not pd.isna(vol.iloc[i]) else 0.22
+        target = score_to_target_kelly(score.iloc[i], vol_val)
+
+        # track portfolio-level drawdown
+        if i > 0:
+            daily_ret = (close.iloc[i] - close.iloc[i-1]) / close.iloc[i-1]
+            nav *= (1 + daily_ret * cur_pos)
+        peak_nav = max(peak_nav, nav)
+        dd_pct = (nav / peak_nav - 1.0) * 100
+
+        dd_mult = drawdown_elastic_multiplier(dd_pct)
+        target = round(min(target, target * dd_mult) * 20) / 20  # 5% grid
+
+        if days_since_change >= 5 or i == 0:
+            delta = abs(target - cur_pos)
+            if delta >= 0.15:
+                cur_pos = target
+                days_since_change = 0
+
+        positions.append(cur_pos)
+
+    return backtest(df, pd.Series(positions, index=df.index), 'S6_KellyVolElastic')
+
+
 # ======================================================================
 # 主程序
 # ======================================================================
@@ -309,6 +376,7 @@ def main():
         (s3_emergency_reversal, 'S3_EmgReversal'),
         (s4_ma_trend,           'S4_MATrend'),
         (s5_score_linear,       'S5_LinearThrottle'),
+        (s6_kelly_vol_elastic,  'S6_KellyVolElastic'),
     ]:
         result = fn(df)
         metrics = calc_metrics(result)
@@ -317,12 +385,12 @@ def main():
     # ----------------------------------------------------------------
     # Print comparison table
     # ----------------------------------------------------------------
-    print("=" * 85)
+    print("=" * 95)
     print("  A-Share Emotion Strategy Final Comparison  (HS300, 2024-01 ~ 2026-02)")
-    print("=" * 85)
-    print(f"  {'Strategy':<22} {'AnnRet':>7} {'TotalRet':>8} {'MaxDD':>7} {'Sharpe':>7} "
+    print("=" * 95)
+    print(f"  {'Strategy':<24} {'AnnRet':>7} {'TotalRet':>8} {'MaxDD':>7} {'Sharpe':>7} "
           f"{'Calmar':>7} {'Trades':>7} {'EstCost':>8}")
-    print(f"  {'-'*22} {'-'*7} {'-'*8} {'-'*7} {'-'*7} {'-'*7} {'-'*7} {'-'*8}")
+    print(f"  {'-'*24} {'-'*7} {'-'*8} {'-'*7} {'-'*7} {'-'*7} {'-'*7} {'-'*8}")
 
     for name, (_, m) in results.items():
         marker = ''
@@ -333,7 +401,7 @@ def main():
         elif m['max_dd'] == max(r[1]['max_dd'] for r in results.values()):
             marker = ' <worst dd>'
 
-        print(f"  {name:<22} {m['annual_ret']:>6.1f}% {m['total_ret']:>7.1f}% "
+        print(f"  {name:<24} {m['annual_ret']:>6.1f}% {m['total_ret']:>7.1f}% "
               f"{m['max_dd']:>6.1f}% {m['sharpe']:>7.3f} {m['calmar']:>7.3f} "
               f"{m['trades']:>7} {m['cost_drag']:>7.2f}%{marker}")
 
@@ -343,8 +411,8 @@ def main():
     s0_dd = results['S0_BuyHold'][1]['max_dd']
     s0_ret = results['S0_BuyHold'][1]['annual_ret']
     print("  Risk Control Value (vs Buy-and-Hold):")
-    print(f"  {'Strategy':<22} {'DD Saved':>9} {'Ret Cost':>9} {'Risk/Reward'}")
-    print(f"  {'-'*22} {'-'*9} {'-'*9} {'-'*20}")
+    print(f"  {'Strategy':<24} {'DD Saved':>9} {'Ret Cost':>9} {'Risk/Reward'}")
+    print(f"  {'-'*24} {'-'*9} {'-'*9} {'-'*20}")
     for name, (_, m) in results.items():
         if name == 'S0_BuyHold':
             continue
@@ -354,7 +422,7 @@ def main():
             rr = f"Save {dd_saved:.1f}% dd at cost of {abs(ret_cost):.1f}% ret/yr"
         else:
             rr = f"Worse dd by {abs(dd_saved):.1f}%, ret also {ret_cost:+.1f}%"
-        print(f"  {name:<22} {dd_saved:>+8.1f}% {ret_cost:>+8.1f}%  {rr}")
+        print(f"  {name:<24} {dd_saved:>+8.1f}% {ret_cost:>+8.1f}%  {rr}")
 
     print()
 

@@ -18,11 +18,18 @@ Usage:
 """
 
 import sys
+import math
 import logging
 from pathlib import Path
 from datetime import datetime
 
 import pandas as pd
+
+from sentiment_engine import (
+    score_to_target_kelly,
+    kelly_vol_adjustment,
+    drawdown_elastic_multiplier,
+)
 
 # Windows 终端强制 UTF-8 输出，避免 GBK 乱码
 if sys.platform == 'win32':
@@ -115,6 +122,79 @@ def reconstruct_s5_state(scores: pd.DataFrame) -> dict:
     }
 
 
+def reconstruct_s6_state(scores: pd.DataFrame, index_close: pd.Series = None) -> dict:
+    """
+    S6 仓位重建: Kelly-波动率 × 回撤弹性 × S5防抖
+
+    Parameters
+    ----------
+    scores : DataFrame
+        至少包含 emotion_score; 可选列 realized_vol_20d (年化)
+    index_close : Series | None
+        指数收盘价序列 (用于计算滚动回撤), 长度与 scores 对齐
+
+    Returns
+    -------
+    dict : 同 reconstruct_s5_state 格式, 额外增加 vol_adj / dd_mult
+    """
+    cur_pos = 0.5
+    days_since = 999
+    last_change_date = None
+    last_from = 0.5
+    last_to = 0.5
+
+    peak_nav = 1.0
+    nav = 1.0
+    prev_close = None
+
+    latest_vol_adj = 1.0
+    latest_dd_mult = 1.0
+
+    for i, (_, row) in enumerate(scores.iterrows()):
+        vol_annual = row.get('realized_vol_20d', 0.0)
+        if pd.isna(vol_annual) or vol_annual <= 0:
+            vol_annual = 0.0
+
+        target = score_to_target_kelly(row['emotion_score'], vol_annual)
+        latest_vol_adj = kelly_vol_adjustment(vol_annual)
+
+        # rolling drawdown from index price if available
+        if index_close is not None and i < len(index_close):
+            close_val = index_close.iloc[i]
+            if prev_close is not None and prev_close > 0:
+                daily_ret = (close_val - prev_close) / prev_close
+                nav *= (1.0 + daily_ret * cur_pos)
+            prev_close = close_val
+            peak_nav = max(peak_nav, nav)
+            dd_pct = (nav / peak_nav - 1.0) * 100
+        else:
+            dd_pct = 0.0
+
+        latest_dd_mult = drawdown_elastic_multiplier(dd_pct)
+        target = min(target, round(target * latest_dd_mult * 20) / 20)
+
+        days_since += 1
+        if days_since >= MIN_DAYS_BETWEEN:
+            delta = abs(target - cur_pos)
+            if delta >= MIN_DELTA:
+                last_from = cur_pos
+                last_to = target
+                last_change_date = row['trade_date'].strftime('%Y-%m-%d')
+                cur_pos = target
+                days_since = 0
+
+    return {
+        'current_pos': cur_pos,
+        'days_since_change': days_since,
+        'days_until_next': max(0, MIN_DAYS_BETWEEN - days_since),
+        'last_change_date': last_change_date,
+        'last_change_from': last_from,
+        'last_change_to': last_to,
+        'vol_adj': round(latest_vol_adj, 3),
+        'dd_mult': round(latest_dd_mult, 3),
+    }
+
+
 def check_emergency_status(today_eco: pd.Series, history_eco: pd.DataFrame) -> tuple:
     """
     检查紧急情况，拦截常规的 S5 指令。
@@ -151,13 +231,34 @@ def check_emergency_status(today_eco: pd.Series, history_eco: pd.DataFrame) -> t
 
     return None, None, None
 
-def get_signal(scores: pd.DataFrame, ecology: pd.DataFrame = None) -> dict:
-    """计算今日完整信号"""
-    state  = reconstruct_s5_state(scores)
+def get_signal(scores: pd.DataFrame, ecology: pd.DataFrame = None,
+               strategy: str = 'S5', index_close: pd.Series = None) -> dict:
+    """
+    计算今日完整信号
+
+    Parameters
+    ----------
+    strategy : str
+        'S5' = 原 LinearThrottle, 'S6' = Kelly-波动率 + 回撤弹性
+    index_close : Series | None
+        指数收盘价序列 (S6 需要, 用于计算滚动回撤)
+    """
+    if strategy == 'S6':
+        state = reconstruct_s6_state(scores, index_close)
+    else:
+        state = reconstruct_s5_state(scores)
+
     latest = scores.iloc[-1]
     score  = latest['emotion_score']
 
-    target_pos          = score_to_target(score)
+    if strategy == 'S6':
+        vol_annual = latest.get('realized_vol_20d', 0.0)
+        if pd.isna(vol_annual):
+            vol_annual = 0.0
+        target_pos = score_to_target_kelly(score, vol_annual)
+    else:
+        target_pos = score_to_target(score)
+
     zone_code, zone_cn  = score_to_zone(score)
     current_pos         = state['current_pos']
     days_since          = state['days_since_change']
@@ -217,7 +318,7 @@ def get_signal(scores: pd.DataFrame, ecology: pd.DataFrame = None) -> dict:
             action    = 'HOLD'
             action_cn = f'    无需操作，持仓维持 {int(current_pos*100)}%'
 
-    return {
+    result = {
         'date'             : latest['trade_date'].strftime('%Y-%m-%d'),
         'score'            : round(score, 1),
         'zone_code'        : zone_code,
@@ -233,7 +334,12 @@ def get_signal(scores: pd.DataFrame, ecology: pd.DataFrame = None) -> dict:
         'last_change_date' : state['last_change_date'],
         'last_change_from' : state['last_change_from'],
         'last_change_to'   : state['last_change_to'],
+        'strategy'         : strategy,
     }
+    if strategy == 'S6':
+        result['vol_adj'] = state.get('vol_adj', 1.0)
+        result['dd_mult'] = state.get('dd_mult', 1.0)
+    return result
 
 
 # ======================================================================
@@ -242,10 +348,11 @@ def get_signal(scores: pd.DataFrame, ecology: pd.DataFrame = None) -> dict:
 
 def print_signal(sig: dict, scores: pd.DataFrame):
     trend = '↑' if sig['chg_1d'] > 0 else ('↓' if sig['chg_1d'] < 0 else '→')
+    strat = sig.get('strategy', 'S5')
 
     print()
     print("=" * 62)
-    print(f"  A股市场情绪仪表盘  |  {sig['date']}")
+    print(f"  A股市场情绪仪表盘  |  {sig['date']}  [{strat}]")
     print("=" * 62)
     print()
     print(f"  情绪得分: {sig['score']:5.1f} / 100  "
@@ -273,6 +380,11 @@ def print_signal(sig: dict, scores: pd.DataFrame):
     if sig['days_until_next'] > 0:
         print(f"  |  冷却期剩余  {sig['days_until_next']:>3} 天"
               f"                                       |")
+    if strat == 'S6':
+        vol_adj = sig.get('vol_adj', 1.0)
+        dd_mult = sig.get('dd_mult', 1.0)
+        print(f"  |  波动率缩放  x{vol_adj:.2f}  回撤弹性  x{dd_mult:.2f}"
+              f"{'':>16}|")
     print("  +------------------------------------------------+")
     print()
     print(f"  {sig['action_cn']}")
@@ -294,10 +406,17 @@ def print_signal(sig: dict, scores: pd.DataFrame):
 
     print()
     print("─" * 62)
-    print("  规则 (S5 LinearThrottle, 回测 Sharpe 1.34 / 最大回撤 -9.2%):")
-    print("  ① 情绪分每 25 点 → 25% 仓位  (0/25/50/75/100%)")
-    print("  ② 调仓冷却期 ≥5 天 且 仓位差 ≥15% 才执行")
-    print("  ③ 配合选股: 总仓位 ÷ N支股票 = 每支持仓比例")
+    if strat == 'S6':
+        print("  规则 (S6 Kelly-VolAdaptive, P0 极致复利版):")
+        print("  ① 情绪分 → S5 线性基础仓位 (0/25/50/75/100%)")
+        print("  ② × Kelly波动率缩放: 高波自动压仓 (σ↑→f↓)")
+        print("  ③ × 回撤弹性: 回撤>3%开始递减, >8%指数衰减")
+        print("  ④ 调仓冷却期 ≥5 天 且 仓位差 ≥15%  (防抖不变)")
+    else:
+        print("  规则 (S5 LinearThrottle, 回测 Sharpe 1.34 / 最大回撤 -9.2%):")
+        print("  ① 情绪分每 25 点 → 25% 仓位  (0/25/50/75/100%)")
+        print("  ② 调仓冷却期 ≥5 天 且 仓位差 ≥15% 才执行")
+        print("  ③ 配合选股: 总仓位 ÷ N支股票 = 每支持仓比例")
     print("=" * 62)
 
 
@@ -342,10 +461,12 @@ def main():
     parser = argparse.ArgumentParser(description='今日实盘信号')
     parser.add_argument('--feishu', action='store_true',
                         help='是否将结果推送为飞书互动卡片')
+    parser.add_argument('--strategy', choices=['S5', 'S6'], default='S5',
+                        help='S5=原版LinearThrottle, S6=Kelly-Vol+回撤弹性')
     args = parser.parse_args()
 
     scores = load_scores()
-    
+
     # Try to load ecology data for emergency checks
     try:
         ecology = pd.read_csv('backtest/data/ecology_cache.csv', parse_dates=['trade_date'])
@@ -353,8 +474,19 @@ def main():
     except Exception as e:
         print(f"Warning: Could not load ecology data for emergency checks: {e}")
         ecology = None
-        
-    sig    = get_signal(scores, ecology)
+
+    # S6 needs index close for drawdown tracking
+    index_close = None
+    if args.strategy == 'S6':
+        try:
+            idx = pd.read_csv('backtest/data/index_daily.csv', parse_dates=['trade_date'])
+            idx = idx.sort_values('trade_date').reset_index(drop=True)
+            merged = scores.merge(idx[['trade_date', 'close']], on='trade_date', how='left')
+            index_close = merged['close']
+        except Exception as e:
+            print(f"Warning: Could not load index data for S6 drawdown tracking: {e}")
+
+    sig = get_signal(scores, ecology, strategy=args.strategy, index_close=index_close)
 
     if args.feishu:
         # 即使推送飞书，也打印完整日志，供 OpenClaw 大模型读取

@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 
+from sentiment_engine import drawdown_elastic_multiplier
+
 
 @dataclass(frozen=True)
 class RiskConfig:
@@ -9,11 +11,12 @@ class RiskConfig:
     loss_streak_reduce_threshold: int = 3
     loss_streak_halt_threshold: int = 5
     loss_streak_cap_ratio: float = 0.5
+    enable_elastic_drawdown: bool = True
 
 
 def evaluate_risk_controls(position_before_risk, context=None, config=None):
     """
-    Evaluate three-layer risk controls and return a stable decision schema.
+    Four-layer risk controls (Layer 0 is new elastic drawdown).
 
     Parameters
     ----------
@@ -40,14 +43,24 @@ def evaluate_risk_controls(position_before_risk, context=None, config=None):
     cap = raw_position
     reasons = []
 
-    # Layer 1: portfolio hard stop (worst priority)
+    # Layer 0 (NEW): elastic drawdown — continuous position reduction
+    elastic_mult = 1.0
+    if cfg.enable_elastic_drawdown and rolling_drawdown_pct < 0:
+        elastic_mult = drawdown_elastic_multiplier(rolling_drawdown_pct)
+        if elastic_mult < 1.0:
+            elastic_cap = int(raw_position * elastic_mult)
+            cap = min(cap, max(elastic_cap, 5))  # keep at least 5% observation position
+            flags.append("elastic_dd")
+            reasons.append(f"dd={rolling_drawdown_pct:.1f}%->x{elastic_mult:.2f}")
+
+    # Layer 1: portfolio hard stop
     if daily_pnl_pct <= cfg.daily_stop_loss_pct:
         flags.append("daily_stop")
         halt_new_entries = True
         cap = 0
         reasons.append(f"daily_loss<{cfg.daily_stop_loss_pct}%")
 
-    # Layer 2: rolling drawdown cap
+    # Layer 2: rolling drawdown hard cap (unchanged — emergency floor)
     if rolling_drawdown_pct <= cfg.rolling_drawdown_limit_pct:
         flags.append("drawdown_cap")
         cap = min(cap, int(cfg.drawdown_cap_position))
@@ -77,4 +90,5 @@ def evaluate_risk_controls(position_before_risk, context=None, config=None):
         "position_cap_after_risk": int(max(0, min(100, cap))),
         "halt_reason": ";".join(reasons),
         "flags": flags,
+        "elastic_multiplier": round(elastic_mult, 3),
     }

@@ -141,88 +141,53 @@ class EmotionScorer:
     def compute_with_reversal(self, ecology: pd.DataFrame,
                               reversal_params: dict = None) -> pd.DataFrame:
         """
-        带拐点检测的增强版评分
-
+        简化版评分：移除过度拟合的闪崩和衰竭逻辑，使用平滑均线动量判断趋势。
+        
         五档信号:
           high                 : 情绪 >= 65, 满仓进攻
           medium               : 40 <= 情绪 < 65, 半仓
-          low_stable           : 情绪 < 40, 但已企稳 → 轻仓观望
-          low_falling          : 情绪 < 40, 且仍在下降 → 空仓清仓
-          reversal_buy         : 情绪从极低位开始回升 → 重仓抄底
-          flash_crash_reversal : 情绪2日内闪崩并出现右侧火种 → 满仓吃修复
-          exhaustion_reversal  : 情绪连续3天极寒并出现微弱火种 → 重仓博弈
+          low_stable           : 情绪 < 40, 且短期趋势向上 → 轻仓观望
+          low_falling          : 情绪 < 40, 且短期趋势向下 → 空仓清仓
+          reversal_buy         : 极度悲观且趋势强烈向上 → 重仓抄底
         """
         base = self.compute(ecology)
         params = reversal_params or REVERSAL_PARAMS.copy()
 
         score = base['emotion_score']
         
-        chg_1d = score.diff()
-        chg_2d = score.diff(2)
-        chg_3d = score.diff(3)
-        rising_streak = pd.Series(0, index=score.index)
-        streak = 0
-        for i in range(len(chg_1d)):
-            if i > 0 and chg_1d.iloc[i] > 0:
-                streak += 1
-            else:
-                streak = 0
-            rising_streak.iloc[i] = streak
-            
-        # Freeze streak counter for exhaustion logic (事不过三)
-        freeze_streak = pd.Series(0, index=score.index)
-        f_streak = 0
-        for i in range(len(score)):
-            if score.iloc[i] < params['exhaustion_threshold']:
-                f_streak += 1
-            else:
-                f_streak = 0
-            freeze_streak.iloc[i] = f_streak
-
-        # Was recently at extreme low (within last 5 days)
-        rolling_min_5d = score.rolling(5, min_periods=1).min()
-        was_extreme = rolling_min_5d < params['extreme_low_threshold']
-
-        is_low = score < params['low_threshold']
-        is_rising_3d = chg_3d > params['rising_delta_3d']
-        is_rising_1d = chg_1d > params['rising_delta_1d']
-        has_rising_streak = rising_streak >= params['consecutive_rise']
-
-        # 1. 闪崩型反转 (Flash Crash)
-        # 近2日暴跌且跌破极寒线，但今日已企稳或回升(右侧火种)
-        is_flash_crash = (chg_2d <= params['flash_crash_drop_2d']) & (score < params['flash_crash_threshold'])
-        is_flash_crash_reversal = is_flash_crash & (chg_1d > 0)
+        # 使用 3日平滑均线 来判断趋势，而不是单日跳动
+        ema_3 = score.ewm(span=3, adjust=False).mean()
+        chg_ema = ema_3.diff()
         
-        # 2. 衰竭型反转 (Exhaustion / 事不过三)
-        # 连续 >=3 天在极寒线下，且今天出现环比回升 (微弱火种)
-        is_exhaustion = freeze_streak >= params['exhaustion_days']
-        is_exhaustion_reversal = is_exhaustion & (chg_1d > 0)
+        # 判断是否处于低位
+        is_low = score < params['low_threshold']
+        
+        # 极度悲观回升
+        was_extreme = score.rolling(5, min_periods=1).min() < params['extreme_low_threshold']
+        reversal_signal = is_low & was_extreme & (chg_ema > 0) & (score.diff(3) > params['rising_delta_3d'])
 
-        # 3. 常规反转 (普通左侧回升)
-        reversal_signal = (
-            is_low
-            & was_extreme
-            & (is_rising_3d | (is_rising_1d & has_rising_streak))
-            & ~is_flash_crash_reversal
-            & ~is_exhaustion_reversal
-        )
-
-        still_falling = is_low & (chg_3d < 0) & ~reversal_signal & ~is_flash_crash_reversal & ~is_exhaustion_reversal
-        low_stable = is_low & ~still_falling & ~reversal_signal & ~is_flash_crash_reversal & ~is_exhaustion_reversal
+        # 仍在恶化
+        still_falling = is_low & (chg_ema <= 0) & ~reversal_signal
+        
+        # 低位企稳
+        low_stable = is_low & (chg_ema > 0) & ~reversal_signal
 
         regime_rev = base['regime'].copy()
         regime_rev[reversal_signal] = 'reversal_buy'
         regime_rev[still_falling] = 'low_falling'
         regime_rev[low_stable] = 'low_stable'
-        regime_rev[is_flash_crash_reversal] = 'flash_crash_reversal'
-        regime_rev[is_exhaustion_reversal] = 'exhaustion_reversal'
 
         base['regime_reversal'] = regime_rev
-        base['position_pct_reversal'] = regime_rev.map(POSITION_MAP_REVERSAL)
-        base['score_chg_1d'] = chg_1d.round(2)
-        base['score_chg_3d'] = chg_3d.round(2)
-        base['rising_streak'] = rising_streak
-        base['freeze_streak'] = freeze_streak
+        base['position_pct_reversal'] = regime_rev.map(POSITION_MAP_REVERSAL).fillna(base['position_pct'])
+        base['score_chg_1d'] = score.diff().round(2)
+        base['score_chg_3d'] = score.diff(3).round(2)
+        
+        # 补齐为了兼容旧接口的列
+        chg_ema_is_pos = chg_ema > 0
+        base['rising_streak'] = chg_ema_is_pos.groupby((~chg_ema_is_pos).cumsum()).cumsum()
+        
+        is_extreme_low = score < params['exhaustion_threshold']
+        base['freeze_streak'] = is_extreme_low.groupby((~is_extreme_low).cumsum()).cumsum()
 
         counts = base['regime_reversal'].value_counts()
         logger.info(f"拐点Regime: {counts.to_dict()}")

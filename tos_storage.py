@@ -45,12 +45,18 @@ SYNC_DIRS: List[Dict] = [
 VALID_ROLES = ("cloud_ecs", "local_laptop")
 
 
+CONFIG_EXAMPLE = Path(__file__).resolve().parent / "tos_config.json.example"
+
+
 def _load_config() -> dict:
     if not CONFIG_PATH.exists():
-        raise FileNotFoundError(
+        hint = (
             f"TOS 配置文件不存在: {CONFIG_PATH}\n"
-            "请复制 tos_config.json 模板并填入你的 AccessKey、SecretKey、Bucket 等信息。"
+            "请复制模板并填入 AccessKey、SecretKey、Bucket 等信息：\n"
+            f"  cp {CONFIG_EXAMPLE.name} tos_config.json\n"
+            "也可使用环境变量 TOS_ACCESS_KEY, TOS_SECRET_KEY, TOS_ENDPOINT, TOS_REGION, TOS_BUCKET。"
         )
+        raise FileNotFoundError(hint)
     with open(CONFIG_PATH, "r", encoding="utf-8") as f:
         cfg = json.load(f)
 
@@ -489,6 +495,50 @@ class TosStorage:
 
         return report
 
+    def verify_recent_updates(self, top_n: int = 20) -> List[dict]:
+        """
+        收集 TOS 上所有同步目录中的文件，按 last_modified 降序，返回最近更新的 top_n 条。
+        用于确认云端数据是否在近期有写入。
+        返回项: {"key", "size", "last_modified", "last_modified_iso", "writer"}
+        """
+        all_objs: List[dict] = []
+        for sync_cfg in SYNC_DIRS:
+            prefix = sync_cfg["remote"].rstrip("/") + "/"
+            for obj in self.list_objects(prefix=prefix):
+                if obj.get("key", "").endswith("/"):
+                    continue
+                all_objs.append(obj)
+
+        def _ts(o):
+            lm = o.get("last_modified")
+            if lm is None:
+                return 0.0
+            try:
+                if hasattr(lm, "timestamp"):
+                    return lm.timestamp()
+                s = str(lm).replace("Z", "+00:00")
+                return datetime.fromisoformat(s).timestamp()
+            except Exception:
+                return 0.0
+
+        all_objs.sort(key=_ts, reverse=True)
+        manifest = self._get_manifest()
+        result = []
+        for o in all_objs[:top_n]:
+            key = o["key"]
+            entry = manifest.get_entry(key)
+            writer = entry.get("writer", "?") if entry else "?"
+            ts = _ts(o)
+            last_iso = datetime.fromtimestamp(ts, tz=timezone.utc).strftime("%Y-%m-%d %H:%M UTC") if ts else ""
+            result.append({
+                "key": key,
+                "size": o["size"],
+                "last_modified": ts,
+                "last_modified_iso": last_iso,
+                "writer": writer,
+            })
+        return result
+
 
 # ======================================================================
 # CLI
@@ -507,6 +557,7 @@ def main():
     python tos_storage.py sync-down           # 增量下载
     python tos_storage.py sync-up --dry-run   # 预览将要上传的文件
     python tos_storage.py status              # 查看状态 + 文件归属
+    python tos_storage.py verify              # 确认云端数据是否近期有更新
     python tos_storage.py ls                  # 列出 TOS 全部文件
     python tos_storage.py ls backtest/data    # 列出指定前缀
 
@@ -519,7 +570,7 @@ def main():
 
     parser.add_argument(
         "action",
-        choices=["upload", "download", "sync-up", "sync-down", "status", "ls"],
+        choices=["upload", "download", "sync-up", "sync-down", "status", "verify", "ls"],
         help="操作类型",
     )
     parser.add_argument("prefix", nargs="?", default="", help="ls 命令的前缀过滤")
@@ -576,6 +627,21 @@ def main():
                   f"local_laptop={w.get('local_laptop', 0)}, "
                   f"未记录={w.get('unknown', 0)}")
             print()
+
+    elif args.action == "verify":
+        print("=== 云端数据近期更新确认 ===\n")
+        top_n = 20
+        recent = storage.verify_recent_updates(top_n=top_n)
+        if not recent:
+            print("  TOS 上暂无同步目录中的文件，请先执行 sync-up 或 pipeline --tos 上传数据。")
+        else:
+            print(f"  以下为 TOS 上最近更新的 {min(top_n, len(recent))} 个文件（按修改时间倒序）：\n")
+            for i, r in enumerate(recent, 1):
+                size_mb = r["size"] / 1024 / 1024
+                print(f"  {i:2}. {r['last_modified_iso']}  {r['writer']:>13}  {size_mb:6.2f} MB  {r['key']}")
+            latest = recent[0]
+            print(f"\n  最新更新: {latest['last_modified_iso']} — {latest['key']} (by {latest['writer']})")
+            print("  若上述时间在近期（如今日/昨日），说明云端写入正常。")
 
     elif args.action == "ls":
         prefix = args.prefix

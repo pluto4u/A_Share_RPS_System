@@ -42,13 +42,21 @@ class EmotionFactors:
         return series.clip(low, high)
 
     def _rolling_percentile_rank(self, series: pd.Series) -> pd.Series:
-        """将原始值映射到滚动窗口内的百分位排名 (0-100)"""
+        """将原始值映射到滚动窗口内的百分位排名 (0-100)，加入绝对值惩罚项以避免低波动期的虚假高分"""
         def _pct_rank(window):
             if len(window) < 2:
                 return 50.0
             val = window.iloc[-1]
+            # 基础排名
             rank = (window < val).sum()
-            return rank / (len(window) - 1) * 100
+            base_score = rank / (len(window) - 1) * 100
+            
+            # 加入绝对值惩罚：如果当前值低于历史中位数的一半，即使排名高也打折
+            median_val = window.median()
+            if val < median_val * 0.5 and median_val > 0:
+                base_score *= (val / (median_val * 0.5))
+                
+            return base_score
 
         result = series.rolling(self.rolling_window, min_periods=10).apply(
             _pct_rank, raw=False
