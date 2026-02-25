@@ -171,7 +171,8 @@ def reconstruct_s6_state(scores: pd.DataFrame, index_close: pd.Series = None) ->
             dd_pct = 0.0
 
         latest_dd_mult = drawdown_elastic_multiplier(dd_pct)
-        target = min(target, round(target * latest_dd_mult * 20) / 20)
+        if latest_dd_mult < 1.0:
+            target = round(target * latest_dd_mult * 4) / 4  # 25% grid
 
         days_since += 1
         if days_since >= MIN_DAYS_BETWEEN:

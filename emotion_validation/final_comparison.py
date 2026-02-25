@@ -317,12 +317,12 @@ def s6_kelly_vol_elastic(df):
     S6: Kelly-Vol自适应 + 回撤弹性 + S5防抖
 
     相比 S5:
-      1. 目标仓位 = S5线性基础 × Kelly波动率缩放 (高波自动压仓)
-      2. 实际仓位 ≤ 目标仓位 × 回撤弹性系数 (回撤>3%开始递减)
-      3. 防抖规则不变: 5天冷却期 + 15%变化门槛
+      1. 目标仓位 = S5线性基础 × Kelly波动率缩放 (仅极端高波才压仓)
+      2. 实际仓位 ≤ 目标仓位 × 回撤弹性系数 (回撤>8%开始递减)
+      3. 防抖规则不变: 5天冷却期 + 15%变化门槛 + 25%仓位网格
     """
     score = df['emotion_score']
-    vol = df.get('realized_vol_20d', pd.Series(0.22, index=df.index))
+    has_vol = 'realized_vol_20d' in df.columns
     close = df['close']
 
     positions = []
@@ -334,10 +334,11 @@ def s6_kelly_vol_elastic(df):
     for i in range(len(df)):
         days_since_change += 1
 
-        vol_val = vol.iloc[i] if not pd.isna(vol.iloc[i]) else 0.22
+        vol_val = df['realized_vol_20d'].iloc[i] if has_vol else 0.0
+        if pd.isna(vol_val):
+            vol_val = 0.0
         target = score_to_target_kelly(score.iloc[i], vol_val)
 
-        # track portfolio-level drawdown
         if i > 0:
             daily_ret = (close.iloc[i] - close.iloc[i-1]) / close.iloc[i-1]
             nav *= (1 + daily_ret * cur_pos)
@@ -345,7 +346,8 @@ def s6_kelly_vol_elastic(df):
         dd_pct = (nav / peak_nav - 1.0) * 100
 
         dd_mult = drawdown_elastic_multiplier(dd_pct)
-        target = round(min(target, target * dd_mult) * 20) / 20  # 5% grid
+        if dd_mult < 1.0:
+            target = round(target * dd_mult * 4) / 4  # 25% grid
 
         if days_since_change >= 5 or i == 0:
             delta = abs(target - cur_pos)
