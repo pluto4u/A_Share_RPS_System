@@ -49,16 +49,10 @@ CONFIG_EXAMPLE = Path(__file__).resolve().parent / "tos_config.json.example"
 
 
 def _load_config() -> dict:
-    if not CONFIG_PATH.exists():
-        hint = (
-            f"TOS 配置文件不存在: {CONFIG_PATH}\n"
-            "请复制模板并填入 AccessKey、SecretKey、Bucket 等信息：\n"
-            f"  cp {CONFIG_EXAMPLE.name} tos_config.json\n"
-            "也可使用环境变量 TOS_ACCESS_KEY, TOS_SECRET_KEY, TOS_ENDPOINT, TOS_REGION, TOS_BUCKET。"
-        )
-        raise FileNotFoundError(hint)
-    with open(CONFIG_PATH, "r", encoding="utf-8") as f:
-        cfg = json.load(f)
+    cfg = {}
+    if CONFIG_PATH.exists():
+        with open(CONFIG_PATH, "r", encoding="utf-8") as f:
+            cfg = json.load(f)
 
     for key in ("access_key", "secret_key", "endpoint", "region", "bucket"):
         val = os.environ.get(f"TOS_{key.upper()}", cfg.get(key, ""))
