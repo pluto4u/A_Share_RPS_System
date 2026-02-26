@@ -122,28 +122,35 @@ class DataWarehouse:
     # Single stock fetch
     # ------------------------------------------------------------------
 
-    def _fetch_single_stock(self, code: str, start_date: str, end_date: str) -> Optional[pd.DataFrame]:
-        """获取单只股票前复权日线数据"""
+    def _fetch_single_stock(self, code: str, start_date: str, end_date: str, max_retries: int = 3) -> Optional[pd.DataFrame]:
+        """获取单只股票前复权日线数据（带重试机制）"""
         import akshare as ak
+        import random
 
-        try:
-            df = ak.stock_zh_a_hist(
-                symbol=code, period='daily',
-                start_date=start_date, end_date=end_date,
-                adjust='qfq',
-            )
-            if df is None or df.empty:
-                return None
+        for attempt in range(max_retries):
+            try:
+                df = ak.stock_zh_a_hist(
+                    symbol=code, period='daily',
+                    start_date=start_date, end_date=end_date,
+                    adjust='qfq',
+                )
+                if df is None or df.empty:
+                    return None
 
-            df = df.rename(columns=STOCK_HIST_COL_MAP)
+                df = df.rename(columns=STOCK_HIST_COL_MAP)
 
-            suffix = '.SH' if code.startswith('6') else '.SZ'
-            df['ts_code'] = code + suffix
-            return df
+                suffix = '.SH' if code.startswith('6') else '.SZ'
+                df['ts_code'] = code + suffix
+                return df
 
-        except Exception as e:
-            logger.debug(f"获取 {code} 失败: {e}")
-            return None
+            except Exception as e:
+                if attempt < max_retries - 1:
+                    sleep_time = random.uniform(0.5, 2.0) * (2 ** attempt) # 指数退避
+                    logger.debug(f"获取 {code} 失败: {e}, {sleep_time:.1f}秒后重试 ({attempt+1}/{max_retries})...")
+                    time.sleep(sleep_time)
+                else:
+                    logger.warning(f"获取 {code} 最终失败: {e}")
+                    return None
 
     # ------------------------------------------------------------------
     # Index fetch
@@ -228,6 +235,10 @@ class DataWarehouse:
                 except Exception:
                     failed.append(code)
 
+                # 动态限流：每完成一定数量的请求，稍微休息一下
+                if done_count % 50 == 0:
+                    time.sleep(0.5)
+
                 if done_count % 200 == 0 or done_count == len(codes):
                     elapsed = time.time() - t0
                     logger.info(
@@ -311,13 +322,19 @@ class DataWarehouse:
                 executor.submit(self._fetch_single_stock, code, start_date, end_date): code
                 for code in codes
             }
+            done_count = 0
             for future in as_completed(futures):
+                done_count += 1
                 try:
                     df = future.result()
                     if df is not None and not df.empty:
                         new_data.append(df)
                 except Exception:
                     pass
+                
+                # 动态限流
+                if done_count % 50 == 0:
+                    time.sleep(0.5)
 
         if not new_data:
             logger.info("无新数据（可能非交易日）")
