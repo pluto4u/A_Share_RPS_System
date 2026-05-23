@@ -1,4 +1,4 @@
-# RPS 功能说明与使用
+# TDX RPS 选股说明与使用
 
 本文档说明本仓库新增的**通达信 RPS 选股**相关功能、使用方式，以及在其他终端或与 Cursor 协作时如何快速继承上下文。
 
@@ -9,7 +9,7 @@
 | 功能 | 说明 |
 |------|------|
 | **通达信数据读取** | 从本地 TDX `vipdoc/{sh,sz}/lday/*.day` 读取 A 股日线，输出标准 DataFrame |
-| **日线 RPS 选股** | 基于 `learn/TDX_taoboshi.md` 的 8 大条件（RPS120+250、均线多头、回撤、换手等）筛选强势股 |
+| **日线 RPS 选股** | 基于 `learn/tdx_taoboshi_reference.md` 的 8 大条件（RPS120+250、均线多头、回撤、换手等）筛选强势股 |
 | **周线 RPS 选股** | 周线 RPS120 翻红 + 穿越 120 周线 + 紧凑吸筹 + 放量突破，参考亨通光电/长光华芯/通鼎互联形态 |
 | **双 CSV 输出** | 选股结果同时输出：完整条件表 + 仅股票代码表 |
 | **通达信板块导出** | 将选股结果 CSV 转为 TDX 自定义板块 `.blk`，在通达信内直接打开板块查看 |
@@ -134,7 +134,7 @@ result = screener.screen(df, target_date="20260305", verbose=True)
 | `rps_analyzer/rps_calculator.py` | 日线 RPS 计算 |
 | `rps_analyzer/tdx_stock_screener.py` | 日线 8 条件选股 |
 | `rps_analyzer/weekly_rps_screener.py` | 周线吸筹突破选股 |
-| `learn/TDX_taoboshi.md` | 通达信公式与选股条件参考 |
+| `learn/tdx_taoboshi_reference.md` | 通达信公式与选股条件参考 |
 
 ---
 
@@ -158,11 +158,11 @@ result = screener.screen(df, target_date="20260305", verbose=True)
 ### 6.2 与 Cursor 交互时继承上下文
 
 - **推荐**：在新会话或新终端中，直接引用本文档与相关文件，让 AI 理解现有能力与约定：
-  - 在 Cursor 中 @ 本文档：`@docs/RPS功能说明与使用.md`
-  - 需要改选股逻辑时 @ 公式参考：`@learn/TDX_taoboshi.md`
+  - 在 Cursor 中 @ 本文档：`@docs/tdx_rps_screener_guide.md`
+  - 需要改选股逻辑时 @ 公式参考：`@learn/tdx_taoboshi_reference.md`
   - 需要改数据源或输出时 @ 对应脚本或 `rps_analyzer/` 下模块
 - **可补充的说明**（复制给 Cursor 即可）：
-  - “RPS 选股使用本地通达信数据，入口是 `run_tdx_screener.py`，输出两套 CSV；导出板块用 `csv_to_tdx_blk.py`。详细见 `docs/RPS功能说明与使用.md`。”
-- 若你固定使用 Gitee 的某分支（如 `dev0`），可说明：“RPS 相关代码在 `dev0`，文档在 `docs/RPS功能说明与使用.md`。”
+  - “RPS 选股使用本地通达信数据，入口是 `run_tdx_screener.py`，输出两套 CSV；导出板块用 `csv_to_tdx_blk.py`。详细见 `docs/tdx_rps_screener_guide.md`。”
+- 若你固定使用 Gitee 的某分支（如 `dev0`），可说明：“RPS 相关代码在 `dev0`，文档在 `docs/tdx_rps_screener_guide.md`。”
 
 这样在其他终端或新开 Cursor 会话时，只需读这份文档即可复现环境与用法，并与 Cursor 对齐上下文。

@@ -31,8 +31,8 @@ backtest/reports/
 # Backups
 A_share_projects_backup_*/
 
-# Output artifacts
-output/
+# Output artifacts (track screener CSV/logs in repo; skip large local cache)
+output/cache_*.parquet
 *.log
 
 # OS
@@ -45,6 +45,9 @@ Desktop.ini
 tos.env
 feishu_config.local.json
 tos_config.json
+
+# Personal portfolio (never commit real holdings)
+portfolio.csv
 
 # OpenCode config (personal)
 opencode.json

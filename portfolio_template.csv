@@ -1,0 +1,12 @@
+ts_code,buy_date,cost_price,shares,slot_type,notes
+# 持仓清单模板 - 复制本文件为 portfolio.csv 后填写实际持仓 (portfolio.csv 已加入 .gitignore)
+# 字段说明:
+#   ts_code     必填  600519.SH / 000001.SZ 格式
+#   buy_date    必填  YYYYMMDD
+#   cost_price  必填  实际买入成本 (含手续费可不重要,主要用于浮盈%判断)
+#   shares      必填  持仓股数
+#   slot_type   必填  核心 / 机动 (对应 SOP §1.1)
+#   notes       选填  备注 (题材/行业等)
+# 示例 (取消注释后即生效):
+# 688498.SH,20260305,854.00,100,核心,源杰科技-CPO
+# 002384.SZ,20260417,12.50,500,机动,东山精密-火车轨FIRST_W

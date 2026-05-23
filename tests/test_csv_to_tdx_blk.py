@@ -36,11 +36,22 @@ def test_convert_csv_to_blk_writes_unique_codes(tmp_path):
     assert blk_path.read_text(encoding="gbk").splitlines() == ["1600519", "0300164"]
 
 
-def test_convert_csv_to_blk_requires_ts_code(tmp_path):
+def test_convert_csv_to_blk_headerless_codes(tmp_path):
     from csv_to_tdx_blk import convert_csv_to_blk
 
-    csv_path = tmp_path / "bad.csv"
-    pd.DataFrame({"code": ["600519.SH"]}).to_csv(csv_path, index=False)
+    csv_path = tmp_path / "tdx_screener_20260305_codes.csv"
+    csv_path.write_text("600519.SH\n300164.SZ\n600519.SH\n", encoding="utf-8-sig")
 
-    with pytest.raises(ValueError, match="ts_code"):
+    blk_path, count = convert_csv_to_blk(csv_path, out_dir=tmp_path / "blk")
+    assert count == 2
+    assert blk_path.read_text(encoding="gbk").splitlines() == ["1600519", "0300164"]
+
+
+def test_convert_csv_to_blk_requires_codes(tmp_path):
+    from csv_to_tdx_blk import convert_csv_to_blk
+
+    csv_path = tmp_path / "empty.csv"
+    csv_path.write_text("", encoding="utf-8")
+
+    with pytest.raises(ValueError, match="no stock codes"):
         convert_csv_to_blk(csv_path, out_dir=tmp_path)

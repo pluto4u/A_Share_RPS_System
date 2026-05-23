@@ -19,6 +19,8 @@ from typing import Iterable
 
 import pandas as pd
 
+from rps_analyzer.codes_csv import read_codes_csv
+
 
 DEFAULT_OUTPUT_DIR = Path(r"D:\tdx\T0002\blocknew")
 
@@ -69,11 +71,18 @@ def convert_csv_to_blk(
     if not csv_path.exists():
         raise FileNotFoundError(f"csv not found: {csv_path}")
 
-    df = pd.read_csv(csv_path)
-    if "ts_code" not in df.columns:
-        raise ValueError("input csv must contain 'ts_code' column")
-
-    ts_codes = [str(x).strip() for x in df["ts_code"].dropna().tolist() if str(x).strip()]
+    # 完整选股结果含 ts_code 列；*_codes.csv 为单列无表头
+    try:
+        head = pd.read_csv(csv_path, nrows=0, encoding="utf-8-sig")
+    except pd.errors.EmptyDataError:
+        raise ValueError("no stock codes found in csv") from None
+    if "ts_code" in head.columns:
+        df = pd.read_csv(csv_path, encoding="utf-8-sig", dtype=str)
+        ts_codes = [str(x).strip() for x in df["ts_code"].dropna().tolist() if str(x).strip()]
+    else:
+        ts_codes = read_codes_csv(csv_path)
+    if not ts_codes:
+        raise ValueError("no stock codes found in csv")
     blk_codes = _unique_in_order(to_tdx_blk_code(ts_code) for ts_code in ts_codes)
 
     out_dir.mkdir(parents=True, exist_ok=True)

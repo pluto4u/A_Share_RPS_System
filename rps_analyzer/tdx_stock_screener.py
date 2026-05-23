@@ -2,7 +2,7 @@
 ================================================================================
 通达信 RPS 选股策略 Python 实现
 ================================================================================
-基于 TDX_taoboshi.md 的通达信公式，完整实现 8 大选股条件:
+基于 learn/tdx_taoboshi_reference.md 的通达信公式，完整实现 8 大选股条件:
 
   SXHCG1: RPS120 + RPS250 > 阈值 (默认180)
   SXHCG2: 均线多头排列 (站上20日线、长期均线支撑、短期均线收敛)
@@ -227,11 +227,9 @@ class TdxStockScreener:
             cfg.ma5_break_lookback,
         ) + 5
 
-        stocks = df["ts_code"].unique()
         records = []
 
-        for code in stocks:
-            stock_df = df[df["ts_code"] == code]
+        for code, stock_df in df.groupby("ts_code", sort=False):
             window = self._get_stock_window(stock_df, target_date, max_lookback)
 
             if len(window) < max_lookback:
@@ -487,6 +485,128 @@ def print_diagnosis(diag: Dict):
     final = "PASS" if diag["all_pass"] else "FAIL"
     print(f"  Final: {final}")
     print(f"{'='*60}\n")
+
+
+def layer2_strict_config() -> TdxScreenerConfig:
+    """
+    Layer 2 严格参数 — 基于 docs/tdx_rps_extension_zhutu.md 主图画标记策略
+
+    与 Layer 1 的区别:
+      - RPS 阈值 185 (vs 180)
+      - MA250/200 支撑天数 25 (vs 20)
+      - MA20 短期天数 9 (vs 7)
+      - 接近新高用 250 日 (vs 120 日)
+      - 只用核心 5 条件 (关闭 SXHCG6/7/8)
+    """
+    return TdxScreenerConfig(
+        rps_sum_threshold=185.0,
+        ma250_min_days=25,
+        ma200_min_days=25,
+        ma20_short_min_days=9,
+        near_high_period=250,
+        near_high_ratio=0.80,
+        ma5_min_days=0,
+        ma5_lookback=10,
+        min_amount=0,
+        amount_min_days=0,
+        amount_lookback=10,
+        ma5_break_max=999,
+        ma5_break_lookback=3,
+    )
+
+
+def screen_layer2(
+    df: pd.DataFrame,
+    layer1_codes: list,
+    target_date: Optional[str] = None,
+    first_signal_weeks: int = 8,
+    verbose: bool = True,
+) -> pd.DataFrame:
+    """
+    Layer 2: 从 Layer 1 候选池中，用 ZHUTU 严格条件复筛，
+    并检测 "首次触发" — 最近 N 周内第一次满足全部条件。
+
+    参数
+    ----------
+    df : pd.DataFrame
+        带 RPS 的全市场日线数据
+    layer1_codes : list
+        Layer 1 入选的 ts_code 列表
+    target_date : str, optional
+        目标日期
+    first_signal_weeks : int
+        首次触发回看周数 (默认 8, 对应 ~40 交易日)
+    verbose : bool
+        打印过程
+
+    返回
+    -------
+    pd.DataFrame
+        Layer 2 入选股票 + L2_FIRST_SIGNAL 列
+    """
+    if verbose:
+        print(f"\n[Layer 2] 候选池: {len(layer1_codes)} 只")
+
+    cfg = layer2_strict_config()
+    screener = TdxStockScreener(cfg)
+
+    sub_df = df[df["ts_code"].isin(layer1_codes)].copy()
+    if sub_df.empty:
+        if verbose:
+            print("[Layer 2] 候选池无数据")
+        return pd.DataFrame()
+
+    result = screener.screen(sub_df, target_date=target_date, verbose=verbose)
+
+    if result.empty:
+        if verbose:
+            print("[Layer 2] 无股票通过严格条件")
+        return result
+
+    lookback_days = first_signal_weeks * 5
+    prepared = screener._prepare_data(sub_df)
+
+    if target_date is None:
+        td = prepared["trade_date"].max()
+    else:
+        td = pd.Timestamp(target_date)
+
+    first_signal_flags = []
+    for code in result["ts_code"]:
+        stock_df = prepared[prepared["ts_code"] == code]
+        dates = stock_df[stock_df["trade_date"] <= td]["trade_date"].nlargest(lookback_days + 1)
+
+        if len(dates) < 2:
+            first_signal_flags.append(True)
+            continue
+
+        check_dates = dates.iloc[1:]
+        was_passing_before = False
+        for d in check_dates:
+            day_row = stock_df[stock_df["trade_date"] == d].iloc[0]
+            window = screener._get_stock_window(stock_df, d, 40)
+            if len(window) < 35:
+                continue
+            all_pass = (
+                screener._cond1_rps(day_row)
+                and screener._cond2_ma_bull(window)
+                and screener._cond3_drawdown(window, day_row)
+                and screener._cond4_ma_trend(window)
+                and screener._cond5_turnover(day_row, window)
+            )
+            if all_pass:
+                was_passing_before = True
+                break
+
+        first_signal_flags.append(not was_passing_before)
+
+    result["L2_FIRST_SIGNAL"] = first_signal_flags
+
+    if verbose:
+        n_first = sum(first_signal_flags)
+        print(f"  首次触发: {n_first}/{len(result)} 只")
+
+    return result
 
 
 # =============================================================================

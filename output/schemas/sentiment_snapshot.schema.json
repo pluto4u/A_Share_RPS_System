@@ -1,0 +1,54 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SentimentSnapshot",
+  "description": "每日情绪快照标准输出格式",
+  "type": "object",
+  "required": [
+    "date",
+    "score",
+    "position_raw",
+    "trend_gate",
+    "breadth_cap",
+    "position_final"
+  ],
+  "properties": {
+    "date": {
+      "type": "string",
+      "description": "快照日期/时间戳"
+    },
+    "score": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "综合情绪评分 (0-100)"
+    },
+    "score_details": {
+      "type": "object",
+      "description": "各指标得分明细"
+    },
+    "position_raw": {
+      "type": "integer",
+      "description": "评分映射的原始仓位 (%)"
+    },
+    "position_level": {
+      "type": "string",
+      "description": "仓位等级 (强势/偏强/中性/偏弱/冰点)"
+    },
+    "position_advice": {
+      "type": "string",
+      "description": "操作建议文本"
+    },
+    "trend_gate": {
+      "type": "integer",
+      "description": "趋势门控上限 (%)"
+    },
+    "breadth_cap": {
+      "type": "integer",
+      "description": "广度约束上限 (%)"
+    },
+    "position_final": {
+      "type": "integer",
+      "description": "最终仓位 = min(position_raw, trend_gate, breadth_cap)"
+    }
+  }
+}

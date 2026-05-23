@@ -23,29 +23,29 @@ class WeeklyScreenerConfig:
     """周线策略可调参数"""
 
     # --- 周线 RPS ---
-    rps_threshold: float = 80.0          # 周 RPS_120 翻红阈值
-    rps_was_weak_within: int = 12        # 过去 N 周内曾低于阈值 (确认是"翻红"而非一直强)
-    rps_weak_level: float = 60.0         # "曾经弱"的判断线
+    rps_threshold: float = 70.0          # 周 RPS_120 翻红阈值 (参考标的穿越初期在 65~78)
+    rps_was_weak_within: int = 26        # 过去 N 周内曾低于阈值 (确认是"翻红", 半年窗口)
+    rps_weak_level: float = 65.0         # "曾经弱"的判断线
 
     # --- 穿越 120 周线 ---
-    ma120w_cross_lookback: int = 8       # 在最近 N 周内完成穿越 (不要求刚好本周)
-    price_above_ma120w_min: float = 1.0  # 当前价需高于 MA120W 至少 1%
+    ma120w_cross_lookback: int = 26      # 在最近 N 周内完成穿越 (半年窗口)
+    price_above_ma120w_min: float = 0.5  # 当前价需高于 MA120W 至少 0.5%
 
     # --- 紧凑吸筹 ---
     accum_lookback: int = 20             # 吸筹阶段回看周数
-    accum_range_max: float = 0.35        # 吸筹区间振幅上限 (高-低)/低 <=35%
-    accum_vol_shrink: float = 0.7        # 吸筹期均量 / 前段均量 <=0.7 (缩量)
+    accum_range_max: float = 0.55        # 吸筹区间振幅上限 (高-低)/低 <=55%
+    accum_vol_shrink: float = 1.3        # 吸筹期后半均量 / 前半均量 <=1.3 (允许温和放量)
 
     # --- 放量突破 ---
-    breakout_vol_ratio: float = 1.5      # 突破周成交量 / 吸筹期均量 >=1.5
+    breakout_vol_ratio: float = 1.2      # 突破周成交量 / 吸筹期均量 >=1.2
 
     # --- 均线多头 ---
     ma10w_above_ma20w: bool = True       # MA10W > MA20W
-    ma10w_rising_weeks: int = 3          # MA10W 连续上升周数
-    ma20w_rising_weeks: int = 2          # MA20W 连续上升周数
+    ma10w_rising_weeks: int = 2          # MA10W 连续上升周数
+    ma20w_rising_weeks: int = 1          # MA20W 连续上升周数
 
     # --- 成交额门槛 ---
-    min_weekly_amount: float = 3e8       # 周成交额最低 3 亿
+    min_weekly_amount: float = 2e8       # 周成交额最低 2 亿
 
 
 def daily_to_weekly(df: pd.DataFrame) -> pd.DataFrame:
