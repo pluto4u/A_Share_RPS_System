@@ -1,0 +1,32 @@
+[
+  {
+    "prompt": "这是情绪票还是趋势票",
+    "expected_skill": "stock-type-classifier",
+    "type": "should_invoke"
+  },
+  {
+    "prompt": "适合短线还是中线，该追涨还是等回调",
+    "expected_skill": "stock-type-classifier",
+    "type": "should_invoke"
+  },
+  {
+    "prompt": "涨停板能不能追",
+    "expected_skill": "stock-type-classifier",
+    "type": "should_invoke"
+  },
+  {
+    "prompt": "大盘今天涨了多少",
+    "expected_skill": null,
+    "type": "should_not_invoke"
+  },
+  {
+    "prompt": "仓位怎么分配",
+    "expected_skill": "position-management",
+    "type": "sibling_skill"
+  },
+  {
+    "prompt": "主力在洗盘还是出货",
+    "expected_skill": "smart-money-detector",
+    "type": "sibling_skill"
+  }
+]

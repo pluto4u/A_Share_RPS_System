@@ -1,0 +1,33 @@
+[
+  {
+    "prompt": "MA5和MA20什么关系，金叉了吗",
+    "expected_skill": "warrior-520",
+    "type": "should_invoke"
+  },
+  {
+    "prompt": "回踩20日线了吗，能低吸吗",
+    "expected_skill": "warrior-520",
+    "type": "should_invoke"
+  },
+  {
+    "prompt": "什么时候买，什么时候卖",
+    "expected_skill": "warrior-520",
+    "type": "should_invoke"
+  },
+  {
+    "prompt": "这票基本面怎么样，市盈率多少",
+    "expected_skill": null,
+    "type": "should_not_invoke"
+  },
+  {
+    "prompt": "现在趋势是上升还是下降",
+    "expected_skill": "trend-judgment",
+    "type": "sibling_skill",
+    "reason": "趋势方向判断是trend-judgment, 520是确认趋势后找买卖点"
+  },
+  {
+    "prompt": "涨停家数多少，情绪到什么阶段了",
+    "expected_skill": "sentiment-cycle",
+    "type": "sibling_skill"
+  }
+]

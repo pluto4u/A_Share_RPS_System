@@ -1,0 +1,33 @@
+[
+  {
+    "prompt": "仓位怎么分配，该买多少",
+    "expected_skill": "position-management",
+    "type": "should_invoke"
+  },
+  {
+    "prompt": "加仓还是减仓，仓位重不重",
+    "expected_skill": "position-management",
+    "type": "should_invoke"
+  },
+  {
+    "prompt": "怎么建仓，金字塔加仓怎么操作",
+    "expected_skill": "position-management",
+    "type": "should_invoke"
+  },
+  {
+    "prompt": "帮我选一只好股票",
+    "expected_skill": null,
+    "type": "should_not_invoke",
+    "reason": "选股不涉及仓位分配"
+  },
+  {
+    "prompt": "现在趋势怎么样",
+    "expected_skill": "trend-judgment",
+    "type": "sibling_skill"
+  },
+  {
+    "prompt": "MA5穿MA20了吗",
+    "expected_skill": "warrior-520",
+    "type": "sibling_skill"
+  }
+]

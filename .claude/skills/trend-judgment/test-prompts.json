@@ -1,0 +1,38 @@
+[
+  {
+    "prompt": "帮我看看600519现在趋势怎么样，均线什么情况",
+    "expected_skill": "trend-judgment",
+    "type": "should_invoke",
+    "reason": "明确问趋势方向和均线状态"
+  },
+  {
+    "prompt": "这票跌破20日线了吗，趋势有没有破坏",
+    "expected_skill": "trend-judgment",
+    "type": "should_invoke",
+    "reason": "20日线+趋势破坏判断"
+  },
+  {
+    "prompt": "今天大盘什么方向，能不能买",
+    "expected_skill": "trend-judgment",
+    "type": "should_invoke",
+    "reason": "大盘趋势方向判断"
+  },
+  {
+    "prompt": "帮我查一下这家公司去年营收多少",
+    "expected_skill": null,
+    "type": "should_not_invoke",
+    "reason": "纯基本面查询, 不涉及技术面趋势"
+  },
+  {
+    "prompt": "这票涨停板能不能打",
+    "expected_skill": "stock-type-classifier",
+    "type": "sibling_skill",
+    "reason": "涨停板操作是分类器范畴, 不是趋势判断"
+  },
+  {
+    "prompt": "现在9:45量比怎么样",
+    "expected_skill": "intraday-signals",
+    "type": "sibling_skill",
+    "reason": "盘中量比是看盘信号, 不是趋势判断"
+  }
+]

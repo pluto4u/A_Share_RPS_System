@@ -1,0 +1,32 @@
+[
+  {
+    "prompt": "急跌是洗盘还是出货",
+    "expected_skill": "smart-money-detector",
+    "type": "should_invoke"
+  },
+  {
+    "prompt": "主力在吸筹还是派发，筹码集中度怎么样",
+    "expected_skill": "smart-money-detector",
+    "type": "should_invoke"
+  },
+  {
+    "prompt": "放量是好事还是坏事，这个涨停是真的假的",
+    "expected_skill": "smart-money-detector",
+    "type": "should_invoke"
+  },
+  {
+    "prompt": "帮我看看今天新闻",
+    "expected_skill": null,
+    "type": "should_not_invoke"
+  },
+  {
+    "prompt": "MA5穿MA20了吗",
+    "expected_skill": "warrior-520",
+    "type": "sibling_skill"
+  },
+  {
+    "prompt": "涨停家数多少，情绪周期到哪了",
+    "expected_skill": "sentiment-cycle",
+    "type": "sibling_skill"
+  }
+]

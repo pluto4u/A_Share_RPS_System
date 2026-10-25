@@ -1,0 +1,33 @@
+[
+  {
+    "prompt": "今天行情怎么样，帮我复盘一下",
+    "expected_skill": "daily-review-sop",
+    "type": "should_invoke"
+  },
+  {
+    "prompt": "板块轮动到哪了，明天怎么操作",
+    "expected_skill": "daily-review-sop",
+    "type": "should_invoke"
+  },
+  {
+    "prompt": "持仓该不该调整，今天交易有什么问题",
+    "expected_skill": "daily-review-sop",
+    "type": "should_invoke"
+  },
+  {
+    "prompt": "现在9:45量比怎么样",
+    "expected_skill": "intraday-signals",
+    "type": "sibling_skill",
+    "reason": "盘中实时信号不是复盘"
+  },
+  {
+    "prompt": "这票趋势怎么样",
+    "expected_skill": "trend-judgment",
+    "type": "sibling_skill"
+  },
+  {
+    "prompt": "帮我查这家公司财报",
+    "expected_skill": null,
+    "type": "should_not_invoke"
+  }
+]

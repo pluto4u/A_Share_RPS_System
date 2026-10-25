@@ -1,0 +1,32 @@
+[
+  {
+    "prompt": "涨停多少家，炸板率高不高，情绪到什么阶段了",
+    "expected_skill": "sentiment-cycle",
+    "type": "should_invoke"
+  },
+  {
+    "prompt": "还能不能追，是不是高潮了",
+    "expected_skill": "sentiment-cycle",
+    "type": "should_invoke"
+  },
+  {
+    "prompt": "市场冰点了吗，是不是该抄底了",
+    "expected_skill": "sentiment-cycle",
+    "type": "should_invoke"
+  },
+  {
+    "prompt": "这票市盈率多少",
+    "expected_skill": null,
+    "type": "should_not_invoke"
+  },
+  {
+    "prompt": "这票趋势怎么样，均线什么情况",
+    "expected_skill": "trend-judgment",
+    "type": "sibling_skill"
+  },
+  {
+    "prompt": "这是情绪票还是趋势票",
+    "expected_skill": "stock-type-classifier",
+    "type": "sibling_skill"
+  }
+]

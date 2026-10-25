@@ -1,0 +1,33 @@
+[
+  {
+    "prompt": "量比大不大，尾盘急拉什么意思",
+    "expected_skill": "intraday-signals",
+    "type": "should_invoke"
+  },
+  {
+    "prompt": "集合竞价怎么样，开盘强不强",
+    "expected_skill": "intraday-signals",
+    "type": "should_invoke"
+  },
+  {
+    "prompt": "盘中有什么信号，现在该不该动",
+    "expected_skill": "intraday-signals",
+    "type": "should_invoke"
+  },
+  {
+    "prompt": "今天行情怎么样，帮我复盘",
+    "expected_skill": "daily-review-sop",
+    "type": "sibling_skill",
+    "reason": "盘后复盘不是盘中信号"
+  },
+  {
+    "prompt": "这票趋势怎么样",
+    "expected_skill": "trend-judgment",
+    "type": "sibling_skill"
+  },
+  {
+    "prompt": "帮我下单买100股",
+    "expected_skill": null,
+    "type": "should_not_invoke"
+  }
+]

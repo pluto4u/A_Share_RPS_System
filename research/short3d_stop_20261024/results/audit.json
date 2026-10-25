@@ -1,0 +1,10 @@
+{
+  "as_of": "2026-10-23",
+  "sessions": 2050,
+  "first_session": "2018-05-14",
+  "files_seen": 5333,
+  "kept": 5247,
+  "excluded": 86,
+  "start": "2019-01-02",
+  "bench_mean_pct": -0.08697058447073434
+}
