@@ -36,8 +36,43 @@ from trend_start.daily_board import (  # noqa: E402
     pattern_candidates, whitelist_tag,
 )
 from trend_start.drop_base_retest import PatternConfig  # noqa: E402
+from trend_start.theme_layer import (  # noqa: E402
+    concept_catalog, concept_strength, ensure_concept_closes, ensure_limit_pools, ladder, latest_reason,
+    reason_heat, strong_stocks,
+)
 
 OUT = ROOT / "output"
+THEME_CACHE = ROOT / "data/theme_cache"
+
+
+def theme_layer(as_of: pd.Timestamp, tdx_root: Path, panel, name_of, st: np.ndarray, decorate) -> dict:
+    """THS concept strength + limit-up reasons + 10-day strong stocks. Display only; failures degrade."""
+    cal = pd.DatetimeIndex(read_day(tdx_root / "vipdoc/sh/lday/sh000001.day").trade_date)
+    out: dict = {}
+    try:
+        closes, info = ensure_concept_closes(THEME_CACHE, as_of, cal, cal[-1])
+        cs = concept_strength(closes, concept_catalog(THEME_CACHE))
+        out["concepts"] = {"info": info, "n": len(cs), "top": cs.head(15).to_dict("records"),
+                           "cooling": cs.tail(8).iloc[::-1].to_dict("records"),
+                           "top_day": cs.sort_values("ret1", ascending=False).head(8).to_dict("records")}
+    except Exception as exc:  # noqa: BLE001 - board still renders without the theme data
+        out["concepts_error"] = str(exc)[:300]
+    lr: dict = {}
+    try:
+        sessions = list(cal[cal <= as_of][-5:])
+        pools = ensure_limit_pools(THEME_CACHE, sessions)
+        key = str(as_of.date())
+        out["reasons"] = {"sessions": sorted(pools), "today_count": len(pools.get(key, [])),
+                          "top": reason_heat(pools, key).head(15).to_dict("records")}
+        out["ladder"] = ladder(pools.get(key, [])).to_dict("records")
+        lr = latest_reason(pools)
+    except Exception as exc:  # noqa: BLE001
+        out["reasons_error"] = str(exc)[:300]
+    strong = strong_stocks(panel.codes, panel.field("close").astype(float), panel.field("amount").astype(float), st)
+    strong["last_zt"] = strong.code.map(lambda c: lr.get(c, ("", ""))[0])
+    strong["zt_reason"] = strong.code.map(lambda c: lr.get(c, ("", ""))[1])
+    out["strong"] = decorate(strong).to_dict("records")
+    return out
 
 
 def ensure_inputs(as_of: pd.Timestamp, tdx_root: Path) -> None:
@@ -115,6 +150,8 @@ def build(as_of: pd.Timestamp, tdx_root: Path) -> dict:
     leaders = leader_ranking(panel, st)
     leader_meta = dict(leaders.attrs)
     leaders = decorate(leaders.head(40))
+    print("[BOARD] theme layer (THS)", flush=True)
+    theme = theme_layer(as_of, tdx_root, panel, name_of, st, decorate)
 
     recent = days.tail(10).reset_index().rename(columns={"index": "trade_date"})
     recent["trade_date"] = recent.trade_date.dt.strftime("%Y-%m-%d")
@@ -128,7 +165,7 @@ def build(as_of: pd.Timestamp, tdx_root: Path) -> dict:
     return {
         "asof": f"{as_of:%Y-%m-%d}",
         "generated": datetime.now(ZoneInfo("Asia/Shanghai")).isoformat(timespec="seconds"),
-        "panel": audit, "market": market,
+        "panel": audit, "market": market, "theme": theme,
         "sectors": {"whitelist": white.reset_index().to_dict("records"),
                     "top": sectors.sort_values("score", ascending=False).head(12).reset_index().to_dict("records")},
         "engines": engines, "recent_days": recent.to_dict("records"),
@@ -190,6 +227,42 @@ def stock_rows(rows, extra):
     return out
 
 
+def render_theme(th: dict, stock_rows) -> tuple[str, str]:
+    """Section HTML and a one-line addition for the header summary."""
+    c, rs = th.get("concepts") or {}, th.get("reasons") or {}
+    pct = lambda v: fmt(v, 2, sign=True) + "%" if isinstance(v, (int, float)) else "—"  # noqa: E731
+    con = lambda rows: [[E(r["name"]), pct(r["ret1"]), pct(r["ret5"]), pct(r["ret20"]), str(r["rank5"])] for r in rows]  # noqa: E731
+    parts = ['<section id="theme"><h2>①b 短线主线题材（同花顺，只展示）</h2>']
+    if c:
+        info = c["info"]
+        parts.append(f'<p>概念指数 {c["n"]} 个可算（目录 {info["concepts"]} 个，数据来源：{E(info["source"])}），按近5日涨幅排序。</p>')
+        parts.append("<h3>概念指数近5日最强</h3>" + table(["概念", "今日", "近5日", "近20日", "5日排名"], con(c["top"])))
+        parts.append("<h3>今日涨幅最大的概念</h3>" + table(["概念", "今日", "近5日", "近20日", "5日排名"], con(c["top_day"])))
+        parts.append("<h3>近5日降温最快</h3>" + table(["概念", "今日", "近5日", "近20日", "5日排名"], con(c["cooling"])))
+    else:
+        parts.append(f'<p class="note warn-note">概念指数未取得：{E(th.get("concepts_error", ""))}</p>')
+    if rs:
+        rows = [[E(r["keyword"]), str(r["today"]), str(r["window"]), f'{r["days"]}/{len(rs["sessions"])}', E(r["today_stocks"])] for r in rs["top"]]
+        parts.append(f"<h3>涨停原因热词（今日涨停 {rs['today_count']} 只，统计近 {len(rs['sessions'])} 个交易日）</h3>"
+                     + table(["热词", "今日涨停数", "窗口内涨停次数", "出现天数", "今日涨停股（前6）"], rows))
+        lad = [[E(r["thscode"]), E(r["name"]), f'{int(r["continue_day_cnt"])}板', E(r["limit_up_time"] or ""), E(r["limit_up_reason"] or "")]
+               for r in th.get("ladder", [])]
+        parts.append("<h3>连板梯队（2板及以上）</h3>" + table(["代码", "名称", "连板", "封板时间", "涨停原因"], lad))
+    else:
+        parts.append(f'<p class="note warn-note">涨停池未取得：{E(th.get("reasons_error", ""))}</p>')
+    strong = th.get("strong") or []
+    parts.append("<h3>短线强势股（近10日涨幅前25，日均成交额≥1亿，剔除ST）</h3>" + table(
+        ["代码", "名称", "行业", "板块象限", "近10日", "近5日", "今日", "最近涨停日", "涨停原因"],
+        stock_rows(strong, [lambda r: pct(r.get("ret10")), lambda r: pct(r.get("ret5")), lambda r: pct(r.get("ret1")),
+                            lambda r: E(r.get("last_zt") or "—"), lambda r: E(r.get("zt_reason") or "")])))
+    parts.append('<p class="note warn-note">本区块回答“资金在炒什么”，不回答“该买什么”。历史回测里，次日开盘追涨停股、追突破都是负收益，'
+                 '修复日买当天最强的股票也没有稳定跑赢；本区块不进入任何引擎或信号。概念指数成分由同花顺维护、会调整，涨停原因为同花顺标注。</p></section>')
+    hot = [r["keyword"] for r in (rs.get("top") or [])[:3]]
+    top = [r["name"] for r in (c.get("top") or [])[:3]]
+    line = (f"主线热词：{'、'.join(map(E, hot))}；" if hot else "") + (f"近5日最强概念：{'、'.join(map(E, top))}。" if top else "")
+    return "".join(parts), line
+
+
 def render(b: dict) -> str:
     m, t, rg, en = b["market"], b["market"]["timing"], b["market"]["regime"], b["engines"]
     lo = m.get("limit_official") or {}
@@ -239,6 +312,8 @@ def render(b: dict) -> str:
                                       else f'今日<b class="off">{name}未开启</b>，下列仅为形态观察；按研究口径今天不会入场。')
     rules = b["rules"]
     weights = "，".join(f"{k} {v:+.2f}" for k, v in rules["leader_weights"].items())
+    theme_html, theme_summary = render_theme(b.get("theme") or {}, stock_rows)
+    summary += theme_summary
     return f"""<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>每日综合看板</title><style>
 :root{{--bg:#f2f5f8;--ink:#23364a;--muted:#687c8f;--card:#fff;--line:#e0e7ee;--on:#bd3f4a;--off:#687c8f;--accent:#162f46}}
 *{{box-sizing:border-box}}body{{margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 system-ui,"Microsoft YaHei",sans-serif}}main{{max-width:1240px;margin:auto;padding:20px 16px}}
@@ -250,9 +325,10 @@ section{{background:var(--card);border-radius:10px;padding:20px;margin-top:18px}
 .note{{background:#edf3f8;padding:10px 14px;border-radius:6px;margin:10px 0}}.warn-note{{background:#fff1dc}}nav{{display:flex;gap:16px;flex-wrap:wrap;margin:14px 0 0}}nav a{{color:#235e97}}
 </style></head><body><main>
 <header><div class="s">截至 {E(b['asof'])} 收盘 · 生成于 {E(b['generated'])} · 只读看板，不产生订单</div><h1>每日综合看板</h1><p>{summary}</p></header>
-<nav><a href="#market">市场层</a><a href="#sector">板块白名单</a><a href="#engine">冰点与修复引擎</a><a href="#leader">领涨区排名</a><a href="#method">口径</a></nav>
+<nav><a href="#market">市场层</a><a href="#theme">短线主线题材</a><a href="#sector">板块白名单</a><a href="#engine">冰点与修复引擎</a><a href="#leader">领涨区排名</a><a href="#method">口径</a></nav>
 <section id="market"><h2>① 市场层</h2><div class="grid">{card_html}</div>
 <p class="note warn-note">顶部背离预警在3年置换检验中没有预测力（p≥0.31），本页不展示为信号。九宫格目标仓位来自未标定锚点，波动温度计用于风险预算参考，均不是本页的买卖结论。</p></section>
+{theme_html}
 <section id="sector"><h2>② 板块白名单（周度，宏观模块）</h2>{table(['行业', '代码', '象限', '总分', '20日涨', '中期涨', '说明'], wl_rows)}
 <h3>板块强度前12</h3>{table(['行业', '代码', '象限', '总分', '中期RPS', '加速', '宽度'], top_rows)}
 <p class="note">白名单混合了不同层级的通达信行业代码；个股按行业代码前缀归属。</p></section>
