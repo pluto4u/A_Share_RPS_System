@@ -1,0 +1,185 @@
+# 通达信条件选股：2026年7月最大回撤后的修复
+
+## 精确时序版（推荐）
+
+```text
+{7月前期高点到后续交易日低点的最大回撤为30%-45%}
+{8月6日收盘高于7月21日最高价，且MA5>MA20}
+
+D0701:=1260701;
+D0721:=1260721;
+D0731:=1260731;
+D0806:=1260806;
+
+JULYDAYS:=IF(DATE>=D0701,BARSLAST(DATE=D0701)+1,1);
+JULYRUNHIGH:=HHV(H,JULYDAYS);
+PRIORPEAK:=REF(JULYRUNHIGH,1);
+DD:=IF(DATE>D0701 AND DATE<=D0731 AND PRIORPEAK>0,
+       (PRIORPEAK-L)/PRIORPEAK,0);
+
+B731:=BARSLAST(DATE=D0731);
+MAXDD7:=REF(HHV(DD,23),B731);
+B721:=BARSLAST(DATE=D0721);
+H721:=REF(H,B721);
+
+HAS721:=COUNT(DATE=D0721,0)>0;
+HAS731:=COUNT(DATE=D0731,0)>0;
+NOST:=NOT(NAMELIKE('ST')) AND NOT(NAMELIKE('*ST')) AND NOT(NAMELIKE('退'));
+
+XG:DATE=D0806
+   AND HAS721 AND HAS731
+   AND MAXDD7>=0.30 AND MAXDD7<=0.45
+   AND C>H721
+   AND MA(C,5)>MA(C,20)
+   AND BARSCOUNT(C)>=60
+   AND NOST;
+```
+
+通达信的 `DATE` 使用从1900年起的日期编码，所以2026-08-06写作 `1260806`。
+2026年7月共有23个工作日，因此在7月31日用 `HHV(DD,23)` 汇总当月时序回撤。
+
+若本机通达信版本不支持 `NAMELIKE`，删除 `NOST` 定义和最后一行 `AND NOST`，
+然后在条件选股界面勾选“剔除ST、*ST及退市整理股”。
+
+## 修正版（用于产生更可交易的候选）
+
+原始四个条件范围过宽，实盘会产生数百只结果。下面增加流动性、趋势斜率、
+修复幅度和乖离率控制。它不会改变原始定义，只从原始结果中再做一层过滤。
+
+把精确时序版最后的 `XG:` 段替换为：
+
+```text
+JULYRET:=IF(DATE>=D0701 AND DATE<=D0731,C/REF(C,1)-1,0);
+MINJRET:=REF(LLV(JULYRET,23),B731);
+RECOVER:=C/H721>=1.03 AND C/H721<=1.25;
+TRENDOK:=C>MA(C,5) AND MA(C,5)>MA(C,20) AND MA(C,20)>REF(MA(C,20),5);
+NOTEXT:=C/MA(C,20)<=1.10 AND C/REF(C,5)<=1.15;
+LIQUID:=MA(AMOUNT,20)>=100000000;
+NOABNORMAL:=MINJRET>=-0.22;
+
+XG:DATE=D0806
+   AND HAS721 AND HAS731
+   AND MAXDD7>=0.30 AND MAXDD7<=0.45
+   AND RECOVER AND TRENDOK AND NOTEXT AND LIQUID AND NOABNORMAL
+   AND BARSCOUNT(C)>=60
+   AND NOST;
+```
+
+`NOABNORMAL` 是针对未复权日线的保护性过滤：7月若出现超过22%的单日收盘跳跌，
+优先按除权、复牌或数据异常处理，不能直接当成市场回撤。
+
+## 主图标记：0721基准日和最高价突破线
+
+这是主图指标公式，不是条件选股公式。新建一个主图指标后粘贴：
+
+```text
+D0721:=1260721;
+BASE:=DATE=D0721;
+H0721:=CONST(REFDATE(H,D0721));
+
+基准高:IF(DATE>=D0721,H0721,DRAWNULL),COLORRED,LINETHICK2;
+STICKLINE(BASE,H,L,1,0),COLORYELLOW;
+DRAWICON(BASE,L*0.96,1);
+DRAWTEXT(BASE,L*0.92,'0721基准日'),COLORYELLOW;
+DRAWTEXT(BASE,H*1.03,'0721最高价'),COLORRED;
+```
+
+红色水平线是7月21日最高价。只有收盘价严格站到红线上方，才满足新的突破条件；
+盘中最高价越线但收盘回落到线下不算突破。
+
+## 与截图一致的“今日首次突破”公式
+
+截图属于早期反转：昨日收盘仍不高于0721高点，今日收盘第一次站上，同时收盘站上
+MA20并放量。此时MA5可能仍低于MA20，所以不能继续把 `MA5>MA20` 当硬条件。
+
+```text
+D0721:=1260721;
+D0806:=1260806;
+B721:=BARSLAST(DATE=D0721);
+H721:=REF(H,B721);
+FIRSTBREAK:=REF(C,1)<=H721 AND C>H721;
+VOLUP:=V/MA(V,20)>=1.20;
+LIQUID:=MA(AMOUNT,20)>=100000000;
+NOST:=NOT(NAMELIKE('ST'))
+      AND NOT(NAMELIKE('*ST'))
+      AND NOT(NAMELIKE('退'));
+
+XG:DATE=D0806
+   AND FIRSTBREAK
+   AND C>MA(C,20)
+   AND VOLUP
+   AND LIQUID
+   AND NOST;
+```
+
+这一公式用于抓“今天发生的突破”，不是筛选所有已经位于0721高点上方的股票。
+回撤30%-45%适合作为S级；回撤45%-60%单列为更激进的A级。截图中的中巨芯-U
+7月回撤约57.95%，属于A级，而不是原始30%-45%的S级。
+
+如果要在通达信内直接区分级别，保留本文第一段已经定义的 `MAXDD7`，并将上述
+`XG` 最后一行 `AND NOST;` 分别替换如下（S、A要建成两个独立条件公式）：
+
+```text
+{S级最后一行}
+AND NOST AND MAXDD7>=0.30 AND MAXDD7<=0.45;
+
+{A级最后一行}
+AND NOST AND MAXDD7>0.45 AND MAXDD7<=0.60;
+```
+
+## 放宽版：8月3日至8月6日突破0721收盘价
+
+```text
+D0701:=1260701;
+D0721:=1260721;
+D0731:=1260731;
+D0803:=1260803;
+D0806:=1260806;
+
+JULYDAYS:=IF(DATE>=D0701,BARSLAST(DATE=D0701)+1,1);
+JULYRUNHIGH:=HHV(H,JULYDAYS);
+PRIORPEAK:=REF(JULYRUNHIGH,1);
+DD:=IF(DATE>D0701 AND DATE<=D0731 AND PRIORPEAK>0,
+       (PRIORPEAK-L)/PRIORPEAK,0);
+B731:=BARSLAST(DATE=D0731);
+MAXDD7:=REF(HHV(DD,23),B731);
+
+C721:=REFDATE(C,D0721);
+
+BR:=DATE>=D0803 AND DATE<=D0806
+    AND REF(C,1)<=C721 AND C>C721;
+GOODBR:=BR
+        AND V/MA(V,20)>=1.20
+        AND MA(AMOUNT,20)>=100000000;
+
+MAXDDOK:=MAXDD7>=0.30 AND MAXDD7<=0.45;
+TRENDOK:=MA(C,5)>MA(C,20);
+
+NOST:=NOT(NAMELIKE('ST'))
+      AND NOT(NAMELIKE('*ST'))
+      AND NOT(NAMELIKE('退'));
+
+XG:DATE=D0806
+   AND COUNT(GOODBR,0)>=1
+   AND C>C721
+   AND C>MA(C,20)
+   AND MAXDDOK
+   AND TRENDOK
+   AND NOST;
+```
+
+`COUNT(GOODBR,0)` 搜索固定日期区间内的突破事件；最后的 `C>C721` 要求8月6日
+仍守住基准收盘价。这里的 `MAXDD7` 沿用本文第一段的精确时序回撤定义；因此只有
+突破日期和比较基准被放宽，30%-45%回撤与 `MA5>MA20` 两项原条件仍保留。
+
+若要查看更早期的反转观察池，可删除 `MAXDDOK` 和 `TRENDOK` 两行，但该版本会显著
+扩大候选数量，不能和严格结果混为一谈。
+
+## 不推荐的简化写法
+
+```text
+(HHV(H,23)-LLV(L,23))/HHV(H,23)
+```
+
+这个写法只计算最高最低区间，无法保证高点先于低点。若低点在月初、高点在月末，
+它仍会产生30%-45%的“回撤”，但实际并没有发生从该高点到该低点的下跌。

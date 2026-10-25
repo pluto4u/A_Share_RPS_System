@@ -1,0 +1,37 @@
+{
+  "id": "short-volume-round2-confirmation-v1",
+  "frozen_on": "2026-10-24",
+  "parent_run": "outputs/research/short_volume_round1/20261024T221135",
+  "parent_population": "All 1137 S2 signals from parent B0 bank, including rejected/unresolved parent entries; never select by parent profit or fill status",
+  "question": "Can next-day price acceptance and continued volume separate sustained recovery from failed rebound, after controlling for delayed entry?",
+  "information_window": "Inherited 3/5/10/15-day features and <=18-day base memory, plus at most two subsequent observed confirmation sessions; no RPS",
+  "price_confirmation_1": "At t+1 close: adjusted close>=signal close AND adjusted low>=signal low AND close location within own high-low>=0.5; require next consecutive market bar and positive observed volume",
+  "volume_confirmation_1": "price_confirmation_1 AND volume[t+1]>=mean(volume[t-9:t+1]), i.e. preceding 10 stock bars excluding confirmation bar",
+  "price_confirmation_2": "Both t+1 and t+2 pass close>=signal close, low>=signal low, own close location>=0.5; additionally close[t+2]>=close[t+1]",
+  "volume_confirmation_2": "price_confirmation_2 AND both confirmation-day volumes >= each day's own preceding10 mean",
+  "arms": {
+    "D0": "No confirmation; enter t+1 open, corrected engine; timing reference only",
+    "W1": "Wait through t+1, no price/volume selection; enter t+2 open",
+    "P1": "Same t+2 entry as W1, require price_confirmation_1",
+    "V1": "Same t+2 entry as W1, require volume_confirmation_1",
+    "W2": "Wait through t+2, no price/volume selection; enter t+3 open",
+    "P2": "Same t+3 entry as W2, require price_confirmation_2",
+    "V2": "Same t+3 entry as W2, require volume_confirmation_2"
+  },
+  "holding_sessions_after_entry": [2,3,5],
+  "cost_scenarios_roundtrip_bps": [40,80],
+  "primary_display_horizon": 3,
+  "entry_engine_correction": "Only next opening print and prior known raw/factor reference may reject indicative limit-up entry. Do NOT inspect entry-day high==low to decide an opening order; old v1 is preserved and not relabeled.",
+  "exit": "Fixed horizon close, no same-day resale; reject indicative limit-down close and roll <=5 extra market sessions; no future tail forced liquidation. No dynamic stop rule added.",
+  "indicative_limit": "10% ordinary, 20% STAR/ChiNext, 0.3pp tolerance; historic ST/IPO/special constraints still unverified",
+  "evaluation": "Report all time slices, filtered/censored/rejected rows, median adverse excursion, date-equal results, same-delay accepted-vs-rejected differences and month-block uncertainty. No optimized thresholds.",
+  "bounds": [
+    "A-share historical ST, IPO and complete delisting universe remain unavailable; not portfolio approval",
+    "Confirmation is known only after its daily close; never enter on that same open or same close",
+    "All parent historical windows have prior research exposure; not untouched out-of-sample",
+    "40/80bp are proportional hypothetical costs, not full taxes/commissions/impact",
+    "Use only unchanged raw TDX source files and frozen parent factors; report changed files as blocked instead of refreshing silently",
+    "Selecting S2 after prior results is itself exploratory selection; month-block intervals do not remove this or multiple comparisons",
+    "No modification to production strategies, raw data, original event banks, personal holdings or remote systems"
+  ]
+}

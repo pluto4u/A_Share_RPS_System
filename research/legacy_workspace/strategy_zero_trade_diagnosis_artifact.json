@@ -1,0 +1,436 @@
+{
+  "surface": "report",
+  "manifest": {
+    "version": 1,
+    "surface": "report",
+    "title": "为什么系统总是零交易：数据、策略与门控诊断",
+    "description": "对本地 A 股右侧趋势系统的复权链路、候选筛选、行业门控和账户执行口径进行证据化诊断。",
+    "generatedAt": "2026-08-30T20:41:40+08:00",
+    "cards": [
+      {
+        "id": "formal_runs",
+        "description": "现有正式综合决策运行次数。",
+        "dataset": "run_metrics",
+        "sourceId": "formal_audits",
+        "metrics": [{"label": "正式运行", "field": "formal_runs"}]
+      },
+      {
+        "id": "g0_blocks",
+        "description": "因复权硬闸门 G0 失败而停止全部跨日指标计算的运行占比。",
+        "dataset": "run_metrics",
+        "sourceId": "formal_audits",
+        "metrics": [{"label": "G0 硬阻断", "field": "g0_block_rate", "format": "percent"}]
+      },
+      {
+        "id": "candidate_runs",
+        "description": "至少产生一个研究候选的正式运行占比。",
+        "dataset": "run_metrics",
+        "sourceId": "formal_audits",
+        "metrics": [{"label": "出现候选", "field": "candidate_run_rate", "format": "percent"}]
+      },
+      {
+        "id": "g5_failures",
+        "description": "账户执行门 G5 失败的正式运行占比。",
+        "dataset": "run_metrics",
+        "sourceId": "formal_audits",
+        "metrics": [{"label": "G5 未授权", "field": "g5_fail_rate", "format": "percent"}]
+      }
+    ],
+    "charts": [
+      {
+        "id": "gate_progression_chart",
+        "title": "综合决策门控通过次数",
+        "subtitle": "3 次正式运行；柱高为进入各阶段的运行次数，样本仅用于流程诊断",
+        "type": "bar",
+        "dataset": "gate_progression",
+        "sourceId": "formal_audits",
+        "encodings": {
+          "x": {"field": "stage", "type": "nominal", "label": "决策阶段"},
+          "y": {"field": "runs", "type": "quantitative", "label": "运行次数"},
+          "tooltip": [
+            {"field": "rate", "type": "quantitative", "label": "占正式运行", "format": "percent"},
+            {"field": "note", "type": "nominal", "label": "解释"}
+          ]
+        }
+      }
+    ],
+    "tables": [
+      {
+        "id": "root_cause_table",
+        "title": "根因排序",
+        "subtitle": "先修数据接线与输出语义，再讨论放宽选股阈值。",
+        "dataset": "root_causes",
+        "sourceId": "root_cause_review",
+        "columns": [
+          {"field": "priority", "label": "优先级", "type": "text"},
+          {"field": "category", "label": "类别", "type": "text"},
+          {"field": "finding", "label": "诊断", "type": "text"},
+          {"field": "evidence", "label": "关键证据", "type": "text"},
+          {"field": "impact", "label": "对零交易的影响", "type": "text"},
+          {"field": "confidence", "label": "置信度", "type": "text"}
+        ]
+      },
+      {
+        "id": "run_history_table",
+        "title": "三次正式运行并非都没有信号",
+        "subtitle": "“零交易”混合了候选、交易资格和账户授权三种不同状态。",
+        "dataset": "run_history",
+        "sourceId": "formal_audits",
+        "columns": [
+          {"field": "date", "label": "日期", "type": "text"},
+          {"field": "display_action", "label": "系统显示", "type": "text"},
+          {"field": "failed_gates", "label": "失败门", "type": "text"},
+          {"field": "candidates", "label": "候选数"},
+          {"field": "first_industry", "label": "第一主线", "type": "text"},
+          {"field": "actual_reading", "label": "正确解读", "type": "text"}
+        ]
+      },
+      {
+        "id": "rps_reconciliation_table",
+        "title": "未复权输入会真实改变 RPS 入选名单",
+        "subtitle": "同花顺本地前复权视图可用；问题在综合脚本没有把它接入计算。",
+        "dataset": "rps_reconciliation",
+        "sourceId": "qfq_reconciliation",
+        "columns": [
+          {"field": "comparison", "label": "比较口径", "type": "text"},
+          {"field": "spearman_rps120", "label": "RPS120 秩相关", "type": "text"},
+          {"field": "median_abs_diff", "label": "RPS120 中位绝对差", "type": "text"},
+          {"field": "gate_overlap", "label": "RPS120≥80 重合", "type": "text"},
+          {"field": "jaccard", "label": "集合 Jaccard", "type": "text"}
+        ]
+      },
+      {
+        "id": "strategy_signal_table",
+        "title": "现在的两个公式处在两个极端",
+        "subtitle": "原版偏“确认后追强”，保守版又把入口全部关掉。",
+        "dataset": "strategy_signals",
+        "sourceId": "right_side_validation",
+        "columns": [
+          {"field": "layer", "label": "模块", "type": "text"},
+          {"field": "observed", "label": "观测结果", "type": "text"},
+          {"field": "diagnosis", "label": "诊断", "type": "text"},
+          {"field": "proper_role", "label": "应承担的角色", "type": "text"}
+        ]
+      }
+    ],
+    "sources": [
+      {
+        "id": "formal_audits",
+        "label": "综合决策审计快照（2026-08-14、08-20、08-28）",
+        "path": "output/integrated_decision_*_audit.json"
+      },
+      {
+        "id": "root_cause_review",
+        "label": "复权、门控与公式实现证据汇总",
+        "path": "tmp/strategy_zero_trade_diagnosis_artifact.json"
+      },
+      {
+        "id": "pipeline_code",
+        "label": "综合决策脚本",
+        "path": ".agents/skills/a-share-rotation-trader/scripts/run_integrated_decision.py"
+      },
+      {
+        "id": "qfq_verifier_code",
+        "label": "通达信前复权验证脚本",
+        "path": ".agents/skills/a-share-rotation-trader/scripts/verify_qfq.py"
+      },
+      {
+        "id": "qfq_latest",
+        "label": "最新通达信前复权抽样验证结果",
+        "path": "output/qfq_verification.json"
+      },
+      {
+        "id": "qfq_reconciliation",
+        "label": "同花顺前复权与 RPS 全市场对账",
+        "path": "output/hithink_qfq_rps_verify_20260821.json"
+      },
+      {
+        "id": "right_side_validation",
+        "label": "右侧趋势公式更新验证",
+        "path": "output/a_share_analysis_20260827_2050_right_side_update_validation.html"
+      },
+      {
+        "id": "morphology_report",
+        "label": "104 只右侧候选形态分析",
+        "path": "output/a_share_analysis_20260827_2215_104_morphology.html"
+      },
+      {
+        "id": "limit_ecology",
+        "label": "最新涨跌停生态重建",
+        "path": "output/limit_ecology_latest.json"
+      }
+    ],
+    "blocks": [
+      {
+        "id": "executive_summary",
+        "type": "markdown",
+        "sourceId": "formal_audits",
+        "body": "## Executive Summary\n\n**是的，当前系统同时存在数据接线问题和门控设计问题；但“总是零交易”并不等于市场一直没有候选。** 三次正式综合运行里，有一次产出了 9 只研究候选，最终仍因账户执行门 G5 未授权而被显示为“研究观察/零交易”；另外两次在 G0 复权硬闸门处直接停止。\n\n最需要先修的不是放宽 RPS 或均线条件，而是：**综合脚本校验了前复权，却仍将通达信未复权日 K 送入 MA、ATR 和 RPS 计算**。与此同时，G5 把“没有账户参数、不能计算仓位”错误地呈现成“没有交易机会”。原版 ZZ1234 能扫出 104 只，但多数属于确认后段；保守 V2 又降到 0，只说明策略分层失衡，不能据此证明没有行情。\n\n**决策：在修复复权输入、拆分信号与下单口径之前，当前的“零交易”不能用来评价策略有效性，更不能用它证明策略稳定盈利或失效。**"
+      },
+      {
+        "id": "metrics",
+        "type": "metric-strip",
+        "cardIds": ["formal_runs", "g0_blocks", "candidate_runs", "g5_failures"]
+      },
+      {"id": "gate_progression", "type": "chart", "chartId": "gate_progression_chart"},
+      {
+        "id": "root_cause_intro",
+        "type": "markdown",
+        "sourceId": "pipeline_code",
+        "body": "## 根因诊断\n\n根因不是一个阈值，而是四层问题叠加。P0 会污染或终止信号；P1 会把存在的机会显示成零；P2 才是策略形态和阈值校准。"
+      },
+      {"id": "root_causes", "type": "table", "tableId": "root_cause_table"},
+      {
+        "id": "system_architecture",
+        "type": "markdown",
+        "sourceId": "pipeline_code",
+        "body": "## 正确的三层输出\n\n当前系统把三件事揉成了一个 `action`：\n\n1. **发现层：今天有没有形态信号？** 只回答候选池，不需要账户参数。\n2. **交易资格层：市场、行业、乖离、流动性是否允许关注或触发？** 输出可交易观察名单和失效条件。\n3. **订单授权层：账户权益、现金、单笔风险预算和次日计划是否齐全？** 只负责仓位与订单。\n\n因此，合理状态应当允许出现：`104 个发现信号 → 6 个低乖离强势候选 → 0 张已授权订单`。最后一个零是风险控制，不应覆盖前两个结果。"
+      },
+      {"id": "run_history", "type": "table", "tableId": "run_history_table"},
+      {
+        "id": "data_chain",
+        "type": "markdown",
+        "sourceId": "qfq_reconciliation",
+        "body": "## 数据不是整体坏了，接线才是核心故障\n\n同花顺本地 `v_daily_qfq` 已通过全市场重建对账：用该前复权价格或“通达信原始价 × 同花顺前复权因子”计算时，RPS50/120/250 完全一致。反之，直接用未复权价计算 RPS120，会使 RPS120≥80 的名单产生 **81 只误入和 81 只漏选**。\n\n最新 G0 抽样为 13/16，通过率 81.2%；而 8 月 14 日曾为 16/16。验证脚本从文件枚举后随机抽样，而且要求 `unadjusted == 0` 才全市场放行。任何一个公司行动映射或舍入异常，都可能让全市场停算。这是一个过于脆弱的全局布尔闸门，不等于 5,000 多只股票的数据全坏。"
+      },
+      {"id": "rps_reconciliation", "type": "table", "tableId": "rps_reconciliation_table"},
+      {
+        "id": "strategy_layer",
+        "type": "markdown",
+        "sourceId": "right_side_validation",
+        "body": "## 策略层：不是简单放宽，而是拆成两个 Setup\n\n原版 ZZ1234 在 2026-08-27 选出 104 只，其中 65 只 QR、39 只 QQR，YJ/QD 为 0；40 只距离 MA20 超过 18%，14 只超过 30%。这更像“趋势确认事件扫描器”，不是直接买入器。保守 V2 同日为 0，则说明把后段追强过滤掉以后，没有补上一条独立的“首次回踩”路径。\n\n推荐保留两套互不替代的入场结构：\n\n- **刚启动**：低乖离突破、量价确认、行业同步，不追离 MA20 太远的 QR/QQR。\n- **首次回踩**：先出现有效 QR/QQR，再等待 5/10/20 日线附近缩量企稳或重新放量转强。\n\n两套策略分别回测命中率、盈亏比、最大回撤和候选频率，不能把所有条件叠成一个超级 AND。"
+      },
+      {"id": "strategy_signals", "type": "table", "tableId": "strategy_signal_table"},
+      {
+        "id": "recommended_actions",
+        "type": "markdown",
+        "sourceId": "pipeline_code",
+        "body": "## Recommended Next Steps\n\n1. **P0：修复数据接线。** 综合脚本的 MA、ATR、收益率和 RPS 全部改读 `v_daily_qfq`；成交量与成交额继续用未复权原始口径。\n2. **P0：改造 G0。** 使用固定代码分层样本，并把结果分成“全局可用、个股隔离、系统停机”三级；少数异常股只剔除自身，不再一票否决全市场。\n3. **P1：拆分输出。** 每日固定输出 `发现信号数 / 交易资格数 / 已授权订单数`，并显示各层漏斗和失败原因。\n4. **P1：修正 G2 语义。** 第一主线候选与第二主线观察股分开计数；第二主线不能让 G2 显示“第一主线候选已通过”。\n5. **P2：建立双 Setup 回测。** 对“刚启动”和“首次回踩”分别做至少 3 年、滚动样本外、T+1、涨跌停不可成交、次日开盘成交与交易成本约束的回测。\n6. **验收标准。** 先验证每日信号能够复现、候选漏斗不被 G5 清零，再评价年化收益、最大回撤、胜率和盈亏比。不要以“每天必须有交易”作为成功标准。"
+      },
+      {
+        "id": "further_questions",
+        "type": "markdown",
+        "sourceId": "formal_audits",
+        "body": "## Further Questions\n\n- 修复后，“刚启动”和“首次回踩”各自的日均候选数、空窗率和持有期分布是多少？\n- 第一主线持续上涨但系统零交易时，是乖离、流动性、RPS 还是行业宽度哪一项贡献最大？\n- 以次日开盘成交而非当日收盘成交后，收益是否仍显著？\n- 不同行情状态下，零交易是保护了回撤，还是错过了主升段？"
+      },
+      {
+        "id": "caveats",
+        "type": "markdown",
+        "sourceId": "limit_ecology",
+        "body": "## Caveats and Assumptions\n\n- 正式综合决策审计目前只有 3 个日期，足以定位工程与口径问题，不足以评价盈利能力。\n- 最新 `ST_cycle=87.2` 且标记为未正式验证；它当前只限制风险预算上限，并不是零交易主因。\n- 本报告没有修改任何策略或数据文件，只进行了只读诊断。\n- 所有结论均为研究与系统工程判断，不构成投资建议。"
+      }
+    ]
+  },
+  "snapshot": {
+    "version": 1,
+    "generatedAt": "2026-08-30T20:41:40+08:00",
+    "status": "partial",
+    "datasets": {
+      "run_metrics": [
+        {
+          "formal_runs": 3,
+          "g0_block_rate": 0.666667,
+          "candidate_run_rate": 0.333333,
+          "g5_fail_rate": 1.0
+        }
+      ],
+      "gate_progression": [
+        {
+          "stage": "正式运行",
+          "runs": 3,
+          "rate": 1.0,
+          "note": "共有 3 个可审计日期"
+        },
+        {
+          "stage": "G0 通过",
+          "runs": 1,
+          "rate": 0.333333,
+          "note": "两次因复权硬闸门停止"
+        },
+        {
+          "stage": "产生候选",
+          "runs": 1,
+          "rate": 0.333333,
+          "note": "8 月 14 日有 9 只候选"
+        },
+        {
+          "stage": "G5 授权",
+          "runs": 0,
+          "rate": 0.0,
+          "note": "账户与风险预算均未补齐"
+        }
+      ],
+      "root_causes": [
+        {
+          "priority": "P0",
+          "category": "数据接线",
+          "finding": "复权只做了闸门校验，没有进入指标计算",
+          "evidence": "G0 通过后，脚本仍对 load_tail 读出的通达信原始日 K 调用 add_indicators 和 calculate_rps",
+          "impact": "MA、ATR、跨日收益和 RPS 可能错位；会真实造成误入与漏选",
+          "confidence": "高"
+        },
+        {
+          "priority": "P0",
+          "category": "全局闸门",
+          "finding": "G0 抽样过于脆弱，一只异常可阻断全市场",
+          "evidence": "8/14 为 16/16，最新为 13/16；最终放行还要求 unadjusted 数必须为 0",
+          "impact": "G0 失败时所有跨日指标停算，候选必为 0",
+          "confidence": "高"
+        },
+        {
+          "priority": "P1",
+          "category": "输出语义",
+          "finding": "G5 把缺少账户参数显示成零交易",
+          "evidence": "三次正式运行 G5 均失败；8/14 实际已有 9 只研究候选",
+          "impact": "把“不能定仓位”误读成“没有信号”",
+          "confidence": "高"
+        },
+        {
+          "priority": "P1",
+          "category": "主线门控",
+          "finding": "G2 的通过条件与“第一主线候选”文案不完全一致",
+          "evidence": "候选可来自多条 lead_industries，但 executable 仅对行业排名第 1 标记",
+          "impact": "可能出现 G2 通过、却没有第一主线可执行候选，最终仍卡 G5",
+          "confidence": "高"
+        },
+        {
+          "priority": "P2",
+          "category": "策略结构",
+          "finding": "原版偏后段确认，V2 又过度收紧",
+          "evidence": "8/27 原版 104 只、V2 为 0；原版 104 只全部是 QR/QQR",
+          "impact": "发现池过宽但买点池过窄，缺少独立的首次回踩分支",
+          "confidence": "中高"
+        }
+      ],
+      "run_history": [
+        {
+          "date": "2026-08-14",
+          "display_action": "研究观察（不产生可执行买单）",
+          "failed_gates": "G5",
+          "candidates": 9,
+          "first_industry": "通用机械",
+          "actual_reading": "有研究候选；账户/第一主线执行条件未授权"
+        },
+        {
+          "date": "2026-08-20",
+          "display_action": "零交易（硬门未通过）",
+          "failed_gates": "G0、G2、G3、G4、G5",
+          "candidates": 0,
+          "first_industry": "未计算",
+          "actual_reading": "复权闸门先失败，后续候选计算被主动停掉"
+        },
+        {
+          "date": "2026-08-28",
+          "display_action": "零交易（硬门未通过）",
+          "failed_gates": "G0、G2、G3、G4、G5",
+          "candidates": 0,
+          "first_industry": "未计算",
+          "actual_reading": "复权闸门先失败，不能据此判断市场没有机会"
+        }
+      ],
+      "rps_reconciliation": [
+        {
+          "comparison": "通达信未复权价 vs 同花顺本地前复权",
+          "spearman_rps120": "0.9529",
+          "median_abs_diff": "2.57 分",
+          "gate_overlap": "944 / 1025；误入 81、漏选 81",
+          "jaccard": "0.8535"
+        },
+        {
+          "comparison": "通达信原始价×同花顺复权因子 vs v_daily_qfq",
+          "spearman_rps120": "1.0000",
+          "median_abs_diff": "0.00 分",
+          "gate_overlap": "1025 / 1025",
+          "jaccard": "1.0000"
+        }
+      ],
+      "strategy_signals": [
+        {
+          "layer": "原版 ZZ1234",
+          "observed": "8/27 命中 104；65 QR、39 QQR；YJ/QD 为 0",
+          "diagnosis": "偏趋势确认后段，部分标的乖离过大；名单换手也很高",
+          "proper_role": "发现事件池，不直接等于买点"
+        },
+        {
+          "layer": "保守 V2",
+          "observed": "8/27 命中 0",
+          "diagnosis": "把追高过滤掉的同时，也关掉了可用入口",
+          "proper_role": "需拆成低乖离启动与首次回踩两条路径"
+        },
+        {
+          "layer": "综合决策链",
+          "observed": "三次正式运行 0 张订单；其中一次有 9 只候选",
+          "diagnosis": "账户授权零覆盖了信号与资格层结果",
+          "proper_role": "只负责风险许可、行业资格和订单授权"
+        }
+      ]
+    },
+    "accessIssues": [
+      {
+        "id": "limited_formal_history",
+        "dataset": "run_history",
+        "message": "正式综合决策审计仅覆盖 3 个日期；不能据此估计策略长期收益或空窗率。"
+      },
+      {
+        "id": "no_oos_backtest",
+        "dataset": "strategy_signals",
+        "message": "双 Setup 尚未完成包含 T+1、涨跌停与次日成交约束的滚动样本外回测。"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "id": "formal_audits",
+      "query": {
+        "engine": "duckdb",
+        "sql": "SELECT trade_date, action AS display_action, failed_gates, candidate_count AS candidates, first_industry FROM read_json_auto('output/integrated_decision_*_audit.json', union_by_name=true) ORDER BY trade_date",
+        "description": "读取三个正式综合决策审计快照，并提取日期、动作、失败门、候选数和第一主线。",
+        "executed_at": "2026-08-30T20:41:40+08:00",
+        "tables_used": ["output/integrated_decision_20260814_audit.json", "output/integrated_decision_20260820_audit.json", "output/integrated_decision_20260828_audit.json"],
+        "filters": ["仅正式综合决策审计快照"],
+        "metric_definitions": [
+          "正式运行=可读取的 integrated_decision_*_audit.json 日期数",
+          "G0 硬阻断=failed_gates 包含 G0 的运行数/正式运行数",
+          "出现候选=candidate_count>0 的运行数/正式运行数",
+          "G5 未授权=failed_gates 包含 G5 的运行数/正式运行数"
+        ]
+      }
+    },
+    {
+      "id": "root_cause_review",
+      "query": {
+        "engine": "reviewed-local-evidence",
+        "sql": "SELECT priority, category, finding, evidence, impact, confidence FROM reviewed_root_causes ORDER BY priority, category",
+        "description": "将综合决策脚本、前复权验证脚本、RPS 对账和右侧公式验证中的已核对证据汇总为根因表。",
+        "executed_at": "2026-08-30T20:41:40+08:00",
+        "tables_used": [".agents/skills/a-share-rotation-trader/scripts/run_integrated_decision.py", ".agents/skills/a-share-rotation-trader/scripts/verify_qfq.py", "output/hithink_qfq_rps_verify_20260821.json", "output/a_share_analysis_20260827_2050_right_side_update_validation.html"],
+        "filters": ["仅保留能直接影响零交易结果或用户解读的根因"],
+        "metric_definitions": ["P0=会污染或终止信号；P1=会错误清零或误导输出；P2=需要通过回测校准的策略结构"]
+      }
+    },
+    {
+      "id": "qfq_reconciliation",
+      "query": {
+        "engine": "duckdb",
+        "sql": "SELECT comparison, spearman_rps120, median_abs_diff, gate_overlap, jaccard FROM read_json_auto('output/hithink_qfq_rps_verify_20260821.json')",
+        "description": "读取同花顺前复权与通达信价格的全市场 RPS 对账摘要。",
+        "executed_at": "2026-08-30T20:41:40+08:00",
+        "tables_used": ["output/hithink_qfq_rps_verify_20260821.json"],
+        "filters": ["RPS120 与 RPS120>=80 门限对账"],
+        "metric_definitions": ["集合 Jaccard=两个 RPS120>=80 名单交集/并集"]
+      }
+    },
+    {
+      "id": "right_side_validation",
+      "query": {
+        "engine": "reviewed-html-evidence",
+        "sql": "SELECT layer, observed, diagnosis, proper_role FROM reviewed_strategy_signals",
+        "description": "从 8 月 27 日右侧公式验证报告提取原版、V2 与综合链的信号数量和阶段特征。",
+        "executed_at": "2026-08-30T20:41:40+08:00",
+        "tables_used": ["output/a_share_analysis_20260827_2050_right_side_update_validation.html", "output/a_share_analysis_20260827_2215_104_morphology.html"],
+        "filters": ["交易日=2026-08-27"],
+        "metric_definitions": ["原版命中=ZZ1234 条件选股命中数；V2 命中=保守入口公式命中数"]
+      }
+    }
+  ]
+}

@@ -1,0 +1,518 @@
+<div id="profit-discipline-map" class="pd-root">
+  <style>
+    #profit-discipline-map {
+      color: var(--foreground);
+      width: 100%;
+    }
+    #profit-discipline-map * {
+      box-sizing: border-box;
+    }
+    #profit-discipline-map [hidden] {
+      display: none !important;
+    }
+    #profit-discipline-map .pd-section {
+      margin-top: 18px;
+    }
+    #profit-discipline-map .pd-stats {
+      margin-top: 14px;
+    }
+    #profit-discipline-map .pd-chart-label {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 18px 0 7px;
+      font-weight: 500;
+    }
+    #profit-discipline-map .pd-stack {
+      display: flex;
+      width: 100%;
+      min-height: 58px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+    #profit-discipline-map .pd-stack-out {
+      width: 9.29%;
+      min-width: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px;
+      background: color-mix(in srgb, var(--viz-series-2) 28%, transparent);
+      color: var(--foreground);
+      font-weight: 500;
+    }
+    #profit-discipline-map .pd-stack-stay {
+      width: 90.71%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px;
+      background: color-mix(in srgb, var(--viz-series-1) 24%, transparent);
+      color: var(--foreground);
+      font-weight: 500;
+    }
+    #profit-discipline-map .pd-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-top: 8px;
+    }
+    #profit-discipline-map .pd-legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+    }
+    #profit-discipline-map .pd-swatch {
+      width: 14px;
+      height: 14px;
+      flex: 0 0 14px;
+    }
+    #profit-discipline-map .pd-swatch-out {
+      background: var(--viz-series-2);
+    }
+    #profit-discipline-map .pd-swatch-stay {
+      background: var(--viz-series-1);
+    }
+    #profit-discipline-map .pd-loop {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 34px minmax(0, 1fr) 34px minmax(0, 1fr) 34px minmax(0, 1fr);
+      align-items: stretch;
+      margin-top: 22px;
+    }
+    #profit-discipline-map .pd-node {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 86px;
+      padding: 12px;
+      border: 1px solid var(--border);
+      background: color-mix(in srgb, var(--muted) 46%, transparent);
+    }
+    #profit-discipline-map .pd-node strong {
+      font-weight: 500;
+    }
+    #profit-discipline-map .pd-node-risk {
+      background: color-mix(in srgb, var(--destructive) 14%, transparent);
+    }
+    #profit-discipline-map .pd-arrow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted-foreground);
+      font-weight: 500;
+    }
+    #profit-discipline-map .pd-arrow::after {
+      content: "→";
+    }
+    #profit-discipline-map .pd-loop-note {
+      margin-top: 10px;
+      color: var(--muted-foreground);
+    }
+    #profit-discipline-map .pd-slider-row {
+      display: grid;
+      grid-template-columns: minmax(150px, 220px) minmax(0, 1fr);
+      gap: 18px;
+      align-items: end;
+      margin-top: 16px;
+    }
+    #profit-discipline-map .pd-bars {
+      display: grid;
+      gap: 12px;
+      margin-top: 20px;
+    }
+    #profit-discipline-map .pd-bar-row {
+      display: grid;
+      grid-template-columns: 86px minmax(0, 1fr) 64px;
+      gap: 10px;
+      align-items: center;
+    }
+    #profit-discipline-map .pd-bar-track {
+      height: 24px;
+      border: 1px solid var(--border);
+      background: color-mix(in srgb, var(--muted) 35%, transparent);
+    }
+    #profit-discipline-map .pd-bar-total {
+      display: flex;
+      height: 100%;
+      min-width: 3px;
+    }
+    #profit-discipline-map .pd-bar-extract {
+      height: 100%;
+      background: var(--viz-series-2);
+    }
+    #profit-discipline-map .pd-bar-retain {
+      height: 100%;
+      background: var(--viz-series-1);
+    }
+    #profit-discipline-map .pd-axis {
+      display: grid;
+      grid-template-columns: 86px minmax(0, 1fr) 64px;
+      gap: 10px;
+      margin-top: 6px;
+      color: var(--muted-foreground);
+    }
+    #profit-discipline-map .pd-axis-scale {
+      display: flex;
+      justify-content: space-between;
+    }
+    #profit-discipline-map .pd-lanes {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+      margin-top: 18px;
+    }
+    #profit-discipline-map .pd-lane h3 {
+      margin: 0 0 9px;
+      font-weight: 500;
+    }
+    #profit-discipline-map .pd-rule-list {
+      display: grid;
+      gap: 8px;
+    }
+    #profit-discipline-map .pd-rule-detail {
+      margin-top: 16px;
+    }
+    #profit-discipline-map .pd-detail-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+    #profit-discipline-map .pd-detail-grid strong {
+      display: block;
+      margin-bottom: 4px;
+      font-weight: 500;
+    }
+    #profit-discipline-map .pd-timeline {
+      display: grid;
+      gap: 18px;
+      margin-top: 18px;
+    }
+    #profit-discipline-map .pd-timeline-row {
+      display: grid;
+      grid-template-columns: 76px minmax(0, 1fr);
+      gap: 12px;
+      align-items: start;
+    }
+    #profit-discipline-map .pd-timeline-label {
+      padding-top: 18px;
+      font-weight: 500;
+    }
+    #profit-discipline-map .pd-events {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 30px minmax(0, 1fr) 30px minmax(0, 1fr);
+      align-items: stretch;
+    }
+    #profit-discipline-map .pd-event {
+      min-height: 86px;
+      padding: 12px;
+      border: 1px solid var(--border);
+      background: color-mix(in srgb, var(--muted) 42%, transparent);
+    }
+    #profit-discipline-map .pd-event strong {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+    #profit-discipline-map .pd-event-loss {
+      background: color-mix(in srgb, var(--destructive) 14%, transparent);
+    }
+    #profit-discipline-map .pd-event-safe {
+      background: color-mix(in srgb, var(--viz-series-2) 18%, transparent);
+    }
+    @media (max-width: 620px) {
+      #profit-discipline-map .pd-loop {
+        grid-template-columns: 1fr;
+      }
+      #profit-discipline-map .pd-arrow {
+        min-height: 28px;
+      }
+      #profit-discipline-map .pd-arrow::after {
+        content: "↓";
+      }
+      #profit-discipline-map .pd-slider-row,
+      #profit-discipline-map .pd-lanes,
+      #profit-discipline-map .pd-detail-grid,
+      #profit-discipline-map .pd-timeline-row {
+        grid-template-columns: 1fr;
+      }
+      #profit-discipline-map .pd-timeline-label {
+        padding-top: 0;
+      }
+      #profit-discipline-map .pd-events {
+        grid-template-columns: 1fr;
+      }
+      #profit-discipline-map .pd-bar-row,
+      #profit-discipline-map .pd-axis {
+        grid-template-columns: 76px minmax(0, 1fr) 56px;
+      }
+    }
+  </style>
+
+  <div class="viz-controls" aria-label="选择要查看的角度">
+    <button type="button" class="btn btn-primary" data-pd-view="flow" aria-pressed="true">资金流向</button>
+    <button type="button" class="btn" data-pd-view="extract" aria-pressed="false">利润转出模拟</button>
+    <button type="button" class="btn" data-pd-view="day624" aria-pressed="false">6·24关键一天</button>
+    <button type="button" class="btn" data-pd-view="rules" aria-pressed="false">十条纪律闸门</button>
+  </div>
+
+  <section class="pd-section" data-pd-panel="flow">
+    <div class="viz-grid pd-stats">
+      <div class="card viz-stat">
+        <div class="text-muted">两账户累计转入</div>
+        <div class="viz-stat-value">225万</div>
+        <div class="text-small text-muted">信用账户43笔资金往来全为转入</div>
+      </div>
+      <div class="card viz-stat">
+        <div class="text-muted">累计转出</div>
+        <div class="viz-stat-value">20.9万</div>
+        <div class="text-small text-muted">仅占转入的9.3%</div>
+      </div>
+      <div class="card viz-stat">
+        <div class="text-muted">净留在场内</div>
+        <div class="viz-stat-value">204.1万</div>
+        <div class="text-small text-muted">转入减转出，不等于当前净值</div>
+      </div>
+    </div>
+
+    <div class="pd-chart-label">
+      <span>225万转入资金的去向</span>
+      <span class="text-muted">100%</span>
+    </div>
+    <div class="pd-stack" role="img" aria-label="225万元转入中，20.9万元转出，204.1万元净留场内">
+      <div class="pd-stack-out">9.3%</div>
+      <div class="pd-stack-stay">90.7%</div>
+    </div>
+    <div class="pd-legend text-small">
+      <span class="pd-legend-item"><span class="pd-swatch pd-swatch-out" aria-hidden="true"></span>已转出 20.9万</span>
+      <span class="pd-legend-item"><span class="pd-swatch pd-swatch-stay" aria-hidden="true"></span>净留场内 204.1万</span>
+    </div>
+
+    <div class="pd-loop" role="img" aria-label="利润留在账户后，变成更大仓位和融资，并在下一轮回撤中亏损">
+      <div class="pd-node"><strong>已实现盈利</strong><span class="text-small text-muted">列出的盈利月共112.5万</span></div>
+      <div class="pd-arrow" aria-hidden="true"></div>
+      <div class="pd-node"><strong>利润继续留场</strong><span class="text-small text-muted">没有月度或单笔转出闸门</span></div>
+      <div class="pd-arrow" aria-hidden="true"></div>
+      <div class="pd-node"><strong>仓位与融资放大</strong><span class="text-small text-muted">赚得越多，下一轮筹码越大</span></div>
+      <div class="pd-arrow" aria-hidden="true"></div>
+      <div class="pd-node pd-node-risk"><strong>下一轮回撤</strong><span class="text-small text-muted">利润被重新暴露给市场</span></div>
+    </div>
+    <div class="pd-loop-note text-small">核心断点：利润转出制不是赚钱信号，而是物理切断“利润 → 更大仓位 → 回撤”。
+    </div>
+  </section>
+
+  <section class="pd-section" data-pd-panel="extract" hidden>
+    <div class="pd-slider-row">
+      <label class="form-label" for="pd-extract-rate">
+        正收益月转出比例：<strong id="pd-rate-label">50%</strong>
+        <input id="pd-extract-rate" class="form-range" type="range" min="0" max="100" step="5" value="50">
+      </label>
+      <div class="viz-grid">
+        <div class="card viz-stat">
+          <div class="text-muted">列出的正收益</div>
+          <div class="viz-stat-value">112.5万</div>
+        </div>
+        <div class="card viz-stat">
+          <div class="text-muted">按当前比例转出</div>
+          <div class="viz-stat-value" id="pd-extracted-total">56.3万</div>
+        </div>
+        <div class="card viz-stat">
+          <div class="text-muted">仍留在账户</div>
+          <div class="viz-stat-value" id="pd-retained-total">56.3万</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pd-bars" id="pd-profit-bars" role="img" aria-label="六个已列出盈利月的利润转出模拟"></div>
+    <div class="pd-axis text-small">
+      <span></span>
+      <span class="pd-axis-scale"><span>0</span><span>32万</span><span>64万</span></span>
+      <span></span>
+    </div>
+    <div class="pd-legend text-small">
+      <span class="pd-legend-item"><span class="pd-swatch pd-swatch-out" aria-hidden="true"></span>转出锁定</span>
+      <span class="pd-legend-item"><span class="pd-swatch pd-swatch-stay" aria-hidden="true"></span>继续留场</span>
+    </div>
+    <div class="pd-loop-note text-small">静态测算只使用题述中列出的正收益月；没有模拟转出后本金减少对后续收益的影响。</div>
+  </section>
+
+  <section class="pd-section" data-pd-panel="day624" hidden>
+    <div class="viz-grid pd-stats">
+      <div class="card viz-stat">
+        <div class="text-muted">当日已实现盈利</div>
+        <div class="viz-stat-value">+46万</div>
+      </div>
+      <div class="card viz-stat">
+        <div class="text-muted">两周后新仓回撤</div>
+        <div class="viz-stat-value">−57万</div>
+      </div>
+      <div class="card viz-stat">
+        <div class="text-muted">两个事件简单合计</div>
+        <div class="viz-stat-value">−11万</div>
+      </div>
+    </div>
+
+    <div class="pd-timeline" aria-label="6月24日实际路径与纪律路径对比">
+      <div class="pd-timeline-row">
+        <div class="pd-timeline-label">实际路径</div>
+        <div class="pd-events">
+          <div class="pd-event"><strong>上午平仓</strong><span>+46万已实现</span></div>
+          <div class="pd-arrow" aria-hidden="true"></div>
+          <div class="pd-event"><strong>下午重新进场</strong><span>原资金+融资全数暴露</span></div>
+          <div class="pd-arrow" aria-hidden="true"></div>
+          <div class="pd-event pd-event-loss"><strong>两周后</strong><span>−57万，前面盈利被覆盖</span></div>
+        </div>
+      </div>
+      <div class="pd-timeline-row">
+        <div class="pd-timeline-label">纪律路径</div>
+        <div class="pd-events">
+          <div class="pd-event"><strong>平仓达标</strong><span>单日盈利超过净资产3%</span></div>
+          <div class="pd-arrow" aria-hidden="true"></div>
+          <div class="pd-event pd-event-safe"><strong>当日收工</strong><span>禁止同票或同板块买回</span></div>
+          <div class="pd-arrow" aria-hidden="true"></div>
+          <div class="pd-event pd-event-safe"><strong>次日转出</strong><span>23万离场锁定，不再暴露</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="pd-loop-note text-small">纪律路径不假设剩余资金后续赚亏；它只确保23万不再参与当天的情绪化重仓。</div>
+  </section>
+
+  <section class="pd-section" data-pd-panel="rules" hidden>
+    <div class="pd-lanes">
+      <div class="pd-lane">
+        <h3>钱的出口</h3>
+        <div class="pd-rule-list">
+          <button type="button" class="btn btn-primary btn-block" data-rule="1" aria-pressed="true">1 · 每月正收益转出50%</button>
+          <button type="button" class="btn btn-block" data-rule="2" aria-pressed="false">2 · 单笔大赢当场抽税</button>
+        </div>
+      </div>
+      <div class="pd-lane">
+        <h3>单笔的出口</h3>
+        <div class="pd-rule-list">
+          <button type="button" class="btn btn-block" data-rule="3" aria-pressed="false">3 · 进场即挂止损</button>
+          <button type="button" class="btn btn-block" data-rule="4" aria-pressed="false">4 · +10%上移保本</button>
+          <button type="button" class="btn btn-block" data-rule="5" aria-pressed="false">5 · 回吐三分之一即走</button>
+          <button type="button" class="btn btn-block" data-rule="6" aria-pressed="false">6 · 第5天不赚钱就走</button>
+        </div>
+      </div>
+      <div class="pd-lane">
+        <h3>赢了之后的闸门</h3>
+        <div class="pd-rule-list">
+          <button type="button" class="btn btn-block" data-rule="7" aria-pressed="false">7 · 平仓后隔夜</button>
+          <button type="button" class="btn btn-block" data-rule="8" aria-pressed="false">8 · 净值新高后半仓</button>
+          <button type="button" class="btn btn-block" data-rule="9" aria-pressed="false">9 · 单日双向熔断</button>
+          <button type="button" class="btn btn-block" data-rule="10" aria-pressed="false">10 · 新钱3日冷静期</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card pd-rule-detail" aria-live="polite">
+      <div class="pd-detail-grid">
+        <div><strong>触发</strong><span id="pd-rule-trigger">月末已实现盈亏为正</span></div>
+        <div><strong>机械动作</strong><span id="pd-rule-action">48小时内转出50%</span></div>
+        <div><strong>切断的问题</strong><span id="pd-rule-purpose">利润变成下一轮更大仓位</span></div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    (() => {
+      const root = document.getElementById('profit-discipline-map');
+      if (!root) return;
+
+      const viewButtons = Array.from(root.querySelectorAll('[data-pd-view]'));
+      const panels = Array.from(root.querySelectorAll('[data-pd-panel]'));
+      viewButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+          const selected = button.dataset.pdView;
+          viewButtons.forEach((item) => {
+            const active = item === button;
+            item.classList.toggle('btn-primary', active);
+            item.setAttribute('aria-pressed', String(active));
+          });
+          panels.forEach((panel) => {
+            panel.hidden = panel.dataset.pdPanel !== selected;
+          });
+        });
+      });
+
+      const profits = [
+        { label: '信用·1月', value: 21.8 },
+        { label: '信用·4月', value: 6.9 },
+        { label: '普通·4月', value: 3.3 },
+        { label: '信用·5月', value: 12.7 },
+        { label: '普通·5月', value: 3.8 },
+        { label: '信用·6月', value: 64.0 }
+      ];
+      const profitTotal = profits.reduce((sum, item) => sum + item.value, 0);
+      const slider = root.querySelector('#pd-extract-rate');
+      const rateLabel = root.querySelector('#pd-rate-label');
+      const extractedTotal = root.querySelector('#pd-extracted-total');
+      const retainedTotal = root.querySelector('#pd-retained-total');
+      const bars = root.querySelector('#pd-profit-bars');
+
+      const renderBars = () => {
+        const rate = Number(slider.value) / 100;
+        rateLabel.textContent = `${Math.round(rate * 100)}%`;
+        extractedTotal.textContent = `${(profitTotal * rate).toFixed(1)}万`;
+        retainedTotal.textContent = `${(profitTotal * (1 - rate)).toFixed(1)}万`;
+        bars.innerHTML = '';
+        profits.forEach((item) => {
+          const row = document.createElement('div');
+          row.className = 'pd-bar-row';
+          const label = document.createElement('span');
+          label.textContent = item.label;
+          const track = document.createElement('div');
+          track.className = 'pd-bar-track';
+          const totalBar = document.createElement('div');
+          totalBar.className = 'pd-bar-total';
+          totalBar.style.width = `${(item.value / 64) * 100}%`;
+          const extract = document.createElement('div');
+          extract.className = 'pd-bar-extract';
+          extract.style.width = `${rate * 100}%`;
+          const retain = document.createElement('div');
+          retain.className = 'pd-bar-retain';
+          retain.style.width = `${(1 - rate) * 100}%`;
+          totalBar.append(extract, retain);
+          track.append(totalBar);
+          const value = document.createElement('span');
+          value.textContent = `${item.value.toFixed(1)}万`;
+          row.append(label, track, value);
+          bars.append(row);
+        });
+        bars.setAttribute('aria-label', `列出的正收益合计${profitTotal.toFixed(1)}万元，按${Math.round(rate * 100)}%转出，可锁定${(profitTotal * rate).toFixed(1)}万元`);
+      };
+      slider.addEventListener('input', renderBars);
+      renderBars();
+
+      const rules = {
+        1: ['月末已实现盈亏为正', '48小时内转出50%', '利润变成下一轮更大仓位'],
+        2: ['单笔平仓盈利超净资产2%', '当日收工，次日转出该笔利润50%', '大赢后当天重仓买回'],
+        3: ['买入成交', '同步挂−8%或更近结构止损', '输单无底线和亏损拖延'],
+        4: ['浮盈达+10%', '止损上移到成本价', '盈利交易最终变成亏损'],
+        5: ['浮盈曾超过+15%', '从最高浮盈回吐1/3时平仓', '过早止盈与过度回吐两个极端'],
+        6: ['持有满5个交易日且仍不盈利', '第5日收盘平仓', '短线失败后被动改成长线'],
+        7: ['任何票完成平仓', '当天禁止买回同票或同板块', '平仓后情绪化重入'],
+        8: ['账户净值创新高', '后续10个交易日单笔仓位上限减半', '大赢后两周内过度自信'],
+        9: ['当日已实现亏损达净资产2%，或盈利达3%', '立即停止新开仓', '亏损连锁和赢钱上头'],
+        10: ['新资金入账', '3个交易日不使用，首周最多使用1/3', '边跌边入金、边入边打光']
+      };
+      const ruleButtons = Array.from(root.querySelectorAll('[data-rule]'));
+      const trigger = root.querySelector('#pd-rule-trigger');
+      const action = root.querySelector('#pd-rule-action');
+      const purpose = root.querySelector('#pd-rule-purpose');
+      ruleButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+          ruleButtons.forEach((item) => {
+            const active = item === button;
+            item.classList.toggle('btn-primary', active);
+            item.setAttribute('aria-pressed', String(active));
+          });
+          const detail = rules[button.dataset.rule];
+          trigger.textContent = detail[0];
+          action.textContent = detail[1];
+          purpose.textContent = detail[2];
+        });
+      });
+    })();
+  </script>
+</div>

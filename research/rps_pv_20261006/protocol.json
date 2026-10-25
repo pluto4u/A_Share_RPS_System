@@ -1,0 +1,32 @@
+{
+  "experiment_id": "RPS-PV-20261006-01",
+  "status": "exploratory_historical_signal_ablation_not_independent_oos",
+  "registered_before_new_outcome_computation": true,
+  "question": "RPS、量价确认、低位转强、超跌确认分别是否增加同日可比的未来价格表现？不是当前交易指令。",
+  "input": "output/tdx_stock_daily_with_rps.parquet",
+  "source_metadata": "output/hithink_rps_refresh.json",
+  "price_basis": "同花顺前复权；用于比率信号与调整价表现代理，不当成实际人民币成交/现金账本",
+  "periods": {"early": ["2018-01-01", "2021-12-31"], "late": ["2022-01-01", "2026-09-30"]},
+  "cutoff": "2026-09-30",
+  "eligibility": "同日沪深本地覆盖股票，过去251个市场交易日收盘连续有效、当日OHLC/成交量成交额有效，过去20日成交额中位数>=2000万元。不得依据未来收益过滤。当前股票目录可能存在幸存者偏差。",
+  "rps_definition": "按市场交易日对齐后，过去120/50日收盘收益，在当天所有有该收益的本地股票中取平均并列百分位；先全覆盖集合排名，再做流动性筛选，不能在候选池重新排名。",
+  "models": {
+    "universe": "共同可研究股票集合对照；不是可投资指数",
+    "rps_only": "RPS120>=80",
+    "pv_only": "60市场日价格上涨、最近5日下跌、最近5日平均成交额小于之前20日平均成交额、当日收盘超过前一日最高价",
+    "rps_pv": "rps_only AND pv_only",
+    "low_only": "收盘位于过去250日收盘高低区间的下方30%以内；低位不是低估值",
+    "low_turn": "low_only AND RPS50较20市场日前改善 AND 收盘超过前日最高价 AND 当日成交额超过之前20日中位数",
+    "oversold_only": "过去5日对数收益减同日全覆盖股票该收益中位数，再除以前5日时点已知的20日波动率乘sqrt(5)，结果<=-2；仅扣市场中位数，不声称行业中性",
+    "oversold_confirm": "oversold_only AND 当日收盘高于前日收盘 AND 当日成交额小于前日成交额"
+  },
+  "outcome": "收盘信号s，代理进入s+1市场日开盘，代理退出s+1+h市场日开盘。h=20主检验，h=5敏感性。信号列与未来标签分文件保存。缺失进入/退出价不能补零或删除不披露。",
+  "friction_proxy_roundtrip": [0.005, 0.01],
+  "friction_limit": "从调整价简单收益扣0.5%/1%只是费用压力代理；未模拟真实原始价、100股整手、最低佣金、涨跌停、分红支付、资金与容量，不能称实际净收益。",
+  "aggregation": "先每个信号日每组等权取有效标签均值，再在日期/月度层面比较。事件可重叠，不把股票事件数当独立样本数。",
+  "contrasts": [["rps_only", "universe"], ["pv_only", "universe"], ["rps_pv", "rps_only"], ["rps_pv", "pv_only"], ["low_turn", "low_only"], ["oversold_confirm", "oversold_only"]],
+  "uncertainty": "各段先配对同日组均值差，再按月汇总，以3个月连续循环块5000次重抽样；6个主对比使用99.1667%区间。仅描述，不能抵消历史选择偏差；5日不作独立显著性证明。",
+  "investigate_condition": "主20日代理在early和late两段相对登记对照均正、各段>=12有效月、1%往返压力下两段绝对代理均值正，才标进一步核验候选；区间跨0则增量证据不足。不能称找到可实盘盈利策略。",
+  "search_budget": "固定8组、2期限、2历史段、2费用压力；不追加参数网格、不删亏损年份、不据结果更换确认条件。",
+  "known_gaps": ["完整历史退市股未知", "历史ST/停牌/限价和上市特殊交易期未核实", "调整价不是实际股数与现金", "历史已被使用，不是独立样本外", "不是随机实验，增量差不是因果效应", "未做行业/规模/波动匹配，可能是风格暴露", "日线量价不能证明主力行为"]
+}

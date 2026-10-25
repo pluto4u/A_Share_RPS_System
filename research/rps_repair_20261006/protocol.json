@@ -1,0 +1,292 @@
+{
+  "registered_at_utc": "2026-10-06T05:05:07.102935+00:00",
+  "purpose": "data-source reconciliation only; no strategy or performance search",
+  "input_hashes": {
+    "F:\\88888.投资\\08.选股\\07.investment_research\\right_side_strategy_bundle_20260924_221054\\right_side_strategy\\output\\trend_start_cache_20260930\\panel.npz": "be46d96e02efa29f0c7765a0090477b0424058739a4be82345c50577357d5ab3",
+    "C:\\new_tdx\\T0002\\hq_cache\\gbbq": "0464b40245035a1ef051269dc90d5607e95a280fea6cab523175290f6d893632",
+    "F:\\88888.投资\\08.选股\\a_-share_-rps_-system\\run_local_tdx_compare.py": "ab279f2814563062e922d4466c1966b5f63e107901564698a0cd0801e7c537fd",
+    "F:\\88888.投资\\08.选股\\a_-share_-rps_-system\\output\\tdx_stock_daily_with_rps.parquet": "1eace9e01a07c972d7711f6f0694ef173f9a1a94e7ae0302b9f25cda5977ec60",
+    "F:\\88888.投资\\08.选股\\a_-share_-rps_-system\\output\\rps_diag_20261006\\v1\\final_manifest.json": "98162f3783e6eee732d577d016c8b736f5b240b485458de287ee00f93dec69d7",
+    "F:\\88888.投资\\08.选股\\a_-share_-rps_-system\\output\\rps_diag_20261006\\exchange_evidence\\repair_backlog.csv": "bcd333d80d5ccc0ccd7114e1347d18cd1cd8e6ce9db342253cce32e59e9e854d",
+    "F:\\88888.投资\\08.选股\\a_-share_-rps_-system\\output\\rps_diag_20261006\\exchange_evidence\\configured_raw_code_coverage.csv": "dcb2fa19c2c6903ce9c90162f84f4a69eda7e6395568b2c79d1dc7e8527f89cc",
+    "C:\\new_tdx\\vipdoc\\sh\\lday\\sh600070.day": "774e4b0502f204cbd0cf4a2da914dd607f19f27af7770adf95cbd2f7471d108d",
+    "C:\\new_tdx\\vipdoc\\sh\\lday\\sh600083.day": "d2c98b61028c5d94edd57f5bdd8c4526e5aa19bd33de25334162aac0ffcabc74",
+    "C:\\new_tdx\\vipdoc\\sh\\lday\\sh600112.day": "cfda7824b7822d3f5b5960fd1271b83bd84cf38ba313305a158c2a4a3eaacfa9",
+    "C:\\new_tdx\\vipdoc\\sh\\lday\\sh600190.day": "349f7dc94b62619808c465c4e8a7b3afb3b0c237d509c0a9ba16f1a5c3a3433f",
+    "C:\\new_tdx\\vipdoc\\sh\\lday\\sh600193.day": "6f8526c67fbaa477a5dfa46f0cecf73e6a73846b0cda7e00b99dfdab6a4f5319",
+    "C:\\new_tdx\\vipdoc\\sh\\lday\\sh600200.day": "77dd10700a9d47b4b55498134e5dc230c2d8e31d41c4cf22b1bffd7241639900",
+    "C:\\new_tdx\\vipdoc\\sh\\lday\\sh600213.day": "8dd87141d2fcb9c08654a0b54ac96ca70444342b9af6247b0b0d678244122423",
+    "C:\\new_tdx\\vipdoc\\sh\\lday\\sh600220.day": "19d3fb97b358f545f0c4da2799dc38fae50977584505d00ca59629a38ea1805f",
+    "C:\\new_tdx\\vipdoc\\sh\\lday\\sh600225.day": "ad30a248eb6bf252c4c6318bca4663554a90c5cb9acf86244bf0aa10f9644586",
+    "C:\\new_tdx\\vipdoc\\sh\\lday\\sh600277.day": "6dd4705d6c0ebe09e0f6dc83679be460512e9afa7c55fcce939e6d0c3a764c97",
+    "C:\\new_tdx\\vipdoc\\sh\\lday\\sh600290.day": "7352265fa4e9a91d946c241289a860305abbaf13cd36040c346c1d2dbf5f8209",
+    "C:\\new_tdx\\vipdoc\\sh\\lday\\sh600297.day": "1bbf423de04ef31f2d36e3e2ad946f338227ace954b795180c278c599075d599",
+    "C:\\new_tdx\\vipdoc\\sh\\lday\\sh600306.day": "14bf0a69b94448796023ef12abbac035ea4196abca1583980307c047b50e3e56",
+    "C:\\new_tdx\\vipdoc\\sh\\lday\\sh600321.day": "0d7f0a73ad9a073a69d04fd1ebc76928851ac48362fb8664297b23ae93873d22",
+    "C:\\new_tdx\\vipdoc\\sh\\lday\\sh600355.day": "f38e6e9903ac435936620f067fe4ab88ed7826101797cf03ac1d74456458b82b",
+    "C:\\new_tdx\\vipdoc\\sh\\lday\\sh600387.day": "b44b665d1fe4b744c293506f1b36804b33839f9e452ef36669dc13454b8563bb",
+    "C:\\new_tdx\\vipdoc\\sh\\lday\\sh600421.day": "8933340c4bc51ccc2d0f16f11e5d3912d2b765d51ed29ec858c7140d05a7b41b",
+    "C:\\new_tdx\\vipdoc\\sh\\lday\\sh600462.day": "81bf68cfbe29c9cef4e77430723a4bf83a42ef95f64ffe9c7cdae63ce0efa046",
+    "C:\\new_tdx\\vipdoc\\sh\\lday\\sh600565.day": "e4a076ff567c64491f51dfbe151ba71eda801937f5651fd67220cbc6abfb463b",
+    "C:\\new_tdx\\vipdoc\\sh\\lday\\sh600599.day": "34a94d9d21feb1f3ca378d082aa7839969f69cfa1e6ef146b8240df068b942ab",
+    "C:\\new_tdx\\vipdoc\\sh\\lday\\sh600608.day": "f0c719cfafcff5e6149c70620d6e0d67c8ab37a3b7007c224ba83bbf362faf95",
+    "C:\\new_tdx\\vipdoc\\sh\\lday\\sh600636.day": "b6cac9fee18499f21070070201e6d67082d03a3b511fa56f62ceb8b1d361746a",
+    "C:\\new_tdx\\vipdoc\\sh\\lday\\sh600647.day": "fce3c2b09945e20079a0089a3986b7f6af6438c11d97356a3337f50929cf354f",
+    "C:\\new_tdx\\vipdoc\\sh\\lday\\sh600696.day": "053ad5ca1730dcb99fd174fe375622b37d689c58c3295db89d990e4043231a20",
+    "C:\\new_tdx\\vipdoc\\sh\\lday\\sh600705.day": "b79398c1918801cae954dec231f32676279dc1905a407b3dffa9e745e26bbacc",
+    "C:\\new_tdx\\vipdoc\\sh\\lday\\sh600766.day": "55aa41d1738f7442e688d4bba327d595654b56268efeb9bf9e60caa1cf9f7a2e",
+    "C:\\new_tdx\\vipdoc\\sh\\lday\\sh600804.day": "ae8d96af296153dd7465d144e38029845a4df6d2e7063a8b3923212cff4d4f7d",
+    "C:\\new_tdx\\vipdoc\\sh\\lday\\sh600811.day": "908cf47be067398a955ac10d4bed57f5aa233695025ce8169afcb0c89d38d581",
+    "C:\\new_tdx\\vipdoc\\sh\\lday\\sh600823.day": "50410c78d3178c6a49c6944d2c0c9b10bc3974ba68158b4c25672c3f413dbfd4",
+    "C:\\new_tdx\\vipdoc\\sh\\lday\\sh600836.day": "c0604a637d48bc49bd82458958c9ca9f1f9f4155832f435624eb42b422c2d99c",
+    "C:\\new_tdx\\vipdoc\\sh\\lday\\sh600837.day": "850558eda0035ab249225ffb592bc6edadbc1aad5ccb2d0f6f3fb753964822e8",
+    "C:\\new_tdx\\vipdoc\\sh\\lday\\sh600898.day": "9646a671d3bae59c261e56bbb522d80c4d5c06972eac75404b6fd2835b547522",
+    "C:\\new_tdx\\vipdoc\\sh\\lday\\sh601028.day": "3a02fac63b6afa9140d751a59e663a89467b51485fa9ee68d30a76d0467c6fd6",
+    "C:\\new_tdx\\vipdoc\\sh\\lday\\sh601989.day": "372fe4acc383a76e2252db5f0609645c7a45ea6a01118e7d14b94220cc8b330f",
+    "C:\\new_tdx\\vipdoc\\sh\\lday\\sh603003.day": "304e553817c5c09d7260f1daa8cd7f43a1de82dca12818c53dad4ea8b176caa9",
+    "C:\\new_tdx\\vipdoc\\sh\\lday\\sh603056.day": "7743f3ef6e340ed11d7d12396d2937adb0855e53afa7fd91a7d1ca654b831d35",
+    "C:\\new_tdx\\vipdoc\\sh\\lday\\sh603133.day": "88ff7cee3ca194e93886fb9b0f8b3802614c014feb41b370339f7ea198a924fd",
+    "C:\\new_tdx\\vipdoc\\sh\\lday\\sh603388.day": "cbbb500110b191eccf63b813103007393d8faddcdb8b869a4f2dce292bdfccdf",
+    "C:\\new_tdx\\vipdoc\\sh\\lday\\sh603555.day": "19b50f7b4ad09fab0432b1d3b2e9334928e2caf99af05c14639d1ce4592ba2e0",
+    "C:\\new_tdx\\vipdoc\\sh\\lday\\sh603603.day": "e7e1c733e28c3a9ecb9d38a884ef7b2c362c8e00100d5249ad6174d7ad9d1e19",
+    "C:\\new_tdx\\vipdoc\\sh\\lday\\sh603963.day": "570fab0483aa641e7461aba8d56d318a9d34be615cbf5f57aa6b1c39d7a47daf",
+    "C:\\new_tdx\\vipdoc\\sh\\lday\\sh605081.day": "1fe9ff62105870880fa3ad3fcda4f47c07f20d68d39fe22bf5cc7988b59446ed",
+    "C:\\new_tdx\\vipdoc\\sh\\lday\\sh688287.day": "4098c1192ef2c373d3d2aa58b3192fbad486c2d7e9023770f5fb72060d4379f7",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz000004.day": "6020fde731607b28238285a114f9495b404a0d2429f02982a15c57d199721cda",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz000005.day": "ee800031aa0c3b45a93d3cdb09abe98bfada9a18e3fb5b79360f581b958cd1bb",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz000023.day": "c3f3c92a79955f3969482fc38fad8563d43d1a5f6bc4efcd131e13a07b0e2ff2",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz000040.day": "c5afc46b3bfbc96e7320a3ae6071e10abfe2c6b304a3cf2daa35a7e5aee141be",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz000046.day": "1c14d0c08191c9f5f91551c0707933d0d91fd88a373d1a513e73a487c7efe29f",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz000413.day": "930ff14b051bf62194d43e346aef3411dc5bacbbb492e71991970eb972a371ad",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz000416.day": "4c4db541f7db60d7fa3dfe3035d17684924305483789416e06c392402d14536a",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz000584.day": "3a692a97e99234b617b37ede11b92eb73dcf1a116f563bd9d0cd0124afd1fef0",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz000616.day": "a13b9285a7abe56680f4c701945407bd3ce0cfbe44e7dfdcd62fe297fec41a9c",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz000622.day": "7e7cd26b84fa657a8abb27e80999fcc544b1c266d10a73cb1f5e0451dcb5cea4",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz000627.day": "fb5b5fb6ecc29813891cf84710f3327b1ac616a193f736c367030fd4c013b793",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz000638.day": "587bfa6c1b52c5f8ecf067824b2a7be0ebf15c9b1a108e3f7296b648c8cc1300",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz000666.day": "93b155c17b7b675c8c93e63346576ea14329ace752b7009a99b1c9fac8707c5e",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz000671.day": "01b90f95a41b711d3d21fe0b159564f90d90a5efac00d9df76d6d4b57df61ec7",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz000836.day": "c95d931cbf2ec91c0cf5571b8d134658c4b4bb50d84a23879b830a1bff887014",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz000851.day": "02eb774a10d7ea66b8e43e04cfb0da50071be3f9bb8654cdc529e02c9089362b",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz000861.day": "85d627736055e0b74b7cc360ea8ccd02eed98ac61cb6fcb506db180beda77b63",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz000961.day": "c327b35a0ff48f90ca153bd8b77af5cb1057dc5eae0ee95d8bd43d88acc1e8ed",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz000971.day": "8dfa3582588a184b39481702718f6d1ceb44ebaf274659b5cb4ab9a414397f66",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz000976.day": "f4a5fcbe2c4ccc7b59695b8e16ab8270a93db5675f0b66368554ad6a8c7f977e",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz000982.day": "905d89798ab8daa189f439a3a6cb6aab199672701197b048544cd39265ef1567",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz000996.day": "81ffe55e143a67165afc504ee19b574784c464f223284820db282f6b60cf776c",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz002002.day": "211e75bb59368fb21d7fb172d3eab0aae6c003dce5f857984b0fcd29e311906e",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz002087.day": "ba81a41b75b6409bc97d337ce5ed354d937cfdbe0dffafffc6bc9252afe08d5e",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz002089.day": "2c1eb56765d828840bf6ae44d544653e512f570c1a1625651991ce914e2b312d",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz002113.day": "ea65812095658e648b74dca5eaade32dd3e48836400a9401f8b2338704a8f49e",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz002231.day": "a5bbfb532222449e01669e90f7249d5fe1a9f53ff54e8aaea95f5a9e2489240b",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz002280.day": "55902d0f18661f137b7a23df694fdab706e400319c0814c6ec22b6e0a718fac9",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz002288.day": "d3d1c44e936b503d3fef2b9df15a3fba4f5d19ab0a6cd0b36b470cd765ac43da",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz002308.day": "10ba4046c1cd8d6b85e548f7e8385826fdb73f11b59a20b530d3c5bac90cee40",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz002325.day": "aa55165635e4d7bd434873982d8d148011d432388724b2f32b70a8ac8b8b8280",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz002336.day": "4eefc58d065ded874e6c080572ca752af31f784043e8d06d0c94199a054fecf8",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz002341.day": "1b226944d72e98eb3e753aa777b432d66b0e3cf21491b1a40e3e75bc36c059f5",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz002433.day": "69a3b4a923bdb7b23d058ead76fcf037468df345f9c50350299faac8bdb8a1ab",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz002435.day": "c50caf7636a8a5a3f1628b2f9619d4756bafcebdc3e8165a096b3d26b0897911",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz002502.day": "bae2d3114f5e835d3b2d616063249f3450be979971fe1bc1fce4c26b653b0aa5",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz002503.day": "e2ac641ba8f14ec513050c6235e1b1e97cb4589d3e72de5ec2e121fa3bd54186",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz002504.day": "5d32aaf286010919b8ca4612f664d6595ea57651d972ec7946fac378f53f06c9",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz002505.day": "828ffef6af3c888df28ebe848d5eca29388072861d3f73494fe65e7982190752",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz002610.day": "1b6d22cee2a30c755951ffe44a2beaab449baf8081de7e2c81a71da3a3dad53a",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz002621.day": "e40e93f72547b328a5c8ce6e94a471e7e75b73c572a521138f978550cecf66e1",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz002665.day": "c5eea9e4c0c5f56754f50a32907ecf3b31a53233e0e576cad8b9364c0c19be0c",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz002699.day": "a29b582abd6a8c5d804d7b4c1491498551648c36e6503bb90f0c555b74c9aa19",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz002740.day": "00f85b064a5bc71dee98e1fdfe68e5f8d80e4dde0fe9540a1ecd861435412cd9",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz002750.day": "cfb3e0db5bf2477599cde2d46b023d56d5071f0614b7b5aacd43992cb2c6f53c",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz002776.day": "4b2ceb3c2f4a9714808a3d90f9fdaa05461e6744c9a8d71e3fdd6700905c0a8b",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz002808.day": "ea43880b6cc7c2764127a5026c84b2c03b838bd1b0aae6c0442278a221f440ff",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz002898.day": "f4e84b076e0f6e29f9e78b03d7b833d70c8491a7ce54ef41fc5d6605dfa387c1",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz300029.day": "7ab118cbd29efce70cf3eaac9fe6853653ae632d1e840c1e835ba53f6b9a6a7b",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz300108.day": "c7ce05e00c6ad9b7206a7954722c22f664814012bdba3ac0d12ae212fd6bb8ac",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz300116.day": "5a72e864c556515423055d5886f588c55cb64661cb30ca58beaa86e18fcfb4bb",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz300117.day": "0f195ac90d3f5d32c76b023d703f172a531d086dc92949079cc2eae1f89e336d",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz300208.day": "86432bac9cb426ad45b18c91958839064045c4ebecb82763c5aec80aba9ca4fb",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz300262.day": "60995b34d839e36b022bdae39ae324e5c746af3f553c4937616eb287e2ca2180",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz300280.day": "578aaf4146e00799d49e11cc1fe01d319a5d741cfa58dadb9dbb9aaa8c24c346",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz300282.day": "7b24e313e9f51de324b155802eb82026912cd4421a75a9c6fb353735e7d39dfa",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz300344.day": "6caaab8ae6d0d83322038923aea0f1b6f539742758c87784275aeac4d8db2e5e",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz300379.day": "e55f9b52e5ac148cea99659af1e8fbc268296ab18641d9f3795843cede0bcac2",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz300391.day": "4391a49abf1661400128bf9e551c72103534def88190c1a21255078971b173d4",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz300495.day": "eaecbfb86eaa4cec68af7b18c2f1f590c24dbd6f91064625cc742c34aef0f649",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz300630.day": "fb04ac9b9bec7f2246bda7870615cfe51d7c3c6d2b0fbd9f9ec5d903a7e6abdd",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz300742.day": "cf153b73426557b53b6d83c090b249c49927ca8eaa3f591515168e083f182b45",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz300799.day": "1a0fb324a889719ccd0023d1e69fe971ef3ee2e9af2b315c0f265135004ea78b",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz000001.day": "8f6a7f1bc7e63b90dbd3300bfd8e68b781e89e23b7cc068ad26dd3cfd4799008",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz000002.day": "5ff20a56a6384f359a5c7eccccdb20fd2f98af6c16b20a56c504a8d042c5375e",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz000006.day": "6127cfb7137062ffa1a9bfdc5be7a37d3acca3cdfdb40707cf27480a3b0d1af8",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz000007.day": "c0ca9fe5e870ef251a7ef760d8d761eabf04614cc7d520c04a4f4849eda0b15f",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz000008.day": "5442e35e328cb671a64adfc9e6c1d447dc08da10204057202fa13c2e8235d3f8",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz000009.day": "bcdbde98004f43e5f770332e6933a24ce781dbb6f9e3e490ccbb530ef3344beb",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz000010.day": "b8191972f33be644678af9f8ec9c8505b4bc4e1676314814f2208abea85802c3",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz000011.day": "d4dea6825974f2b939097ddda51b5f09b274ff571d22b92daa00d77406d3cea3",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz000012.day": "427f7cba536b195997ddcc4a62ad42f528c0c717487c3052c18a3a819926c775",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz000014.day": "304fd8be7ea9bebe5157e725bd73171680d803a8d622ed295a5dbf752af84abb",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz000016.day": "b68deb90e8bfe87b5f7bb7a5485a807430bd6b1da7f2710d6980ca71350caaea",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz000017.day": "206cd8dda8e848bbb7a6487014ba00eef8eb5a3bbd2112a356fdc4e1d2fa5d1a",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz000019.day": "c51429c0c65d4bf18df0c96537499f909f89709917f913c74844cb51f96a1f44",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz000020.day": "876252ec0da0d891f0f06f6d4dc44aee9fb22417e67a8819e42dea181c9840ed",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz000021.day": "eac63ad38f84645779622807ca9135e9a2a62d24113349c31a9ce4be222873ef",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz000025.day": "fcfda35bebff3b3964cb91785691768fb155d551ca6af219ce5507fe11edb2d8",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz000026.day": "b67775e16653c08bb4e2359796d5a970201d23e6d84820e566804cea0bd2de75",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz000027.day": "ba33eeb431b4a962946151ac0218a0ace29c2b22edc1771713f60f14cac2da9f",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz000028.day": "d5c9b134e40e683eae1040fbc0b7a5e4408a382eb37d0e669d217fa97ec9cece",
+    "C:\\new_tdx\\vipdoc\\sz\\lday\\sz000029.day": "b2c03e888fde29fb30712b2f5d2cf8da7b7c168eb34ad2a32f27934e1f41b053"
+  },
+  "verified_frozen_file_counts": {
+    "diagnostic": 83,
+    "rps_v2": 30
+  },
+  "study_window": [
+    "2018-01-01",
+    "2026-09-30"
+  ],
+  "adjustment_target": "2026-09-30",
+  "price_tolerance": {
+    "rtol": 1e-05,
+    "atol": 1e-05
+  },
+  "volume_tolerance": {
+    "rtol": 1e-06,
+    "atol": 1.0
+  },
+  "amount_tolerance": {
+    "rtol": 1e-06,
+    "atol": 1.0
+  },
+  "controls": [
+    {
+      "ts_code": "000001.SZ",
+      "path": "C:\\new_tdx\\vipdoc\\sz\\lday\\sz000001.day",
+      "sha256": "8f6a7f1bc7e63b90dbd3300bfd8e68b781e89e23b7cc068ad26dd3cfd4799008"
+    },
+    {
+      "ts_code": "000002.SZ",
+      "path": "C:\\new_tdx\\vipdoc\\sz\\lday\\sz000002.day",
+      "sha256": "5ff20a56a6384f359a5c7eccccdb20fd2f98af6c16b20a56c504a8d042c5375e"
+    },
+    {
+      "ts_code": "000006.SZ",
+      "path": "C:\\new_tdx\\vipdoc\\sz\\lday\\sz000006.day",
+      "sha256": "6127cfb7137062ffa1a9bfdc5be7a37d3acca3cdfdb40707cf27480a3b0d1af8"
+    },
+    {
+      "ts_code": "000007.SZ",
+      "path": "C:\\new_tdx\\vipdoc\\sz\\lday\\sz000007.day",
+      "sha256": "c0ca9fe5e870ef251a7ef760d8d761eabf04614cc7d520c04a4f4849eda0b15f"
+    },
+    {
+      "ts_code": "000008.SZ",
+      "path": "C:\\new_tdx\\vipdoc\\sz\\lday\\sz000008.day",
+      "sha256": "5442e35e328cb671a64adfc9e6c1d447dc08da10204057202fa13c2e8235d3f8"
+    },
+    {
+      "ts_code": "000009.SZ",
+      "path": "C:\\new_tdx\\vipdoc\\sz\\lday\\sz000009.day",
+      "sha256": "bcdbde98004f43e5f770332e6933a24ce781dbb6f9e3e490ccbb530ef3344beb"
+    },
+    {
+      "ts_code": "000010.SZ",
+      "path": "C:\\new_tdx\\vipdoc\\sz\\lday\\sz000010.day",
+      "sha256": "b8191972f33be644678af9f8ec9c8505b4bc4e1676314814f2208abea85802c3"
+    },
+    {
+      "ts_code": "000011.SZ",
+      "path": "C:\\new_tdx\\vipdoc\\sz\\lday\\sz000011.day",
+      "sha256": "d4dea6825974f2b939097ddda51b5f09b274ff571d22b92daa00d77406d3cea3"
+    },
+    {
+      "ts_code": "000012.SZ",
+      "path": "C:\\new_tdx\\vipdoc\\sz\\lday\\sz000012.day",
+      "sha256": "427f7cba536b195997ddcc4a62ad42f528c0c717487c3052c18a3a819926c775"
+    },
+    {
+      "ts_code": "000014.SZ",
+      "path": "C:\\new_tdx\\vipdoc\\sz\\lday\\sz000014.day",
+      "sha256": "304fd8be7ea9bebe5157e725bd73171680d803a8d622ed295a5dbf752af84abb"
+    },
+    {
+      "ts_code": "000016.SZ",
+      "path": "C:\\new_tdx\\vipdoc\\sz\\lday\\sz000016.day",
+      "sha256": "b68deb90e8bfe87b5f7bb7a5485a807430bd6b1da7f2710d6980ca71350caaea"
+    },
+    {
+      "ts_code": "000017.SZ",
+      "path": "C:\\new_tdx\\vipdoc\\sz\\lday\\sz000017.day",
+      "sha256": "206cd8dda8e848bbb7a6487014ba00eef8eb5a3bbd2112a356fdc4e1d2fa5d1a"
+    },
+    {
+      "ts_code": "000019.SZ",
+      "path": "C:\\new_tdx\\vipdoc\\sz\\lday\\sz000019.day",
+      "sha256": "c51429c0c65d4bf18df0c96537499f909f89709917f913c74844cb51f96a1f44"
+    },
+    {
+      "ts_code": "000020.SZ",
+      "path": "C:\\new_tdx\\vipdoc\\sz\\lday\\sz000020.day",
+      "sha256": "876252ec0da0d891f0f06f6d4dc44aee9fb22417e67a8819e42dea181c9840ed"
+    },
+    {
+      "ts_code": "000021.SZ",
+      "path": "C:\\new_tdx\\vipdoc\\sz\\lday\\sz000021.day",
+      "sha256": "eac63ad38f84645779622807ca9135e9a2a62d24113349c31a9ce4be222873ef"
+    },
+    {
+      "ts_code": "000025.SZ",
+      "path": "C:\\new_tdx\\vipdoc\\sz\\lday\\sz000025.day",
+      "sha256": "fcfda35bebff3b3964cb91785691768fb155d551ca6af219ce5507fe11edb2d8"
+    },
+    {
+      "ts_code": "000026.SZ",
+      "path": "C:\\new_tdx\\vipdoc\\sz\\lday\\sz000026.day",
+      "sha256": "b67775e16653c08bb4e2359796d5a970201d23e6d84820e566804cea0bd2de75"
+    },
+    {
+      "ts_code": "000027.SZ",
+      "path": "C:\\new_tdx\\vipdoc\\sz\\lday\\sz000027.day",
+      "sha256": "ba33eeb431b4a962946151ac0218a0ace29c2b22edc1771713f60f14cac2da9f"
+    },
+    {
+      "ts_code": "000028.SZ",
+      "path": "C:\\new_tdx\\vipdoc\\sz\\lday\\sz000028.day",
+      "sha256": "d5c9b134e40e683eae1040fbc0b7a5e4408a382eb37d0e669d217fa97ec9cece"
+    },
+    {
+      "ts_code": "000029.SZ",
+      "path": "C:\\new_tdx\\vipdoc\\sz\\lday\\sz000029.day",
+      "sha256": "b2c03e888fde29fb30712b2f5d2cf8da7b7c168eb34ad2a32f27934e1f41b053"
+    }
+  ],
+  "control_selection": "First 20 lexicographic cache/frozen-panel/raw-file intersection, before comparison outcomes",
+  "alternative_probe": {
+    "source": "BaoStock official Python SDK",
+    "codes": [
+      "601258.SH",
+      "000540.SZ"
+    ],
+    "window": [
+      "2023-06-01",
+      "2023-06-30"
+    ],
+    "raw_adjustflag": "3",
+    "overall_timeout_seconds": 55,
+    "maximum_requests": "one login; two stock-basic reads and two raw-history reads; logout; no automatic retries"
+  },
+  "acceptance": {
+    "automatic_promotion": false,
+    "cleared_for_investment": false,
+    "all_required_security_status_available": false,
+    "profit_tests_permitted": false
+  },
+  "qualifications": [
+    "Code-level matching only: official current termination snapshot is not a nonreused historical security ID.",
+    "TDX raw prices are cents / 100; raw volume retained as shares, amount as CNY; cross-vendor units must be independently checked.",
+    "The adjustment algorithm is reused, not an independent vendor or announcement-date audit.",
+    "No calibration of tolerance, no normalized rescaling to hide basis differences; all errors remain visible.",
+    "Raw/cache-only dates and post-termination bars are separately reported; missing future prices are not zero returns.",
+    "Twenty active controls cannot establish whole-market vendor equivalence.",
+    "No existing dataset, signal, experiment, account, or order is modified."
+  ]
+}

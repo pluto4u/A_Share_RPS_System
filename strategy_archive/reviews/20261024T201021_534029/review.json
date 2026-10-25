@@ -1,0 +1,576 @@
+{
+  "schema_version": "strategy-review/v1",
+  "reviewed_at": "2026-10-24T20:10:21.534029+08:00",
+  "git_head": "86ae6a8925ae1b19d44324005b813bf92b649205",
+  "registry_generated_at": "2026-10-24T15:53:40.827999+08:00",
+  "scope": "primary source only; unchanged does not mean validated",
+  "counts": {
+    "unchanged": 53
+  },
+  "cards": [
+    {
+      "id": "market-breadth",
+      "name": "通达信市场宽度与内容出图",
+      "source": "F:\\88888.投资\\08.选股\\a_-share_-rps_-system\\workflows\\tdx_breadth.py",
+      "source_state": "unchanged",
+      "archived_sha256": "b5dca4fa2e4a91d79dd21f651cee9b1ed533b4b85c0934138a5072b115d9ec64",
+      "current_sha256": "b5dca4fa2e4a91d79dd21f651cee9b1ed533b4b85c0934138a5072b115d9ec64",
+      "performance_verified": false,
+      "rule_review": "not_assessed"
+    },
+    {
+      "id": "rps-dual",
+      "name": "双周期RPS选股",
+      "source": "F:\\88888.投资\\08.选股\\a_-share_-rps_-system\\rps_system.py",
+      "source_state": "unchanged",
+      "archived_sha256": "ca8e1e717f178a39878b1c9d98089dcc650037a44b980919f96bfb0ac8f1c5cf",
+      "current_sha256": "ca8e1e717f178a39878b1c9d98089dcc650037a44b980919f96bfb0ac8f1c5cf",
+      "performance_verified": false,
+      "rule_review": "not_assessed"
+    },
+    {
+      "id": "sentiment-gate",
+      "name": "实时情绪评分与仓位门控",
+      "source": "F:\\88888.投资\\08.选股\\a_-share_-rps_-system\\sentiment_engine.py",
+      "source_state": "unchanged",
+      "archived_sha256": "67aa312828dacf6945a8add6c4cf8c563b4e5c22af5a2990345db7df15f92f7f",
+      "current_sha256": "67aa312828dacf6945a8add6c4cf8c563b4e5c22af5a2990345db7df15f92f7f",
+      "performance_verified": false,
+      "rule_review": "not_assessed"
+    },
+    {
+      "id": "risk-overlay",
+      "name": "三层风险控制",
+      "source": "F:\\88888.投资\\08.选股\\a_-share_-rps_-system\\risk_engine.py",
+      "source_state": "unchanged",
+      "archived_sha256": "efac7d265c7663723022cbef6e971dac7914ba7032e5f0513939d73bce5615d2",
+      "current_sha256": "efac7d265c7663723022cbef6e971dac7914ba7032e5f0513939d73bce5615d2",
+      "performance_verified": false,
+      "rule_review": "not_assessed"
+    },
+    {
+      "id": "daily-s5",
+      "name": "S5每日信号",
+      "source": "F:\\88888.投资\\08.选股\\a_-share_-rps_-system\\daily_signal.py",
+      "source_state": "unchanged",
+      "archived_sha256": "9b8e5fcde717f4f111451a40b7aaf092cc588efddd92dcb390119c0cfc5a05d4",
+      "current_sha256": "9b8e5fcde717f4f111451a40b7aaf092cc588efddd92dcb390119c0cfc5a05d4",
+      "performance_verified": false,
+      "rule_review": "not_assessed"
+    },
+    {
+      "id": "s0",
+      "name": "S0持有基准",
+      "source": "F:\\88888.投资\\08.选股\\a_-share_-rps_-system\\emotion_validation\\final_comparison.py",
+      "source_state": "unchanged",
+      "archived_sha256": "ad6b4fa112ac7214f99578e328682afe1f0cc779bb14bcaaddfed74f7626ba65",
+      "current_sha256": "ad6b4fa112ac7214f99578e328682afe1f0cc779bb14bcaaddfed74f7626ba65",
+      "performance_verified": false,
+      "rule_review": "not_assessed"
+    },
+    {
+      "id": "s1",
+      "name": "S1区间切换",
+      "source": "F:\\88888.投资\\08.选股\\a_-share_-rps_-system\\emotion_validation\\final_comparison.py",
+      "source_state": "unchanged",
+      "archived_sha256": "ad6b4fa112ac7214f99578e328682afe1f0cc779bb14bcaaddfed74f7626ba65",
+      "current_sha256": "ad6b4fa112ac7214f99578e328682afe1f0cc779bb14bcaaddfed74f7626ba65",
+      "performance_verified": false,
+      "rule_review": "not_assessed"
+    },
+    {
+      "id": "s2",
+      "name": "S2极恐退出",
+      "source": "F:\\88888.投资\\08.选股\\a_-share_-rps_-system\\emotion_validation\\final_comparison.py",
+      "source_state": "unchanged",
+      "archived_sha256": "ad6b4fa112ac7214f99578e328682afe1f0cc779bb14bcaaddfed74f7626ba65",
+      "current_sha256": "ad6b4fa112ac7214f99578e328682afe1f0cc779bb14bcaaddfed74f7626ba65",
+      "performance_verified": false,
+      "rule_review": "not_assessed"
+    },
+    {
+      "id": "s3",
+      "name": "S3极恐与反转",
+      "source": "F:\\88888.投资\\08.选股\\a_-share_-rps_-system\\emotion_validation\\final_comparison.py",
+      "source_state": "unchanged",
+      "archived_sha256": "ad6b4fa112ac7214f99578e328682afe1f0cc779bb14bcaaddfed74f7626ba65",
+      "current_sha256": "ad6b4fa112ac7214f99578e328682afe1f0cc779bb14bcaaddfed74f7626ba65",
+      "performance_verified": false,
+      "rule_review": "not_assessed"
+    },
+    {
+      "id": "s4",
+      "name": "S4情绪均线趋势",
+      "source": "F:\\88888.投资\\08.选股\\a_-share_-rps_-system\\emotion_validation\\final_comparison.py",
+      "source_state": "unchanged",
+      "archived_sha256": "ad6b4fa112ac7214f99578e328682afe1f0cc779bb14bcaaddfed74f7626ba65",
+      "current_sha256": "ad6b4fa112ac7214f99578e328682afe1f0cc779bb14bcaaddfed74f7626ba65",
+      "performance_verified": false,
+      "rule_review": "not_assessed"
+    },
+    {
+      "id": "s5",
+      "name": "S5线性节流对比版",
+      "source": "F:\\88888.投资\\08.选股\\a_-share_-rps_-system\\emotion_validation\\final_comparison.py",
+      "source_state": "unchanged",
+      "archived_sha256": "ad6b4fa112ac7214f99578e328682afe1f0cc779bb14bcaaddfed74f7626ba65",
+      "current_sha256": "ad6b4fa112ac7214f99578e328682afe1f0cc779bb14bcaaddfed74f7626ba65",
+      "performance_verified": false,
+      "rule_review": "not_assessed"
+    },
+    {
+      "id": "etf-rotation",
+      "name": "ETF动量与情绪过滤",
+      "source": "F:\\88888.投资\\08.选股\\a_-share_-rps_-system\\emotion_validation\\etf_rotation\\rotation_strategy.py",
+      "source_state": "unchanged",
+      "archived_sha256": "9a00955bb10094a4eae5bc52dc8661c75cb45308ca6380c6e1d4c6a93ff3cb37",
+      "current_sha256": "9a00955bb10094a4eae5bc52dc8661c75cb45308ca6380c6e1d4c6a93ff3cb37",
+      "performance_verified": false,
+      "rule_review": "not_assessed"
+    },
+    {
+      "id": "etf-a",
+      "name": "A纯ETF轮动",
+      "source": "F:\\88888.投资\\08.选股\\a_-share_-rps_-system\\emotion_validation\\etf_rotation\\backtest_rotation.py",
+      "source_state": "unchanged",
+      "archived_sha256": "9aa734fa2361192e755f9ad3381a5586f4da6317489b62b86ee87e8efd290990",
+      "current_sha256": "9aa734fa2361192e755f9ad3381a5586f4da6317489b62b86ee87e8efd290990",
+      "performance_verified": false,
+      "rule_review": "not_assessed"
+    },
+    {
+      "id": "etf-b",
+      "name": "B沪深300ETF持有基准",
+      "source": "F:\\88888.投资\\08.选股\\a_-share_-rps_-system\\emotion_validation\\etf_rotation\\backtest_rotation.py",
+      "source_state": "unchanged",
+      "archived_sha256": "9aa734fa2361192e755f9ad3381a5586f4da6317489b62b86ee87e8efd290990",
+      "current_sha256": "9aa734fa2361192e755f9ad3381a5586f4da6317489b62b86ee87e8efd290990",
+      "performance_verified": false,
+      "rule_review": "not_assessed"
+    },
+    {
+      "id": "etf-c",
+      "name": "C S5仓位×沪深300ETF",
+      "source": "F:\\88888.投资\\08.选股\\a_-share_-rps_-system\\emotion_validation\\etf_rotation\\backtest_rotation.py",
+      "source_state": "unchanged",
+      "archived_sha256": "9aa734fa2361192e755f9ad3381a5586f4da6317489b62b86ee87e8efd290990",
+      "current_sha256": "9aa734fa2361192e755f9ad3381a5586f4da6317489b62b86ee87e8efd290990",
+      "performance_verified": false,
+      "rule_review": "not_assessed"
+    },
+    {
+      "id": "etf-d",
+      "name": "D S5仓位×ETF轮动",
+      "source": "F:\\88888.投资\\08.选股\\a_-share_-rps_-system\\emotion_validation\\etf_rotation\\backtest_rotation.py",
+      "source_state": "unchanged",
+      "archived_sha256": "9aa734fa2361192e755f9ad3381a5586f4da6317489b62b86ee87e8efd290990",
+      "current_sha256": "9aa734fa2361192e755f9ad3381a5586f4da6317489b62b86ee87e8efd290990",
+      "performance_verified": false,
+      "rule_review": "not_assessed"
+    },
+    {
+      "id": "dragon",
+      "name": "龙回头双均线缩量回踩",
+      "source": "F:\\88888.投资\\08.选股\\a_-share_-rps_-system\\rps_analyzer\\dragon_pullback_finder.py",
+      "source_state": "unchanged",
+      "archived_sha256": "68ea161182ad10ad7ad03e9eada7830545e783370b9943b9730ab2c9455e8e60",
+      "current_sha256": "68ea161182ad10ad7ad03e9eada7830545e783370b9943b9730ab2c9455e8e60",
+      "performance_verified": false,
+      "rule_review": "not_assessed"
+    },
+    {
+      "id": "pocket-v1",
+      "name": "口袋支点v1",
+      "source": "F:\\88888.投资\\08.选股\\a_-share_-rps_-system\\rps_analyzer\\pocket_pivot_finder.py",
+      "source_state": "unchanged",
+      "archived_sha256": "13780905084af09e5f25ceafe0a6b05088aeaa8176daacfd8a05154ce872d732",
+      "current_sha256": "13780905084af09e5f25ceafe0a6b05088aeaa8176daacfd8a05154ce872d732",
+      "performance_verified": false,
+      "rule_review": "not_assessed"
+    },
+    {
+      "id": "pocket-v2",
+      "name": "口袋支点v2",
+      "source": "F:\\88888.投资\\08.选股\\a_-share_-rps_-system\\rps_analyzer\\pocket_pivot_finder_v2.py",
+      "source_state": "unchanged",
+      "archived_sha256": "e1ae3c6fa8e4dd6ff02e1378153353f00cb4572d32419e97da6202d7b0a265fb",
+      "current_sha256": "e1ae3c6fa8e4dd6ff02e1378153353f00cb4572d32419e97da6202d7b0a265fb",
+      "performance_verified": false,
+      "rule_review": "not_assessed"
+    },
+    {
+      "id": "trend-pullback",
+      "name": "强趋势均线缩量回踩",
+      "source": "F:\\88888.投资\\08.选股\\a_-share_-rps_-system\\rps_analyzer\\pocket_pivot_finder_v2.py",
+      "source_state": "unchanged",
+      "archived_sha256": "e1ae3c6fa8e4dd6ff02e1378153353f00cb4572d32419e97da6202d7b0a265fb",
+      "current_sha256": "e1ae3c6fa8e4dd6ff02e1378153353f00cb4572d32419e97da6202d7b0a265fb",
+      "performance_verified": false,
+      "rule_review": "not_assessed"
+    },
+    {
+      "id": "cup-v1",
+      "name": "杯柄形态v1",
+      "source": "F:\\88888.投资\\08.选股\\a_-share_-rps_-system\\rps_analyzer\\cup_handle_finder.py",
+      "source_state": "unchanged",
+      "archived_sha256": "04063a2a24bbd2e89922dff97ded718a81b19fe6d5ef192a5f948781cf932fe3",
+      "current_sha256": "04063a2a24bbd2e89922dff97ded718a81b19fe6d5ef192a5f948781cf932fe3",
+      "performance_verified": false,
+      "rule_review": "not_assessed"
+    },
+    {
+      "id": "cup-v2",
+      "name": "杯柄形态v2",
+      "source": "F:\\88888.投资\\08.选股\\a_-share_-rps_-system\\rps_analyzer\\cup_handle_finder_v2.py",
+      "source_state": "unchanged",
+      "archived_sha256": "bcb210da68e432d50f8bad01b40abc4d99ad71d24d86dfb887b7e768da5f2e05",
+      "current_sha256": "bcb210da68e432d50f8bad01b40abc4d99ad71d24d86dfb887b7e768da5f2e05",
+      "performance_verified": false,
+      "rule_review": "not_assessed"
+    },
+    {
+      "id": "douyin-a",
+      "name": "短线A 放量突破前高",
+      "source": "F:\\88888.投资\\08.选股\\a_-share_-rps_-system\\emotion_validation\\strategy_layer\\douyin_system\\stock_screener.py",
+      "source_state": "unchanged",
+      "archived_sha256": "68bf822ee0dbf4afcfba1c0ecb8d6aebdca3102be92f61180a99da3200e4bb1c",
+      "current_sha256": "68bf822ee0dbf4afcfba1c0ecb8d6aebdca3102be92f61180a99da3200e4bb1c",
+      "performance_verified": false,
+      "rule_review": "not_assessed"
+    },
+    {
+      "id": "douyin-b",
+      "name": "短线B 一进二",
+      "source": "F:\\88888.投资\\08.选股\\a_-share_-rps_-system\\emotion_validation\\strategy_layer\\douyin_system\\stock_screener.py",
+      "source_state": "unchanged",
+      "archived_sha256": "68bf822ee0dbf4afcfba1c0ecb8d6aebdca3102be92f61180a99da3200e4bb1c",
+      "current_sha256": "68bf822ee0dbf4afcfba1c0ecb8d6aebdca3102be92f61180a99da3200e4bb1c",
+      "performance_verified": false,
+      "rule_review": "not_assessed"
+    },
+    {
+      "id": "douyin-c",
+      "name": "短线C 横盘突破涨停",
+      "source": "F:\\88888.投资\\08.选股\\a_-share_-rps_-system\\emotion_validation\\strategy_layer\\douyin_system\\stock_screener.py",
+      "source_state": "unchanged",
+      "archived_sha256": "68bf822ee0dbf4afcfba1c0ecb8d6aebdca3102be92f61180a99da3200e4bb1c",
+      "current_sha256": "68bf822ee0dbf4afcfba1c0ecb8d6aebdca3102be92f61180a99da3200e4bb1c",
+      "performance_verified": false,
+      "rule_review": "not_assessed"
+    },
+    {
+      "id": "douyin-d",
+      "name": "短线D 强势股回调确认",
+      "source": "F:\\88888.投资\\08.选股\\a_-share_-rps_-system\\emotion_validation\\strategy_layer\\douyin_system\\stock_screener.py",
+      "source_state": "unchanged",
+      "archived_sha256": "68bf822ee0dbf4afcfba1c0ecb8d6aebdca3102be92f61180a99da3200e4bb1c",
+      "current_sha256": "68bf822ee0dbf4afcfba1c0ecb8d6aebdca3102be92f61180a99da3200e4bb1c",
+      "performance_verified": false,
+      "rule_review": "not_assessed"
+    },
+    {
+      "id": "dragon-search",
+      "name": "龙回头V0–V7及深度参数搜索",
+      "source": "F:\\88888.投资\\08.选股\\a_-share_-rps_-system\\run_dragon_optimization.py",
+      "source_state": "unchanged",
+      "archived_sha256": "98d39d1b8a9732c1187bff4e2ab17d35c5dae3b34baeed99db8cceaadbb53764",
+      "current_sha256": "98d39d1b8a9732c1187bff4e2ab17d35c5dae3b34baeed99db8cceaadbb53764",
+      "performance_verified": false,
+      "rule_review": "not_assessed"
+    },
+    {
+      "id": "panel-active_limit_gene",
+      "name": "涨停基因活跃股",
+      "source": "F:\\88888.投资\\08.选股\\tick-stock-panel\\backend\\app\\strategy\\builtin\\active_limit_gene.py",
+      "source_state": "unchanged",
+      "archived_sha256": "ad024a696ba5af51d5d3fa776bd8eb29ca37899a8fd015220df32d92feed4e55",
+      "current_sha256": "ad024a696ba5af51d5d3fa776bd8eb29ca37899a8fd015220df32d92feed4e55",
+      "performance_verified": false,
+      "rule_review": "not_assessed"
+    },
+    {
+      "id": "panel-boll_breakout",
+      "name": "布林突破",
+      "source": "F:\\88888.投资\\08.选股\\tick-stock-panel\\backend\\app\\strategy\\builtin\\boll_breakout.py",
+      "source_state": "unchanged",
+      "archived_sha256": "8c9a08ab642941837ea1fb4a95d9c938c2452086719d109386a8ad955369fe2e",
+      "current_sha256": "8c9a08ab642941837ea1fb4a95d9c938c2452086719d109386a8ad955369fe2e",
+      "performance_verified": false,
+      "rule_review": "not_assessed"
+    },
+    {
+      "id": "panel-breakout_new_high_60d",
+      "name": "放量创60日新高",
+      "source": "F:\\88888.投资\\08.选股\\tick-stock-panel\\backend\\app\\strategy\\builtin\\breakout_new_high_60d.py",
+      "source_state": "unchanged",
+      "archived_sha256": "5cda885bd965b113fdbaadcaefe635d2f27e263e348467e70af0523144bb950b",
+      "current_sha256": "5cda885bd965b113fdbaadcaefe635d2f27e263e348467e70af0523144bb950b",
+      "performance_verified": false,
+      "rule_review": "not_assessed"
+    },
+    {
+      "id": "panel-broken_board_recovery",
+      "name": "断板反包",
+      "source": "F:\\88888.投资\\08.选股\\tick-stock-panel\\backend\\app\\strategy\\builtin\\broken_board_recovery.py",
+      "source_state": "unchanged",
+      "archived_sha256": "a29877580cc0a042bc3361cc37da7b874c3787dbf3c82ffde6c7b6051b886213",
+      "current_sha256": "a29877580cc0a042bc3361cc37da7b874c3787dbf3c82ffde6c7b6051b886213",
+      "performance_verified": false,
+      "rule_review": "not_assessed"
+    },
+    {
+      "id": "panel-bullish_alignment",
+      "name": "均线多头",
+      "source": "F:\\88888.投资\\08.选股\\tick-stock-panel\\backend\\app\\strategy\\builtin\\bullish_alignment.py",
+      "source_state": "unchanged",
+      "archived_sha256": "26bc48a1688e9342d96471d65d410e9b1ef3499bfeebe6565e28cb52bf8e26b9",
+      "current_sha256": "26bc48a1688e9342d96471d65d410e9b1ef3499bfeebe6565e28cb52bf8e26b9",
+      "performance_verified": false,
+      "rule_review": "not_assessed"
+    },
+    {
+      "id": "panel-consecutive_limit_ups",
+      "name": "连板股",
+      "source": "F:\\88888.投资\\08.选股\\tick-stock-panel\\backend\\app\\strategy\\builtin\\consecutive_limit_ups.py",
+      "source_state": "unchanged",
+      "archived_sha256": "fcfce8ea0119f77807392b18838d35fc18b41932d374202740557a288829e02b",
+      "current_sha256": "fcfce8ea0119f77807392b18838d35fc18b41932d374202740557a288829e02b",
+      "performance_verified": false,
+      "rule_review": "not_assessed"
+    },
+    {
+      "id": "panel-factor_rank_research",
+      "name": "因子排名研究",
+      "source": "F:\\88888.投资\\08.选股\\tick-stock-panel\\backend\\app\\strategy\\builtin\\factor_rank_research.py",
+      "source_state": "unchanged",
+      "archived_sha256": "908f53dd067200ab8b49016f0be04e6c6b97778602a0cc41ea83337af7715c21",
+      "current_sha256": "908f53dd067200ab8b49016f0be04e6c6b97778602a0cc41ea83337af7715c21",
+      "performance_verified": false,
+      "rule_review": "not_assessed"
+    },
+    {
+      "id": "panel-high_turnover_surge",
+      "name": "高换手拉升",
+      "source": "F:\\88888.投资\\08.选股\\tick-stock-panel\\backend\\app\\strategy\\builtin\\high_turnover_surge.py",
+      "source_state": "unchanged",
+      "archived_sha256": "2a33b12a4f878e9561a198ffa210a4ca41468077c4977cee9041000ad01db1aa",
+      "current_sha256": "2a33b12a4f878e9561a198ffa210a4ca41468077c4977cee9041000ad01db1aa",
+      "performance_verified": false,
+      "rule_review": "not_assessed"
+    },
+    {
+      "id": "panel-limit_up_momentum",
+      "name": "连板接力",
+      "source": "F:\\88888.投资\\08.选股\\tick-stock-panel\\backend\\app\\strategy\\builtin\\limit_up_momentum.py",
+      "source_state": "unchanged",
+      "archived_sha256": "d948110e0671f7a727791a0de9ea26bb2cc4d77720c226c250add8b9996a07c0",
+      "current_sha256": "d948110e0671f7a727791a0de9ea26bb2cc4d77720c226c250add8b9996a07c0",
+      "performance_verified": false,
+      "rule_review": "not_assessed"
+    },
+    {
+      "id": "panel-long_lower_shadow_reversal",
+      "name": "长下影反击",
+      "source": "F:\\88888.投资\\08.选股\\tick-stock-panel\\backend\\app\\strategy\\builtin\\long_lower_shadow_reversal.py",
+      "source_state": "unchanged",
+      "archived_sha256": "741c4b8477a3368b5ae9734a23c60b2a1fedc76124f9ea1bf74166c77121477f",
+      "current_sha256": "741c4b8477a3368b5ae9734a23c60b2a1fedc76124f9ea1bf74166c77121477f",
+      "performance_verified": false,
+      "rule_review": "not_assessed"
+    },
+    {
+      "id": "panel-low_volatility_leader",
+      "name": "低波动龙头",
+      "source": "F:\\88888.投资\\08.选股\\tick-stock-panel\\backend\\app\\strategy\\builtin\\low_volatility_leader.py",
+      "source_state": "unchanged",
+      "archived_sha256": "357f87df12545eb9762629a2c3c3d1d0ec636c39986e7de76a9e33fc4ebf6aa1",
+      "current_sha256": "357f87df12545eb9762629a2c3c3d1d0ec636c39986e7de76a9e33fc4ebf6aa1",
+      "performance_verified": false,
+      "rule_review": "not_assessed"
+    },
+    {
+      "id": "panel-ma_convergence_breakout",
+      "name": "均线粘合突破",
+      "source": "F:\\88888.投资\\08.选股\\tick-stock-panel\\backend\\app\\strategy\\builtin\\ma_convergence_breakout.py",
+      "source_state": "unchanged",
+      "archived_sha256": "3d8b8b596bc6060a1ff2a976019942aa000f4b46b4806ebb76f0ff56598ea4eb",
+      "current_sha256": "3d8b8b596bc6060a1ff2a976019942aa000f4b46b4806ebb76f0ff56598ea4eb",
+      "performance_verified": false,
+      "rule_review": "not_assessed"
+    },
+    {
+      "id": "panel-ma_golden_cross",
+      "name": "MA 金叉",
+      "source": "F:\\88888.投资\\08.选股\\tick-stock-panel\\backend\\app\\strategy\\builtin\\ma_golden_cross.py",
+      "source_state": "unchanged",
+      "archived_sha256": "958711a5e6defd25b359f1a9efbf9e874525946f34de841f50abc2d96bb38cc3",
+      "current_sha256": "958711a5e6defd25b359f1a9efbf9e874525946f34de841f50abc2d96bb38cc3",
+      "performance_verified": false,
+      "rule_review": "not_assessed"
+    },
+    {
+      "id": "panel-macd_below_zero_revival",
+      "name": "MACD 零下回升",
+      "source": "F:\\88888.投资\\08.选股\\tick-stock-panel\\backend\\app\\strategy\\builtin\\macd_below_zero_revival.py",
+      "source_state": "unchanged",
+      "archived_sha256": "251d3e1c427f1e80829301ada2c23a9fe93af1baa945b27a8e9c6dc6f38c8e03",
+      "current_sha256": "251d3e1c427f1e80829301ada2c23a9fe93af1baa945b27a8e9c6dc6f38c8e03",
+      "performance_verified": false,
+      "rule_review": "not_assessed"
+    },
+    {
+      "id": "panel-macd_golden",
+      "name": "MACD 金叉放量",
+      "source": "F:\\88888.投资\\08.选股\\tick-stock-panel\\backend\\app\\strategy\\builtin\\macd_golden.py",
+      "source_state": "unchanged",
+      "archived_sha256": "930971800b798001704981381991f0aad15cec470075b7443822a8d9ca11bf3e",
+      "current_sha256": "930971800b798001704981381991f0aad15cec470075b7443822a8d9ca11bf3e",
+      "performance_verified": false,
+      "rule_review": "not_assessed"
+    },
+    {
+      "id": "panel-n_day_low_reversal",
+      "name": "新低反转",
+      "source": "F:\\88888.投资\\08.选股\\tick-stock-panel\\backend\\app\\strategy\\builtin\\n_day_low_reversal.py",
+      "source_state": "unchanged",
+      "archived_sha256": "9e696768cfb2957fba2d6262bcd128d05809d46d5409bdf60452b86a081a19d5",
+      "current_sha256": "9e696768cfb2957fba2d6262bcd128d05809d46d5409bdf60452b86a081a19d5",
+      "performance_verified": false,
+      "rule_review": "not_assessed"
+    },
+    {
+      "id": "panel-near_limit_up",
+      "name": "逼近涨停",
+      "source": "F:\\88888.投资\\08.选股\\tick-stock-panel\\backend\\app\\strategy\\builtin\\near_limit_up.py",
+      "source_state": "unchanged",
+      "archived_sha256": "385153e9ffeded4eca2b62d663274f961c8ccbe9b44b33db00ffce76140145e8",
+      "current_sha256": "385153e9ffeded4eca2b62d663274f961c8ccbe9b44b33db00ffce76140145e8",
+      "performance_verified": false,
+      "rule_review": "not_assessed"
+    },
+    {
+      "id": "panel-oversold_bounce",
+      "name": "超跌反弹",
+      "source": "F:\\88888.投资\\08.选股\\tick-stock-panel\\backend\\app\\strategy\\builtin\\oversold_bounce.py",
+      "source_state": "unchanged",
+      "archived_sha256": "8428f485720616f6ea5525bc21ba646ae8bde350da7833856fb0adebf2ad804f",
+      "current_sha256": "8428f485720616f6ea5525bc21ba646ae8bde350da7833856fb0adebf2ad804f",
+      "performance_verified": false,
+      "rule_review": "not_assessed"
+    },
+    {
+      "id": "panel-oversold_reversal",
+      "name": "超跌反转",
+      "source": "F:\\88888.投资\\08.选股\\tick-stock-panel\\backend\\app\\strategy\\builtin\\oversold_reversal.py",
+      "source_state": "unchanged",
+      "archived_sha256": "5e43d33b78cbfd7a86e7d93347ceef4bbbfad315bd3cf60002807c9160bf1dfc",
+      "current_sha256": "5e43d33b78cbfd7a86e7d93347ceef4bbbfad315bd3cf60002807c9160bf1dfc",
+      "performance_verified": false,
+      "rule_review": "not_assessed"
+    },
+    {
+      "id": "panel-platform_consolidation_breakout",
+      "name": "平台整理突破",
+      "source": "F:\\88888.投资\\08.选股\\tick-stock-panel\\backend\\app\\strategy\\builtin\\platform_consolidation_breakout.py",
+      "source_state": "unchanged",
+      "archived_sha256": "f8bd5fa63744e92b9777f9df570200f62b25a7a0fe2d82f9e6d294a89034f419",
+      "current_sha256": "f8bd5fa63744e92b9777f9df570200f62b25a7a0fe2d82f9e6d294a89034f419",
+      "performance_verified": false,
+      "rule_review": "not_assessed"
+    },
+    {
+      "id": "panel-pullback_ma20_bounce",
+      "name": "均线回踩反弹",
+      "source": "F:\\88888.投资\\08.选股\\tick-stock-panel\\backend\\app\\strategy\\builtin\\pullback_ma20_bounce.py",
+      "source_state": "unchanged",
+      "archived_sha256": "09ad7e446d19797591a71c6cfb0a532872c37ff539eb293662424dbe7d2c0b0c",
+      "current_sha256": "09ad7e446d19797591a71c6cfb0a532872c37ff539eb293662424dbe7d2c0b0c",
+      "performance_verified": false,
+      "rule_review": "not_assessed"
+    },
+    {
+      "id": "panel-pullback_to_support",
+      "name": "缩量回踩",
+      "source": "F:\\88888.投资\\08.选股\\tick-stock-panel\\backend\\app\\strategy\\builtin\\pullback_to_support.py",
+      "source_state": "unchanged",
+      "archived_sha256": "4cc6172232a184d36bd5190e4ec7e6f0a178ef5de02ed279f081356b131022cf",
+      "current_sha256": "4cc6172232a184d36bd5190e4ec7e6f0a178ef5de02ed279f081356b131022cf",
+      "performance_verified": false,
+      "rule_review": "not_assessed"
+    },
+    {
+      "id": "panel-rsi_midline_pullback",
+      "name": "RSI 中轴回踩",
+      "source": "F:\\88888.投资\\08.选股\\tick-stock-panel\\backend\\app\\strategy\\builtin\\rsi_midline_pullback.py",
+      "source_state": "unchanged",
+      "archived_sha256": "0341a78d17b354886b9c506833e18d07d772735f0cf178593494e8bc14f83416",
+      "current_sha256": "0341a78d17b354886b9c506833e18d07d772735f0cf178593494e8bc14f83416",
+      "performance_verified": false,
+      "rule_review": "not_assessed"
+    },
+    {
+      "id": "panel-strong_open",
+      "name": "强势高开",
+      "source": "F:\\88888.投资\\08.选股\\tick-stock-panel\\backend\\app\\strategy\\builtin\\strong_open.py",
+      "source_state": "unchanged",
+      "archived_sha256": "f1ee5cd08d47b8e1039a63088394c6e2df63dc0ca8b78ddbf6cb4bcd8684c5ce",
+      "current_sha256": "f1ee5cd08d47b8e1039a63088394c6e2df63dc0ca8b78ddbf6cb4bcd8684c5ce",
+      "performance_verified": false,
+      "rule_review": "not_assessed"
+    },
+    {
+      "id": "panel-trend_breakout",
+      "name": "趋势突破",
+      "source": "F:\\88888.投资\\08.选股\\tick-stock-panel\\backend\\app\\strategy\\builtin\\trend_breakout.py",
+      "source_state": "unchanged",
+      "archived_sha256": "c677ecad3f1d842b07aeafef99d8fe6a6bc0cc7e023e71e6353be24d076848a3",
+      "current_sha256": "c677ecad3f1d842b07aeafef99d8fe6a6bc0cc7e023e71e6353be24d076848a3",
+      "performance_verified": false,
+      "rule_review": "not_assessed"
+    },
+    {
+      "id": "panel-volume_price_surge",
+      "name": "量价齐升",
+      "source": "F:\\88888.投资\\08.选股\\tick-stock-panel\\backend\\app\\strategy\\builtin\\volume_price_surge.py",
+      "source_state": "unchanged",
+      "archived_sha256": "76d37878f73a772873680bfcc94eefd3b9371b6b170def2cbdbb292ae3798246",
+      "current_sha256": "76d37878f73a772873680bfcc94eefd3b9371b6b170def2cbdbb292ae3798246",
+      "performance_verified": false,
+      "rule_review": "not_assessed"
+    }
+  ],
+  "additional_review_queue": [
+    {
+      "id": "tdx-rps-local",
+      "name": "本地TDX RPS多层选股",
+      "source": "rps_analyzer/tdx_stock_screener.py",
+      "current_sha256": "6b46fc4e62e541274cab5d136dc52fae6cdde2388f6939fabd685b77eb1b4016",
+      "status": "pending_rule_review",
+      "note": "旧rps-dual卡对应网络入口，不代表本地120/250日RPS；需独立卡。"
+    },
+    {
+      "id": "market-timing",
+      "name": "宽度与成交额择时研究",
+      "source": "rps_analyzer/market_timing.py",
+      "current_sha256": "d2d5fe0eac373a0a431d6735660af4350c50cbb7ff3a50593bc46f94996867df",
+      "status": "pending_rule_review",
+      "note": "属于环境层；事件统计不等同可交易组合回测。"
+    },
+    {
+      "id": "industry-rps",
+      "name": "行业RPS过滤",
+      "source": "rps_analyzer/industry_rps.py",
+      "current_sha256": "7e7b1d3b746b700a51f9d01190ada633c707f6c55298e60a90004760c0d7f925",
+      "status": "pending_rule_review",
+      "note": "当前行业映射不是历史成分；历史回测需时点行业或明确标记偏差。"
+    },
+    {
+      "id": "trend-start",
+      "name": "趋势启动研究框架",
+      "source": "trend_start/signals.py",
+      "current_sha256": "a464c98d29a8bd46d6f6064390619e6e6b403de199bddd5b2d185284c5f852b5",
+      "status": "pending_rule_review",
+      "note": "可复用信号和执行框架，仍须逐日前缀和交易约束验收。"
+    }
+  ]
+}

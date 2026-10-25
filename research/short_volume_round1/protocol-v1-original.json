@@ -1,0 +1,78 @@
+{
+  "id": "short-volume-round1-v1",
+  "freeze_date": "2026-10-24",
+  "status": "exploratory_event_study_not_portfolio_approval",
+  "signal_start": "2025-01-01",
+  "signal_end": "2026-10-23",
+  "warmup_start": "2024-12-01",
+  "periods": {
+    "discovery": "2025-01-01/2025-12-31",
+    "historical_check_not_untouched_oos": "2026-01-01/2026-07-31",
+    "known_case_regime": "2026-08-01/2026-10-23"
+  },
+  "universe": "All locally present SH/SZ ordinary A-share .day files, including stale files; NOT proven complete historical listed/delisted population",
+  "data": "TDX raw OHLCV/amount, locally rebuilt Hithink multiplicative factors; every utilized raw OHLC row reconciled before a stock is admitted",
+  "rps_required": false,
+  "feature_windows": [
+    3,
+    5,
+    10,
+    15
+  ],
+  "maximum_information_lag": 18,
+  "lag_note": "S1 remembers a 15-bar base for up to three bars; maximum information age 18 sessions, below 20",
+  "baseline": "C > previous5 high; V/previous10 mean >=1.5; (C-L)/(H-L)>=0.65; C>O; previous10 mean amount>=100000000; latest15 stock bars consecutive in market calendar",
+  "s1": "baseline AND one of t-1,t-2,t-3 had prior15 range/mean close<=0.20",
+  "s2": "baseline AND previous close/previous15 maximum close-1<=-0.12 AND min(low[t-3:t])>=min(low[t-6:t-3])",
+  "chip_ablation": "Each shape separately AND prior15 volume allocated to typical-price above C <=20%; not actual chip distribution",
+  "arms": [
+    "B0",
+    "S1",
+    "S1_chip",
+    "S2",
+    "S2_chip"
+  ],
+  "sampling": "A common B0 event bank; per stock after an admitted event ignore following 5 market sessions; subgroup labels fixed at signal close; arms may overlap and must not be summed",
+  "horizons_market_sessions": [
+    2,
+    3,
+    5
+  ],
+  "entry": "next market session open; no forward entry after missing/suspended next-session bar; skip indicative board-limit open or one-price entry; historical ST/IPO limits remain unknown",
+  "exit": "close of entry session+h-1, h>=2 so no same-day sale; if absent or at indicative limit-down close roll to next observed bar close, max 5 extra market sessions; no forced end-of-data liquidation",
+  "limit_model": "Indicative 10% ordinary/20% STAR-ChiNext, price reference from prior raw close * prior factor / current factor; 0.3pp tolerance. Historical ST and special-IPO restrictions NOT certified",
+  "cost_scenarios_roundtrip_bps": [
+    0,
+    40,
+    80
+  ],
+  "cost_note": "Pure proportional hypothetical total costs; not date-specific actual taxes, minimum commissions, impact, or portfolio net PnL",
+  "metrics": [
+    "event count",
+    "entry rejection",
+    "unresolved/censored outcome",
+    "gross and hypothetical-cost mean/median/win rate",
+    "MAE",
+    "MFE",
+    "date-equal mean",
+    "monthly results",
+    "same-date-board non-shape control delta"
+  ],
+  "fail_closed": [
+    "missing raw/factor anchor",
+    "special unsupported corporate-action symbols from prior audit",
+    "000615.SZ special restructuring",
+    "nonpositive/nonfinite factor or prices",
+    "calendar gaps in signal feature window"
+  ],
+  "bounds": [
+    "Selection/survivorship bias not resolved",
+    "Historic ST/IPO status unavailable",
+    "No historic industry members, so no fake sector backtest",
+    "No RPS or grid search in this round",
+    "No personal holding/trading changes or remote writes",
+    "All dates have prior project exposure; no untouched out-of-sample claim",
+    "Do not promote a shape solely on user-selected case fit"
+  ],
+  "decision": "Report coverage and baseline-relative evidence; retain negative or inconclusive result; do not deploy a strategy from this event study"
+}

@@ -1,0 +1,80 @@
+{
+  "created_at_utc": "2026-10-06T04:16:28.227359+00:00",
+  "status": "BLOCKED_FOR_PROFIT_CERTIFICATION",
+  "input_scope": "Historical mainland SH/SZ A-share universe overlapping 2016-08-22 through 2026-09-30, not today's constituents",
+  "inspected_terminal_window": [
+    "2018-01-01",
+    "2026-09-30"
+  ],
+  "target_codes": 239,
+  "source_inventory": {
+    "cache_present": 128,
+    "raw_present": 106,
+    "missing_both": 111,
+    "cache_without_raw": 22,
+    "raw_ends_before_cache": 5
+  },
+  "required_tables": {
+    "security_master_history": [
+      "non-reused security_id",
+      "ticker/code validity intervals",
+      "listing and terminal effective dates",
+      "historical ST/risk-warning intervals",
+      "board and special-listing trading-rule intervals",
+      "industry classification/version intervals",
+      "source announcement/publication timestamp and effective timestamp"
+    ],
+    "daily_raw_prices": [
+      "security_id/trade_date unique key",
+      "raw OHLC and previous close",
+      "volume in shares and amount in CNY",
+      "traded/suspended status",
+      "official daily price limits or auditable historically-effective rule",
+      "source/extract timestamp and input hash; missing stays missing"
+    ],
+    "corporate_actions": [
+      "announcement timestamp",
+      "ex/registry/payment dates",
+      "cash dividend/share distributions/rights terms",
+      "factor methodology and reconciliation to raw bars; merger/relisting/terminal treatment"
+    ],
+    "capital_history": [
+      "outstanding/float shares with effective intervals",
+      "announcement/availability timestamps",
+      "historical market-cap calculated using known shares and raw price, NOT amount"
+    ],
+    "daily_universe": [
+      "all eligible-at-the-time securities including later terminal ones",
+      "rules known at signal date",
+      "past-data/ranking/eligibility trace; no today's name/status backfill"
+    ]
+  },
+  "acceptance_gates": [
+    "No overwrite of frozen RPS-PV or RPS-DIAG results; repaired data gets new version/hash and explicit rerun lineage.",
+    "Every official terminal-list gap must be filled or explained with source evidence; snapshots do not certify full history.",
+    "Unique keys, complete unit/price-basis lineage, no unexplained OHLC violations or post-terminal activity; relisting uses a distinct interval.",
+    "Reconcile raw/adjusted TDX and hithink on available overlaps; never splice qfq levels blindly.",
+    "A known historical name, ST, board, float-cap and industry record must be effective and available by the signal date; unknown cannot be filled from today's record.",
+    "Missing future prices/terminal settlements cannot be dropped as winners/losers or assigned zero return; settlement and valuation convention must be written before performance reruns.",
+    "Executable-account research additionally needs price limits, suspensions, lot/minimum-commission/cash-dividend/settlement/capacity rules; price proxies are not account returns.",
+    "Existing 2018-2026 history remains exploratory after repairs; future observation is independent only if rules are frozen before signals."
+  ],
+  "deferred_investment_decision": true,
+  "broker_actions": false,
+  "evidence_hashes": {
+    "alternative_coverage.json": "2474b1ac413f805d7a5854d92f4fe3ae2bcee65f2fc52010b550ad1230b4d84e",
+    "alternative_tdx_coverage.csv": "b53cc74770ca1fe9c7db4a09ddf6c229da20b26c492fcea862fc47d41a4bfd1d",
+    "configured_raw_code_coverage.csv": "dcb2fa19c2c6903ce9c90162f84f4a69eda7e6395568b2c79d1dc7e8527f89cc",
+    "configured_raw_coverage.json": "f2908b567f023787ea49658ba2c9b20ed540bf4f8febc5f725305304631c860c",
+    "coverage.json": "ab6c989676e80f0d584cf55dedcc14892ff6d8e39a985c3ece731f67cccfe945",
+    "official_terminated_a_snapshot.csv": "924caafbb73ad1b593040f065622d43175844851bfc6e0e868b5ba7121f51ff8",
+    "repair_backlog.csv": "bcd333d80d5ccc0ccd7114e1347d18cd1cd8e6ce9db342253cce32e59e9e854d",
+    "retained_cache_code_quality.csv": "d6c4492260356b276ff4b80ba567113d065bebe7d223789ffac81e99f59f40f0",
+    "retained_cache_quality.json": "41d2c14c456a74cfbcb899556959420f4d8309d224387077663a1d2116f66fbc",
+    "sse_page1.json": "a8271473eef2ea2f8feedaade56c269528519110da4d0c507f904c58432e80d3",
+    "sse_page1_receipt.json": "b2f95a017bd1e6f01c75737c72bb9b3bbf265e57ddfa60f802bb71e143fa4720",
+    "study_window_terminated_coverage.csv": "11d348a4f9f49bb83d6aac9fa3b6eeb8c8cf1668498589101a5178eb1ca3aba1",
+    "szse_terminated.xlsx": "906777e45183967fc0a490413eb2d9b77be9d21e9551e3820418f203fb29bc33",
+    "szse_terminated_receipt.json": "59951be0f9a7e158976d79f51f507a363fc636a590e1f3ba614a48d46b5f1419"
+  }
+}

@@ -1,0 +1,348 @@
+{
+  "coverage": {
+    "credit": 0.6617758958207545,
+    "hk": 0.8647304562547828
+  },
+  "shift_validation": {
+    "0": {
+      "rows": 717,
+      "inside": 268,
+      "amount": 152100739.20000002,
+      "inside_amount": 50822717.17000005,
+      "row_rate": 0.3737796373779637,
+      "amount_rate": 0.3341385284339239
+    },
+    "1": {
+      "rows": 717,
+      "inside": 366,
+      "amount": 152100739.20000002,
+      "inside_amount": 72946359.86000003,
+      "row_rate": 0.5104602510460251,
+      "amount_rate": 0.4795924085817988
+    },
+    "2": {
+      "rows": 717,
+      "inside": 657,
+      "amount": 152100739.20000002,
+      "inside_amount": 140446095.3299999,
+      "row_rate": 0.9163179916317992,
+      "amount_rate": 0.9233754948772785
+    },
+    "3": {
+      "rows": 717,
+      "inside": 301,
+      "amount": 152100739.20000002,
+      "inside_amount": 64767632.75000003,
+      "row_rate": 0.4198047419804742,
+      "amount_rate": 0.42582063105450063
+    },
+    "4": {
+      "rows": 717,
+      "inside": 288,
+      "amount": 152100739.20000002,
+      "inside_amount": 64556450.46000004,
+      "row_rate": 0.401673640167364,
+      "amount_rate": 0.42443219408101357
+    }
+  },
+  "mapping": {
+    "hk_rows": 717,
+    "hk_inside": 657,
+    "hk_amount": 152100739.20000002,
+    "hk_inside_amount": 140446095.3299999,
+    "hk_anomalies": [
+      {
+        "settlement": "20260507",
+        "trade_date": "20260505",
+        "code": "01347",
+        "price": 113.69988650303233,
+        "low": 118.5,
+        "high": 123.0,
+        "amount": 694239.7
+      },
+      {
+        "settlement": "20260507",
+        "trade_date": "20260505",
+        "code": "01347",
+        "price": 117.2005547087206,
+        "low": 118.5,
+        "high": 123.0,
+        "amount": 613563.11
+      },
+      {
+        "settlement": "20260507",
+        "trade_date": "20260505",
+        "code": "01888",
+        "price": 34.74039001685258,
+        "low": 35.76,
+        "high": 37.26,
+        "amount": 651507.19
+      },
+      {
+        "settlement": "20260507",
+        "trade_date": "20260505",
+        "code": "01347",
+        "price": 115.70031975977903,
+        "low": 118.5,
+        "high": 123.0,
+        "amount": 100951.72
+      },
+      {
+        "settlement": "20260507",
+        "trade_date": "20260505",
+        "code": "06166",
+        "price": 123.8997099521937,
+        "low": 136.1,
+        "high": 150.0,
+        "amount": 205341.08
+      },
+      {
+        "settlement": "20260507",
+        "trade_date": "20260505",
+        "code": "01347",
+        "price": 115.2006234742645,
+        "low": 118.5,
+        "high": 123.0,
+        "amount": 100515.46
+      },
+      {
+        "settlement": "20260507",
+        "trade_date": "20260505",
+        "code": "06869",
+        "price": 202.3994863975604,
+        "low": 216.2,
+        "high": 234.6,
+        "amount": 88273.72
+      },
+      {
+        "settlement": "20260507",
+        "trade_date": "20260505",
+        "code": "01888",
+        "price": 34.700239533311176,
+        "low": 35.76,
+        "high": 37.26,
+        "amount": 408736.68
+      },
+      {
+        "settlement": "20260507",
+        "trade_date": "20260505",
+        "code": "01888",
+        "price": 34.700239533311176,
+        "low": 35.76,
+        "high": 37.26,
+        "amount": 136245.56
+      },
+      {
+        "settlement": "20260507",
+        "trade_date": "20260505",
+        "code": "01888",
+        "price": 34.63949663621881,
+        "low": 35.76,
+        "high": 37.26,
+        "amount": 45336.66
+      },
+      {
+        "settlement": "20260507",
+        "trade_date": "20260505",
+        "code": "06869",
+        "price": 205.99979370336837,
+        "low": 216.2,
+        "high": 234.6,
+        "amount": 89870.59
+      },
+      {
+        "settlement": "20260507",
+        "trade_date": "20260505",
+        "code": "06166",
+        "price": 124.9000034382772,
+        "low": 136.1,
+        "high": 150.0,
+        "amount": 76285.3
+      },
+      {
+        "settlement": "20260507",
+        "trade_date": "20260505",
+        "code": "06166",
+        "price": 125.10056960792178,
+        "low": 136.1,
+        "high": 150.0,
+        "amount": 5457.68
+      },
+      {
+        "settlement": "20260507",
+        "trade_date": "20260505",
+        "code": "06166",
+        "price": 124.9000034382772,
+        "low": 136.1,
+        "high": 150.0,
+        "amount": 108979.0
+      },
+      {
+        "settlement": "20260507",
+        "trade_date": "20260505",
+        "code": "00981",
+        "price": 69.25034679629015,
+        "low": 70.1,
+        "high": 71.9,
+        "amount": 936272.81
+      },
+      {
+        "settlement": "20260507",
+        "trade_date": "20260505",
+        "code": "06166",
+        "price": 125.2002796465451,
+        "low": 136.1,
+        "high": 150.0,
+        "amount": 16386.11
+      },
+      {
+        "settlement": "20260507",
+        "trade_date": "20260505",
+        "code": "06166",
+        "price": 127.3000332465865,
+        "low": 136.1,
+        "high": 150.0,
+        "amount": 55519.99
+      },
+      {
+        "settlement": "20260507",
+        "trade_date": "20260505",
+        "code": "06869",
+        "price": 202.79959186948994,
+        "low": 216.2,
+        "high": 234.6,
+        "amount": 972929.98
+      },
+      {
+        "settlement": "20260507",
+        "trade_date": "20260505",
+        "code": "06166",
+        "price": 124.40030715276266,
+        "low": 136.1,
+        "high": 150.0,
+        "amount": 54271.37
+      },
+      {
+        "settlement": "20260507",
+        "trade_date": "20260505",
+        "code": "06869",
+        "price": 206.39977995025959,
+        "low": 216.2,
+        "high": 234.6,
+        "amount": 90045.1
+      }
+    ],
+    "hk_inside_row_rate": 0.9163179916317992,
+    "hk_inside_amount_rate": 0.9233754948772785
+  },
+  "summary": {
+    "credit": {
+      "buy": {
+        "rows": 187,
+        "notional": 27017423.19,
+        "intraday_n": 187,
+        "intraday_weighted": 0.5586266915327183,
+        "above_ma20_n": 187,
+        "above_ma20_weighted": 0.8679218497298891,
+        "near_high_n": 187,
+        "near_high_weighted": 0.3939618214197281,
+        "ret5_n": 187,
+        "ret5_weighted": 0.04414992915926859,
+        "alpha5_n": 187,
+        "alpha5_weighted": -0.00837151257011774,
+        "mfe5_n": 187,
+        "mfe5_weighted": 0.13013923245411196,
+        "mae5_n": 187,
+        "mae5_weighted": -0.06574989716733239,
+        "ret20_n": 179,
+        "ret20_weighted": 0.09767461587315254,
+        "alpha20_n": 179,
+        "alpha20_weighted": -0.032468006392159944,
+        "mfe20_n": 179,
+        "mfe20_weighted": 0.273599070787546,
+        "mae20_n": 179,
+        "mae20_weighted": -0.12407797290053592
+      },
+      "sell": {
+        "rows": 135,
+        "notional": 25602955.97,
+        "intraday_n": 135,
+        "intraday_weighted": 0.4810305788823987,
+        "above_ma20_n": 135,
+        "above_ma20_weighted": 0.780743884941345,
+        "near_high_n": 135,
+        "near_high_weighted": 0.27827424295648623,
+        "ret5_n": 135,
+        "ret5_weighted": 0.029280970768036815,
+        "alpha5_n": 135,
+        "alpha5_weighted": -0.01675646300741992,
+        "mfe5_n": 135,
+        "mfe5_weighted": 0.13115560826955136,
+        "mae5_n": 135,
+        "mae5_weighted": -0.06898114285912714,
+        "ret20_n": 128,
+        "ret20_weighted": 0.07817808513268852,
+        "alpha20_n": 128,
+        "alpha20_weighted": -0.0561819092870502,
+        "mfe20_n": 128,
+        "mfe20_weighted": 0.24946892574489457,
+        "mae20_n": 128,
+        "mae20_weighted": -0.11148994225560406
+      }
+    },
+    "hk": {
+      "buy": {
+        "rows": 434,
+        "notional": 76360298.13,
+        "intraday_n": 434,
+        "intraday_weighted": 0.5427790407181456,
+        "above_ma20_n": 434,
+        "above_ma20_weighted": 0.8497440271845623,
+        "near_high_n": 434,
+        "near_high_weighted": 0.28061628745241257,
+        "ret5_n": 433,
+        "ret5_weighted": -0.03212755743390991,
+        "alpha5_n": 433,
+        "alpha5_weighted": -0.03984998331281048,
+        "mfe5_n": 433,
+        "mfe5_weighted": 0.18323921316455175,
+        "mae5_n": 433,
+        "mae5_weighted": -0.13979717808747338,
+        "ret20_n": 408,
+        "ret20_weighted": -0.03437959403602894,
+        "alpha20_n": 408,
+        "alpha20_weighted": -0.018839923236902412,
+        "mfe20_n": 408,
+        "mfe20_weighted": 0.27927356732965897,
+        "mae20_n": 408,
+        "mae20_weighted": -0.2064638676647207
+      },
+      "sell": {
+        "rows": 283,
+        "notional": 75740441.07000001,
+        "intraday_n": 283,
+        "intraday_weighted": 0.43038572449427875,
+        "above_ma20_n": 283,
+        "above_ma20_weighted": 0.8403567873492447,
+        "near_high_n": 283,
+        "near_high_weighted": 0.2289259944231798,
+        "ret5_n": 282,
+        "ret5_weighted": -0.03124472444276047,
+        "alpha5_n": 282,
+        "alpha5_weighted": -0.039660262639788106,
+        "mfe5_n": 282,
+        "mfe5_weighted": 0.18364568214870852,
+        "mae5_n": 282,
+        "mae5_weighted": -0.13624054417550951,
+        "ret20_n": 263,
+        "ret20_weighted": -0.03879791995807972,
+        "alpha20_n": 263,
+        "alpha20_weighted": -0.023378689687361266,
+        "mfe20_n": 263,
+        "mfe20_weighted": 0.274894329227309,
+        "mae20_n": 263,
+        "mae20_weighted": -0.20345864428241459
+      }
+    }
+  }
+}

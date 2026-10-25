@@ -1,0 +1,144 @@
+# 运行入口索引
+
+由 `python tools/organize_project.py scan` 从实际源码生成。只列入口与类别，不代表收益验收。
+
+- `screening_and_core` · `python scripts/screening/analyze_huoche_picks.py` — 火车轨入选股票 量价节奏剖析 — 找"提前识别"信号
+- `validation` · `python scripts/validation/audit_dual_is_diagnostics.py` — Independent IS CSV arithmetic, path spot-checks and causal reference distances.
+- `validation` · `python scripts/validation/audit_dual_research.py` — Independent CSV reconciliation of the registered dual research results.
+- `validation` · `python scripts/validation/audit_rps_cases.py` — Independent cache arithmetic and rolling-return bases for six case records.
+- `validation` · `python scripts/validation/audit_rps_phases.py` — Independent arithmetic checks of RPS phase descriptions, IS only.
+- `daily_workflow` · `python scripts/daily/backtest_sentiment_daily.py` — 日线情绪择时回测  backtest_sentiment_daily.py
+- `integration` · `python scripts/integration/cloud_runner.py` — 云端定时执行器  cloud_runner.py
+- `research` · `python scripts/research/compare_freq.py` — 
+- `screening_and_core` · `python scripts/screening/csv_to_tdx_blk.py` — Convert screener CSV output into a TDX custom block `.blk` file.
+- `daily_workflow` · `python scripts/daily/daily_signal.py` — 每日开盘信号 - 实盘仓位参考
+- `validation` · `python scripts/validation/diagnose_dual_is.py` — Read-only IS diagnostics of frozen events, not a new strategy search.
+- `reporting` · `python scripts/reporting/export_daily_strategy_reports.py` — 
+- `research` · `python scripts/research/feb_review.py` — 2月1日~2月13日 每日信号逐日复盘
+- `integration` · `python scripts/integration/feishu_bot.py` — 飞书机器人 + 多维表格 集成模块  v1.0       feishu_bot.py
+- `daily_workflow` · `python scripts/daily/intraday_emergency_monitor.py` — 盘中极速防守监控 (Tier 1 - Intraday Emergency Monitor)
+- `integration` · `python scripts/integration/manual_trigger_api.py` — 手动触发 API  manual_trigger_api.py
+- `screening_and_core` · `python scripts/screening/market_gambler_watch.py` — A股市场情绪监控  v2.0       market_gambler_watch.py
+- `daily_workflow` · `python scripts/daily/monitor_daily.py` — Daily after-close environment monitor (statistics only; no trade advice).
+- `research` · `python scripts/research/monthly_review.py` — 逐月战绩复盘
+- `reporting` · `python scripts/reporting/plot_kly.py` — 
+- `screening_and_core` · `python scripts/screening/prepare_tail_watch.py` — Freeze W1 plans from the previous session's V2 watchlist, without minute claims.
+- `reporting` · `python scripts/reporting/present_dual_is_diagnostics.py` — Read-only handoff from verified IS diagnostic CSVs, no new trading rules.
+- `reporting` · `python scripts/reporting/present_dual_research.py` — Project verified result CSVs into bounded native-chart evidence; no strategy edits.
+- `reporting` · `python scripts/reporting/present_rps_cases.py` — Source-backed case explanations, not performance optimisation.
+- `reporting` · `python scripts/reporting/present_rps_phases.py` — Present source-backed exploratory descriptions without new trade rules.
+- `screening_and_core` · `python project_paths.py` — Canonical project paths.
+- `integration` · `python scripts/integration/refresh_observation_app.py` — Load a newly computed read-only snapshot into the existing authored app.
+- `reporting` · `python scripts/reporting/render_daily_research.py` — Readable Chinese summary from an existing, reconciled research run.
+- `research` · `python scripts/research/research_rps_phases.py` — IS-only cached RPS descriptions; no selection, execution or OOS reads.
+- `research` · `python scripts/research/resume_dual_research.py` — Memory-bounded completion after the registered replay's MemoryError.
+- `research` · `python scripts/research/review_rps_cases.py` — Read-only six-case review, never optimises from the displayed 2026 winners.
+- `screening_and_core` · `python scripts/screening/risk_engine.py` — 
+- `screening_and_core` · `python scripts/screening/rps_system.py` — A 股 RPS 选股与风控系统 v1.0
+- `daily_workflow` · `python scripts/daily/run_combined_daily.py` — Combine full-universe daily RPS with V2 breakout morphology, without orders.
+- `daily_workflow` · `python scripts/daily/run_daily_board.py` — Read-only daily board: market layer + sector whitelist + engine gates + leader zone, one page.
+- `daily_workflow` · `python scripts/daily/run_daily_research_backtest.py` — Reproducible multi-stock daily RPS research; offline after local data exist.
+- `daily_workflow` · `python scripts/daily/run_daily_rps.py` — Local daily RPS universe -> percentile ranks -> right-side research screen.
+- `daily_workflow` · `python scripts/daily/run_daily_sop.py` — 每日 SOP 串联入口
+- `daily_workflow` · `python scripts/daily/run_daily_system.py` — Daily pattern book: buy the next open, sell the next open, review day and week.
+- `research` · `python scripts/research/run_deep_dragon_optimization.py` — 龙回头策略深度打磨：V6与V7专属深网格搜索
+- `screening_and_core` · `python scripts/screening/run_defense_focus.py` — Selected defense-related names, not a complete military-sector universe.
+- `research` · `python scripts/research/run_dragon_optimization.py` — 龙回头策略多变体网格搜索优化器
+- `screening_and_core` · `python scripts/screening/run_dragon_pullback_verification.py` — 
+- `screening_and_core` · `python scripts/screening/run_drop_base_retest.py` — Small daily review queue; full ordered pattern required, no arbitrary top-N.
+- `screening_and_core` · `python scripts/screening/run_dual_engine.py` — Dual-engine backtest: ice-point engine + weak-resonance chase engine.
+- `research` · `python scripts/research/run_dual_research.py` — Run registered daily research locally; never fetch quotes or rebuild a panel.
+- `screening_and_core` · `python scripts/screening/run_early_only.py` — 单独跑早期启涨扫描 (使用 parquet 缓存，秒级)
+- `screening_and_core` · `python scripts/screening/run_final_combo.py` — Final combo matrix toward OOS +20% (research only).
+- `screening_and_core` · `python scripts/screening/run_fixed_window_drawdown.py` — 运行 2026 年 7 月最大回撤 / 8 月 6 日修复策略。
+- `screening_and_core` · `python scripts/screening/run_freq_expand.py` — Frequency-expansion grids toward 20%/yr (research only).
+- `screening_and_core` · `python scripts/screening/run_huoche_sweep.py` — 周线火车轨参数扫参 (Step 6 only)
+- `research` · `python scripts/research/run_icepoint_eval.py` — Evaluate KaiPanLa-style ice-point gates on existing pattern trades (no re-simulation).
+- `research` · `python scripts/research/run_ice_optimize.py` — Ice-point tail-buy optimization study: entry grid, exit variants, sectors, scenarios.
+- `screening_and_core` · `python scripts/screening/run_ice_portfolio.py` — Portfolio-level backtest of the final ice-point combo (research only).
+- `research` · `python scripts/research/run_ice_review.py` — Monthly review of the final ice-point strategy over a date range (research only).
+- `screening_and_core` · `python scripts/screening/run_industry_chain.py` — Command-line entry for the industry-chain database and RPS bridge.
+- `research` · `python scripts/research/run_local_tdx_compare.py` — Offline, dated TDX reconstruction and unchanged A/B indicator comparison.
+- `screening_and_core` · `python scripts/screening/run_ma20_screener.py` — 从通达信本地个股日线运行 20 日均线选股。
+- `screening_and_core` · `python scripts/screening/run_macro_regime.py` — 宏观状态 + 板块强度 — 一键执行脚本
+- `screening_and_core` · `python scripts/screening/run_ma_stack_screener.py` — 把指定日期收盘价站上 MA5/MA10/MA20 的股票代码导出到一个文本文件。
+- `screening_and_core` · `python scripts/screening/run_optical_overlay.py` — Date-stamped optical catalyst overlay on the local shape-first screen.
+- `research` · `python scripts/research/run_pattern_eval.py` — Evaluate the current right-side list against decline -> dry base -> right-side volume.
+- `research` · `python scripts/research/run_pattern_regime_backtest.py` — Full-history causal backtest of the drop-base-retest pattern + market-regime gates.
+- `screening_and_core` · `python scripts/screening/run_pcb_focus.py` — Reproducible local five-stock PCB-chain review; price data remain local.
+- `screening_and_core` · `python scripts/screening/run_persistence_scan.py` — 持续性扫描 + 回测 — 把"每日选股"升级为"窗口聚合"
+- `screening_and_core` · `python scripts/screening/run_pocket_pivot_verification.py` — 
+- `screening_and_core` · `python scripts/screening/run_pool_pullback.py` — Circle-pool timing backtest: train-track watchlist + timed entries.
+- `screening_and_core` · `python scripts/screening/run_portfolio_check.py` — 持仓体检 + 候选排队 — 配合 docs/strategy_daily_sop.md 的每日操作工具
+- `screening_and_core` · `python scripts/screening/run_prebreak_leader.py` — 运行0721参考线潜在突破龙头筛选。
+- `screening_and_core` · `python scripts/screening/run_price_volume_launch.py` — Fixed price/volume launch experiments; RPS retained only as a diagnostic.
+- `screening_and_core` · `python scripts/screening/run_pullback_screen.py` — Right-side pool plus a dry pullback to MA20. Turtle breakout is not used.
+- `screening_and_core` · `python scripts/screening/run_pullback_system.py` — 四段式回踩策略：下跌 -> 横盘缩量 -> 放量 -> 回踩买入。网格写死，先IS选参冻结，再OOS评估一次。
+- `screening_and_core` · `python scripts/screening/run_quiet_base.py` — 静默筑底 · 低位再启动 —— 每日扫描入口
+- `screening_and_core` · `python scripts/screening/run_reference_close_window_breakout.py` — 运行 8月3日至8月6日突破 7月21日收盘价的放宽策略。
+- `screening_and_core` · `python scripts/screening/run_right_confirmation.py` — Run dated confirmation screening from local TDX EXTDATA and daily files.
+- `research` · `python scripts/research/run_right_side_research.py` — Auditable shape-first research using the project's verified adjusted data.
+- `screening_and_core` · `python scripts/screening/run_rps_enhanced.py` — RPS 增强选股 — 一键执行脚本
+- `research` · `python scripts/research/run_screenshot_research.py` — CLI for the screenshot-to-industry-chain research workflow.
+- `daily_workflow` · `python scripts/daily/run_session_plan.py` — Freeze a dated local screen with event context and conditional execution rules.
+- `screening_and_core` · `python scripts/screening/run_simple_trend_pool.py` — Read-only daily trend observation pool, not a trading or return model.
+- `screening_and_core` · `python scripts/screening/run_tail_watch.py` — Offline W1 replay from explicitly dated JSON inputs; no broker connection.
+- `screening_and_core` · `python scripts/screening/run_tdx_formula_audit.py` — Reproduce the user supplied ZZ1234 and audit its screenshot pool.
+- `screening_and_core` · `python scripts/screening/run_tdx_screener.py` — 通达信 RPS 选股 — 一键执行脚本
+- `research` · `python scripts/research/run_trail_backtest.py` — Trailing-stop exit grid backtest for the ice-point combo (research only).
+- `research` · `python scripts/research/run_train_track_backtest.py` — Train-track (顺向火车轨) signal backtest on the frozen panel (research only).
+- `screening_and_core` · `python scripts/screening/run_trend_entry_filter.py` — 
+- `research` · `python scripts/research/run_trend_exit_study.py` — Native exits from published trend systems, on the same entries and data.
+- `research` · `python scripts/research/run_trend_start_backtest.py` — Right-side trend-start backtest on local TDX daily bars, then the as-of signal list.
+- `screening_and_core` · `python scripts/screening/run_weekly_screener.py` — 周线 RPS 吸筹突破选股 — 一键执行脚本
+- `screening_and_core` · `python scripts/screening/run_weekly_trend_screener.py` — 
+- `screening_and_core` · `python scripts/screening/sentiment_engine.py` — 
+- `screening_and_core` · `python scripts/screening/sentiment_history.py` — 情绪历史记录 & 趋势分析    sentiment_history.py
+- `screening_and_core` · `python scripts/screening/settle_weekly_forward.py` — Direction 2: forward-walk ledger integrity check + settlement (research only).
+- `screening_and_core` · `python scripts/screening/temp_calc.py` — 
+- `daily_workflow` · `python scripts/daily/today_action.py` — 今日操作指令 (一键出单)
+- `integration` · `python scripts/integration/tos_storage.py` — 火山引擎 TOS 对象存储管理器
+- `screening_and_core` · `python scripts/screening/update_etfs.py` — 
+- `validation` · `python scripts/validation/validate_daily_research.py` — Independent reconciliation of exported research books against frozen prices.
+- `validation` · `python scripts/validation/validate_drop_base_retest.py` — Independently reconcile current pattern observations with the frozen daily bars.
+- `validation` · `python scripts/validation/validate_simple_trend_pool.py` — Independent checks of exported membership, descriptive states and history.
+- `validation` · `python scripts/validation/verify_early_forward.py` — 早期启涨 → 前瞻验证 (Forward Recall / Forward Returns)
+- `validation` · `python scripts/validation/verify_early_forward_multi.py` — 早期启涨 跨多窗口 前瞻验证
+- `validation` · `python scripts/validation/verify_early_launch.py` — 早期启涨 召回率验证 (反向回放)
+- `validation` · `python scripts/validation/verify_holding_periods.py` — 早期∩L1 多持有期对比 — 找最优 hold_days
+- `validation` · `python scripts/validation/verify_package.py` — 
+- `validation` · `python scripts/validation/verify_quiet_base.py` — 静默筑底 · 低位再启动 → 前瞻验证 (Forward Returns)
+- `integration` · `python scripts/integration/volcengine_handler.py` — 火山引擎函数服务入口。
+- `screening_and_core` · `python scripts/screening/weekly_pullback_scan.py` — Weekly leader-pullback forward scanner (statistics only; no advice).
+- `screening_and_core` · `python scripts/screening/weekly_sentiment_check.py` — 本周交易日情绪回顾：拉取每日涨停/跌停/炸板 + 指数涨跌 + ETF量比，计算每日情绪评分
+- `reporting` · `python scripts/reporting/write_dual_readme.py` — Write an evidence-linked handoff from completed, audited local CSVs.
+- `research` · `python -m research.experiments.exp_actionable_scheme` — Actionable scheme: drop->quiet-base->retest + RPS admission (research only).
+- `research` · `python -m research.experiments.exp_breakout_fill` — Diagnose breakout-sleeve slot-fill divergence (research only).
+- `research` · `python -m research.experiments.exp_breakout_score` — Direction 1: score-ranked fill for daily breakout signals (research only).
+- `research` · `python -m research.experiments.exp_breakout_sleeve` — Breakout momentum sleeve: trend-regime 20-day-high entries (research only).
+- `research` · `python -m research.experiments.exp_chase_rank` — Chase-engine candidate ranking experiment (research only).
+- `research` · `python -m research.experiments.exp_circuit_breaker` — Regime circuit-breaker backtest for the F combo (research only).
+- `research` · `python -m research.experiments.exp_expectancy` — Expectancy test: does weekly-RPS + pullback have positive expectation?
+- `research` · `python -m research.experiments.exp_fill_robust` — Fill-order robustness for pool-ice portfolio (research only).
+- `research` · `python -m research.experiments.exp_lottery` — Low-winrate/high-payoff exits at portfolio level (research only).
+- `research` · `python -m research.experiments.exp_lottery_slots` — Slot-aware compounding for low-winrate exits (research only).
+- `research` · `python -m research.experiments.exp_promo_exit` — Promotion exit: ice-day entries hold past day 5 while trend persists (research only).
+- `research` · `python -m research.experiments.exp_pullback` — Pullback-in-uptrend swing miner, abstracted from the six winner weeklies.
+- `research` · `python -m research.experiments.exp_pullback_baseline` — Baseline check: is the pullback rule's +4.2%/8w actually an edge?
+- `research` · `python -m research.experiments.exp_pullback_refine` — Refinement test: liquidity gate and sector-cluster filter on U3+early.
+- `research` · `python -m research.experiments.exp_pullback_stage` — Split U3 pullback trades by prior extension (early vs late stage).
+- `research` · `python -m research.experiments.exp_rank_select` — Experiment: candidate ranking vs code-order selection for ice-point entries.
+- `research` · `python -m research.experiments.exp_regime_proof` — Cross-regime + parameter-perturbation proof for the pullback rule.
+- `research` · `python -m research.experiments.exp_regime_review` — Regime review: environment features vs strategy edge, by year.
+- `research` · `python -m research.experiments.exp_rps_scan` — Quick evidence scan: does RPS+momentum trend-chasing work on this panel?
+- `research` · `python -m research.experiments.exp_score_model` — Multi-dimension scoring model for the leader-pullback strategy.
+- `research` · `python -m research.experiments.exp_sector_crowding` — Sector crowding from local TDX industry classification (research only).
+- `research` · `python -m research.experiments.exp_small_slots` — Small-account operability check (research only).
+- `research` · `python -m research.experiments.exp_trend_sleeve` — Trend sleeve: regime-gated circle-pool pullback, separate capital (research only).
+- `research` · `python -m research.experiments.exp_walkforward_aug_sep` — Walk-forward replay of the F combo, 2026-08-01..2026-09-30 (causal).
+- `research` · `python -m research.experiments.exp_weak_env_score` — Direction 3b: score-ranked compression inside weak-env weeks (research only).
+- `research` · `python -m research.experiments.exp_weekly_regen` — All-weeks regeneration of weekly candidates in ONE pass (research only).
+- `research` · `python -m research.experiments.exp_weekly_rps` — Weekly RPS-lead breakout selector, abstracted from six winner charts.
+- `research` · `python -m research.experiments.exp_window_202409_now` — Window backtest: champion combo F on 2024-09-01 -> panel end (research only).
+- `research` · `python -m research.experiments.exp_window_polish` — Window polish experiments: 2024-09 -> 2026-09 (research only).
+- `screening_and_core` · `python -m research.experiments.__init__` — Historical strategy experiments; run explicitly with python -m, never on import.

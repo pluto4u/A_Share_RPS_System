@@ -1,0 +1,57 @@
+# 策略档案索引
+
+状态以代码可用性为准，不代表收益认可。
+
+- [通达信市场宽度与内容出图](cards/market-breadth.md) — `locally_executed`
+- [双周期RPS选股](cards/rps-dual.md) — `implemented_requires_data`
+- [实时情绪评分与仓位门控](cards/sentiment-gate.md) — `implemented_requires_data`
+- [三层风险控制](cards/risk-overlay.md) — `implemented_overlay`
+- [S5每日信号](cards/daily-s5.md) — `implemented_requires_data`
+- [S0持有基准](cards/s0.md) — `research_requires_revalidation`
+- [S1区间切换](cards/s1.md) — `research_requires_revalidation`
+- [S2极恐退出](cards/s2.md) — `research_requires_revalidation`
+- [S3极恐与反转](cards/s3.md) — `research_requires_revalidation`
+- [S4情绪均线趋势](cards/s4.md) — `research_requires_revalidation`
+- [S5线性节流对比版](cards/s5.md) — `research_requires_revalidation`
+- [ETF动量与情绪过滤](cards/etf-rotation.md) — `implemented_requires_data`
+- [A纯ETF轮动](cards/etf-a.md) — `research_requires_revalidation`
+- [B沪深300ETF持有基准](cards/etf-b.md) — `research_requires_revalidation`
+- [C S5仓位×沪深300ETF](cards/etf-c.md) — `research_requires_revalidation`
+- [D S5仓位×ETF轮动](cards/etf-d.md) — `research_requires_revalidation`
+- [龙回头双均线缩量回踩](cards/dragon.md) — `implemented_requires_data`
+- [口袋支点v1](cards/pocket-v1.md) — `implemented_requires_data`
+- [口袋支点v2](cards/pocket-v2.md) — `implemented_requires_data`
+- [强趋势均线缩量回踩](cards/trend-pullback.md) — `implemented_requires_data`
+- [杯柄形态v1](cards/cup-v1.md) — `research_requires_revalidation`
+- [杯柄形态v2](cards/cup-v2.md) — `research_requires_revalidation`
+- [短线A 放量突破前高](cards/douyin-a.md) — `research_requires_revalidation`
+- [短线B 一进二](cards/douyin-b.md) — `research_requires_revalidation`
+- [短线C 横盘突破涨停](cards/douyin-c.md) — `research_requires_revalidation`
+- [短线D 强势股回调确认](cards/douyin-d.md) — `research_requires_revalidation`
+- [龙回头V0–V7及深度参数搜索](cards/dragon-search.md) — `research_optimizer`
+- [涨停基因活跃股](cards/panel-active_limit_gene.md) — `source_present_not_runtime_verified`
+- [布林突破](cards/panel-boll_breakout.md) — `source_present_not_runtime_verified`
+- [放量创60日新高](cards/panel-breakout_new_high_60d.md) — `source_present_not_runtime_verified`
+- [断板反包](cards/panel-broken_board_recovery.md) — `source_present_not_runtime_verified`
+- [均线多头](cards/panel-bullish_alignment.md) — `source_present_not_runtime_verified`
+- [连板股](cards/panel-consecutive_limit_ups.md) — `source_present_not_runtime_verified`
+- [因子排名研究](cards/panel-factor_rank_research.md) — `source_present_not_runtime_verified`
+- [高换手拉升](cards/panel-high_turnover_surge.md) — `source_present_not_runtime_verified`
+- [连板接力](cards/panel-limit_up_momentum.md) — `source_present_not_runtime_verified`
+- [长下影反击](cards/panel-long_lower_shadow_reversal.md) — `source_present_not_runtime_verified`
+- [低波动龙头](cards/panel-low_volatility_leader.md) — `source_present_not_runtime_verified`
+- [均线粘合突破](cards/panel-ma_convergence_breakout.md) — `source_present_not_runtime_verified`
+- [MA 金叉](cards/panel-ma_golden_cross.md) — `source_present_not_runtime_verified`
+- [MACD 零下回升](cards/panel-macd_below_zero_revival.md) — `source_present_not_runtime_verified`
+- [MACD 金叉放量](cards/panel-macd_golden.md) — `source_present_not_runtime_verified`
+- [新低反转](cards/panel-n_day_low_reversal.md) — `source_present_not_runtime_verified`
+- [逼近涨停](cards/panel-near_limit_up.md) — `source_present_not_runtime_verified`
+- [超跌反弹](cards/panel-oversold_bounce.md) — `source_present_not_runtime_verified`
+- [超跌反转](cards/panel-oversold_reversal.md) — `source_present_not_runtime_verified`
+- [平台整理突破](cards/panel-platform_consolidation_breakout.md) — `source_present_not_runtime_verified`
+- [均线回踩反弹](cards/panel-pullback_ma20_bounce.md) — `source_present_not_runtime_verified`
+- [缩量回踩](cards/panel-pullback_to_support.md) — `source_present_not_runtime_verified`
+- [RSI 中轴回踩](cards/panel-rsi_midline_pullback.md) — `source_present_not_runtime_verified`
+- [强势高开](cards/panel-strong_open.md) — `source_present_not_runtime_verified`
+- [趋势突破](cards/panel-trend_breakout.md) — `source_present_not_runtime_verified`
+- [量价齐升](cards/panel-volume_price_surge.md) — `source_present_not_runtime_verified`

@@ -1,0 +1,14 @@
+{
+  "a_share_date": "2026-09-08",
+  "session": "2026-09-08 US intraday, not closing quotes",
+  "source": "web finance tool snapshots; UTC timestamps below",
+  "primary_source": "https://www.verizon.com/about/news/verizon-corning-broadband-ai-fiber-agreement",
+  "quotes": [
+    {"ticker":"LITE","price_usd":988.66,"change_pct":12.18773,"trade_time_utc":"2026-09-08T15:47:19Z"},
+    {"ticker":"COHR","price_usd":308.73,"change_pct":9.53310,"trade_time_utc":"2026-09-08T15:47:21Z"},
+    {"ticker":"AAOI","price_usd":115.03,"change_pct":9.00218,"trade_time_utc":"2026-09-08T15:47:24Z"},
+    {"ticker":"GLW","price_usd":168.555,"change_pct":9.23850,"trade_time_utc":"2026-09-08T15:47:17Z"}
+  ],
+  "fact": "Verizon and Corning announced a multi-billion-dollar agreement for 80+ million miles of high-density optical fiber and connectivity solutions from 2027 through 2032, with US manufacturing expansion.",
+  "inference_boundary": "Product-category demand mapping only; no verified orders to any A-share company; not all optical subsectors share identical demand or competitive effects."
+}

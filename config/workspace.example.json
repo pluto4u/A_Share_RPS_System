@@ -1,0 +1,20 @@
+{
+  "components": {
+    "signals": {
+      "path": ".",
+      "marker": "project_paths.py",
+      "purpose": "A-share sentiment, RPS and strategy signals"
+    },
+    "research": {
+      "path": "<path-to-investment_research>",
+      "marker": "pyproject.toml",
+      "purpose": "Evidence-backed industry-chain research"
+    },
+    "panel": {
+      "path": "<path-to-tick-stock-panel>",
+      "marker": "package.json",
+      "purpose": "Market-data dashboard and visualization"
+    }
+  }
+}
+

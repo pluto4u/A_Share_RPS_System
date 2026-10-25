@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>A股交易分析报告模板</title>
+  <style>
+    :root{--ink:#18212f;--muted:#637083;--paper:#f3f6fa;--card:#fff;--line:#dce3ec;--navy:#0d1b2f;--blue:#2563eb;--up:#d92d20;--down:#138a4a;--warn:#b54708;--risk:#b42318;--soft-blue:#eaf1ff;--soft-warn:#fff4e5;--radius:16px;--shadow:0 8px 24px rgba(20,35,55,.07)}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.58 system-ui,-apple-system,"Segoe UI","Microsoft YaHei",sans-serif}a{color:var(--blue)}.wrap{width:min(1440px,calc(100% - 32px));margin:auto}.mono,.value,td.num{font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace;font-variant-numeric:tabular-nums}.hero{background:linear-gradient(130deg,#091629,#142c4c);color:#fff;padding:28px 0 24px}.eyebrow{color:#9fb4d2;font-size:12px;letter-spacing:.12em;text-transform:uppercase}.hero h1{margin:3px 0 5px;font-size:clamp(25px,3vw,38px);line-height:1.2}.meta,.badges{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.badge{display:inline-flex;align-items:center;gap:5px;padding:5px 9px;border:1px solid rgba(255,255,255,.2);border-radius:999px;color:#dce8f8;font-size:12px}.badge.good{background:rgba(19,138,74,.2)}.badge.warn{background:rgba(181,71,8,.25)}.decision{margin-top:20px;display:grid;grid-template-columns:1.1fr 2fr 1fr;gap:12px}.decision>div{padding:16px;border:1px solid rgba(255,255,255,.12);border-radius:14px;background:rgba(255,255,255,.06)}.label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}.hero .label{color:#a9bdd7}.action{font-size:27px;font-weight:800}.hero .value{font-size:19px;font-weight:750}.invalid{color:#ffd2cc}.toc{position:sticky;top:0;z-index:5;background:rgba(243,246,250,.94);backdrop-filter:blur(9px);border-bottom:1px solid var(--line)}.toc .wrap{display:flex;gap:18px;overflow:auto;padding:10px 0;white-space:nowrap}.toc a{text-decoration:none;color:#445166;font-size:13px}main{padding:22px 0 40px}.grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:14px}.span-12{grid-column:span 12}.span-8{grid-column:span 8}.span-6{grid-column:span 6}.span-4{grid-column:span 4}.span-3{grid-column:span 3}.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:17px;min-width:0}.card h2,.card h3{margin:0 0 12px;line-height:1.25}.card h2{font-size:18px}.card h3{font-size:15px}.kpi .value{display:block;font-size:23px;margin-top:5px}.sub{font-size:12px;color:var(--muted)}.up{color:var(--up)}.down{color:var(--down)}.warn-text{color:var(--warn)}.risk-box{border-left:5px solid var(--risk);background:#fff5f3}.callout{background:var(--soft-blue);border:1px solid #cddcff;border-radius:12px;padding:12px}.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.metric{padding:11px;background:#f8fafc;border:1px solid var(--line);border-radius:11px}.metric .value{display:block;font-size:18px;margin-top:3px}.bar{height:7px;background:#e6ebf2;border-radius:99px;overflow:hidden;margin-top:8px}.bar>i{display:block;height:100%;width:78%;background:linear-gradient(90deg,#4f7cf7,#d92d20);border-radius:99px}svg{display:block;width:100%;height:auto;background:#fbfcfe;border:1px solid var(--line);border-radius:12px}.axis{stroke:#cad3df;stroke-width:1}.price-line{fill:none;stroke:var(--up);stroke-width:3}.volume{fill:#90a4bd;opacity:.6}.legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:8px;font-size:12px;color:var(--muted)}table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:9px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}th{color:#5b687b;background:#f7f9fc;font-weight:650}td.num,th.num{text-align:right}.tag{display:inline-block;padding:2px 7px;border-radius:6px;background:#edf1f6;font-size:12px}.tag.up{background:#fff0ee}.tag.down{background:#eaf8f0}.triad{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.triad section{padding:13px;border-radius:12px;background:#f8fafc;border:1px solid var(--line)}ul{margin:7px 0 0;padding-left:19px}.sources{font-size:12px;color:var(--muted)}footer{padding:18px 0 30px;color:var(--muted);font-size:12px}
+    @media(max-width:900px){.decision{grid-template-columns:1fr}.span-8,.span-6,.span-4,.span-3{grid-column:span 12}.triad{grid-template-columns:1fr}.metrics{grid-template-columns:1fr 1fr}.table-scroll{overflow-x:auto}table{min-width:720px}}
+    @media(max-width:560px){.wrap{width:min(100% - 20px,1440px)}.hero{padding-top:20px}.metrics{grid-template-columns:1fr}.card{padding:14px}.toc .wrap{gap:13px}.action{font-size:23px}}
+    @media print{body{background:#fff}.toc{display:none}.wrap{width:100%}.hero{background:#fff;color:#000;border-bottom:2px solid #000}.hero .label,.eyebrow,.meta{color:#444}.decision>div{background:#fff;border-color:#aaa}.card{box-shadow:none;break-inside:avoid}.grid{gap:9px}a{color:#000;text-decoration:none}}
+  </style>
+</head>
+<body>
+  <!-- 复制本模板后替换示例内容；删除无数据模块，不保留空卡。 -->
+  <header class="hero">
+    <div class="wrap">
+      <div class="eyebrow">A-SHARE DECISION REPORT · 示例模板</div>
+      <h1>市场 / 板块 / 个股交易分析</h1>
+      <div class="meta"><span>代码：000000</span><span>报告时间：YYYY-MM-DD HH:MM CST</span><span>数据截至：YYYY-MM-DD HH:MM</span></div>
+      <div class="badges"><span class="badge good">置信度：中</span><span class="badge">通达信日线</span><span class="badge warn">价格口径：前复权待验证</span><span class="badge">腾讯当日分钟</span><span class="badge warn">账户数据待补</span></div>
+      <div class="decision">
+        <div><div class="label">账户动作</div><div class="action">条件满足前零交易</div><div class="sub">总仓位上限：30%</div></div>
+        <div><div class="label">唯一主计划</div><div class="value">主线中军首次回踩确认后执行</div><div>计划区间：以前高与分时均价为边界；首仓 5%，最大 10%</div></div>
+        <div><div class="label">取消 / 硬失效</div><div class="value invalid">板块宽度跌破阈值</div><div>次日按 T+1 规则处理，不假定当日可卖</div></div>
+      </div>
+    </div>
+  </header>
+  <nav class="toc"><div class="wrap"><a href="#state">状态</a><a href="#efficiency">资金效能</a><a href="#structure">主线结构</a><a href="#plan">执行计划</a><a href="#evidence">事实与推断</a><a href="#sources">来源</a></div></nav>
+  <main class="wrap">
+    <div class="grid" id="state">
+      <section class="card span-3 kpi"><div class="label">市场状态</div><span class="value">高位轮动</span><div class="sub">只保留一种主状态</div></section>
+      <section class="card span-3 kpi"><div class="label">情绪仓位状态</div><span class="value">修复</span><div class="sub">ST_cycle 58.4 · 斜率 ↑</div></section>
+      <section class="card span-3 kpi"><div class="label">盘面阶段</div><span class="value">首次分歧</span><div class="sub">等待修复确认</div></section>
+      <section class="card span-3 kpi"><div class="label">相对强度</div><span class="value up">↑ RPS 86</span><div class="sub">红色同时带 ↑ 符号</div></section>
+
+      <section class="card span-8" id="efficiency">
+        <h2>价格—成交与达标路径</h2>
+        <svg viewBox="0 0 760 270" role="img" aria-label="示例价格和成交量图，正式报告应替换为真实数据">
+          <line class="axis" x1="48" y1="30" x2="48" y2="225"/><line class="axis" x1="48" y1="225" x2="730" y2="225"/>
+          <rect class="volume" x="70" y="202" width="18" height="23"/><rect class="volume" x="110" y="190" width="18" height="35"/><rect class="volume" x="150" y="197" width="18" height="28"/><rect class="volume" x="190" y="173" width="18" height="52"/><rect class="volume" x="230" y="181" width="18" height="44"/><rect class="volume" x="270" y="162" width="18" height="63"/><rect class="volume" x="310" y="178" width="18" height="47"/>
+          <polyline class="price-line" points="60,175 120,162 180,168 240,135 300,145 360,104 420,112 480,83 540,92 600,66 670,72 720,55"/>
+          <line x1="48" y1="86" x2="730" y2="86" stroke="#b54708" stroke-dasharray="6 5"/><text x="585" y="78" fill="#8a3d05" font-size="12">固定目标 +3%</text>
+        </svg>
+        <div class="legend"><span class="up">↑ 价格上行</span><span>柱：分钟成交额</span><span class="warn-text">虚线：预先固定目标</span></div>
+      </section>
+      <section class="card span-4">
+        <h2>资金效能比</h2>
+        <div class="callout"><div class="label">CER_quality · 同组分位</div><div class="value" style="font-size:28px">78 / 100</div><div class="bar"><i></i></div></div>
+        <div class="metrics" style="margin-top:11px">
+          <div class="metric"><span class="label">CER_adv</span><span class="value">6.24</span></div>
+          <div class="metric"><span class="label">TTR</span><span class="value">37m</span></div>
+          <div class="metric"><span class="label">保持率</span><span class="value">86%</span></div>
+        </div>
+        <p class="sub">版本：intraday_target · 锚点：前收 · 目标：3% · A_q/ADV20：0.48。示例数字须替换。</p>
+      </section>
+
+      <section class="card span-12" id="structure">
+        <h2>主线结构与同角色比较</h2>
+        <div class="table-scroll"><table><thead><tr><th>层级</th><th>方向 / 标的</th><th>角色</th><th class="num">RPS</th><th class="num">CER 分位</th><th class="num">宽度</th><th>结论</th></tr></thead><tbody><tr><td><span class="tag up">第一主线</span></td><td>示例板块</td><td>龙头—中军—弹性共振</td><td class="num">88</td><td class="num">78</td><td class="num">64%</td><td>等待中军确认</td></tr><tr><td><span class="tag">次主线</span></td><td>示例方向二</td><td>仅龙头</td><td class="num">71</td><td class="num">不适用</td><td class="num">24%</td><td>单股驱动</td></tr><tr><td><span class="tag down">风险</span></td><td>后排补涨</td><td>后排</td><td class="num">52</td><td class="num">—</td><td class="num">18%</td><td>不参与</td></tr></tbody></table></div>
+      </section>
+
+      <section class="card span-8" id="plan"><h2>唯一执行计划</h2><div class="metrics"><div class="metric"><span class="label">触发</span><span class="value">回踩后重回均价</span></div><div class="metric"><span class="label">仓位</span><span class="value">5% → 10%</span></div><div class="metric"><span class="label">盈亏比</span><span class="value">≥ 2.0</span></div></div><ul><li>只允许候选池内主线中军触发。</li><li>龙头断板且板块宽度恶化，取消计划。</li><li>硬失效后执行次日 T+1 退出规则。</li></ul></section>
+      <aside class="card span-4 risk-box"><h2>风险四项</h2><ul><li><strong>最大风险：</strong>修复失败转退潮。</li><li><strong>失效条件：</strong>核心结构分裂。</li><li><strong>动作：</strong>不新增，已有仓降险。</li><li><strong>反向风险：</strong>空仓错过继续主升。</li></ul></aside>
+
+      <section class="card span-12" id="evidence"><h2>事实、推断与交易假设</h2><div class="triad"><section><h3>事实</h3><ul><li>只写可核验的数据与事件。</li><li>每条标记时点和来源。</li></ul></section><section><h3>推断</h3><ul><li>例如成交阻力下降。</li><li>说明其他可能解释。</li></ul></section><section><h3>交易假设</h3><ul><li>若条件成立才执行。</li><li>给出取消与硬失效。</li></ul></section></div></section>
+      <section class="card span-12 sources" id="sources"><h2>数据来源与口径</h2><p>通达信本地日线：日期、路径/版本、价格复权状态、因子来源与成交额单位；腾讯行情：代码、接口、数据截至时间、采集时间、分钟字段校验；公司公告：标题与日期。正式报告应列出真实来源并说明所有降级。前复权未验证时，MA、ATR、RPS、跨日收益和日线资金效能必须停算。</p></section>
+    </div>
+  </main>
+  <footer class="wrap">本页为结构模板，不构成交易建议。正式报告必须替换示例数字、删除无数据模块并保留风险与来源。</footer>
+</body>
+</html>

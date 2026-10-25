@@ -1,0 +1,23 @@
+const { chromium } = require('C:/Users/pluto4u/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
+const { pathToFileURL } = require('url');
+const path = require('path');
+(async()=>{
+ const browser=await chromium.launch({channel:'msedge',headless:true});
+ const page=await browser.newPage({viewport:{width:1280,height:950}});
+ const errors=[];page.on('pageerror',x=>errors.push(String(x)));
+ await page.goto(pathToFileURL(path.resolve('output/a_share_analysis_20261013_market_charts.html')).href);
+ await page.waitForSelector('#ma-current svg');
+ const chartCount=await page.locator('svg').count();if(chartCount!==4)throw Error('Expected 4 charts');
+ await page.selectOption('#sector-mode','share_delta_pp');
+ await page.selectOption('#window','20');
+ await page.selectOption('#hl-window','250');
+ if(!(await page.locator('#hl-stats').innerText()).includes('35只'))throw Error('250-day highs incorrect');
+ await page.selectOption('#hl-window','60');await page.selectOption('#window','60');await page.selectOption('#sector-mode','delta_yi');
+ await page.screenshot({path:'output/market_charts_20261013_desktop.png',fullPage:true});
+ await page.setViewportSize({width:390,height:844});
+ const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth);
+ if(overflow)throw Error('Mobile page overflows');
+ await page.screenshot({path:'output/market_charts_20261013_mobile.png',fullPage:true});
+ console.log(JSON.stringify({chartCount,errors,mobileOverflow:overflow,summary:await page.locator('#summary').innerText()}));
+ await browser.close();if(errors.length)process.exitCode=1;
+})().catch(e=>{console.error(e);process.exitCode=1});

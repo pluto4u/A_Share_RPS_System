@@ -1,0 +1,10 @@
+{
+  "user_date":"2026-10-07",
+  "purpose":"Read-only local sensitivity of frozen signals to previously corroborated 33 liquidity cells; not a strategy search, official repair or return rerun",
+  "patch_source":"output/rps_input_audit_20261007/v1/prior_large_cells_recheck.csv",
+  "patch_rule":"Use all 33 pre-existing large cells, replace only their vol/amount with exact saved BaoStock numbers in an in-memory float32 replica; no guessed multiplier, missing fill or price change",
+  "baseline":"research/rps_pv_20261006/study.py load_inputs and features, same cutoff 2026-09-30",
+  "comparison":"Count added/removed stock-date signals across all eight frozen models; reuse full-universe price-only descriptors. Verify affected-code baseline adapter matches frozen function exactly before evaluating patches",
+  "scope":"20 earlier active control codes only; all original market calendar and ranking population retained. A local conditional sensitivity, not a full-market error rate or a quantified portfolio impact",
+  "prohibitions":["No original DB/panel or existing report writes","No terminated-stock research","No new thresholds or outcome-based exclusions","No monetary P&L or significance recalculation"]
+}

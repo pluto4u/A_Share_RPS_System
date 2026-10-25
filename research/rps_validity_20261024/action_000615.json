@@ -1,0 +1,17 @@
+{
+  "request_id": "3b0a17c68c5f481d97457a089b01ce1f",
+  "code": 0,
+  "message": "success",
+  "data": {
+    "thscode": "000615.SZ",
+    "item": [
+      {
+        "per_share_bonus": 0.1841,
+        "ex_date_ms": 1766937600000,
+        "dividend_per_share": 0,
+        "ticker": "000615"
+      }
+    ],
+    "ticker": "000615"
+  }
+}

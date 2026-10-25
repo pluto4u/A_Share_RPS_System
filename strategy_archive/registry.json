@@ -1,0 +1,2482 @@
+{
+  "schema_version": "strategy-registry/v1",
+  "generated_at": "2026-10-24T15:53:40.827999+08:00",
+  "strategies": [
+    {
+      "id": "market-breadth",
+      "name": "通达信市场宽度与内容出图",
+      "source": "workflows/tdx_breadth.py",
+      "rule": "上涨/下跌家数；站上MA5/20/60占比；60日宽度轨迹",
+      "status": "locally_executed",
+      "notes": "已以真实本地通达信数据运行；查看运行清单与数据日期，不等同实时行情。",
+      "component": "signals",
+      "schema_version": "strategy-dossier/v1",
+      "archived_at": "2026-10-24T15:53:40.827999+08:00",
+      "source_sha256": "b5dca4fa2e4a91d79dd21f651cee9b1ed533b4b85c0934138a5072b115d9ec64",
+      "snapshot": "sources\\b5dca4fa2e4a91d79dd21f651cee9b1ed533b4b85c0934138a5072b115d9ec64.py",
+      "performance_verified": false,
+      "evidence": "代码读取与主工程单元测试；非历史收益复验"
+    },
+    {
+      "id": "rps-dual",
+      "name": "双周期RPS选股",
+      "source": "rps_system.py",
+      "rule": "50日RPS>90，120日RPS>85；沪深300 MA20门控；市值至少30亿；历史至少120日",
+      "status": "implemented_requires_data",
+      "notes": "入口使用akshare网络数据；本地通达信工作流目前仅提供宽度，不宣称已接通RPS输入。",
+      "component": "signals",
+      "schema_version": "strategy-dossier/v1",
+      "archived_at": "2026-10-24T15:53:40.827999+08:00",
+      "source_sha256": "ca8e1e717f178a39878b1c9d98089dcc650037a44b980919f96bfb0ac8f1c5cf",
+      "snapshot": "sources\\ca8e1e717f178a39878b1c9d98089dcc650037a44b980919f96bfb0ac8f1c5cf.py",
+      "performance_verified": false,
+      "evidence": "代码读取与主工程单元测试；非历史收益复验"
+    },
+    {
+      "id": "sentiment-gate",
+      "name": "实时情绪评分与仓位门控",
+      "source": "sentiment_engine.py",
+      "rule": "评分映射0/10/30/60/80%，取趋势门控与宽度上限的最小值",
+      "status": "implemented_requires_data",
+      "notes": "与S5仓位模型不同，不能混用评分阈值。",
+      "component": "signals",
+      "schema_version": "strategy-dossier/v1",
+      "archived_at": "2026-10-24T15:53:40.827999+08:00",
+      "source_sha256": "67aa312828dacf6945a8add6c4cf8c563b4e5c22af5a2990345db7df15f92f7f",
+      "snapshot": "sources\\67aa312828dacf6945a8add6c4cf8c563b4e5c22af5a2990345db7df15f92f7f.py",
+      "performance_verified": false,
+      "evidence": "代码读取与主工程单元测试；非历史收益复验"
+    },
+    {
+      "id": "risk-overlay",
+      "name": "三层风险控制",
+      "source": "risk_engine.py",
+      "rule": "日内止损、滚动回撤、连亏减仓/暂停",
+      "status": "implemented_overlay",
+      "notes": "",
+      "component": "signals",
+      "schema_version": "strategy-dossier/v1",
+      "archived_at": "2026-10-24T15:53:40.827999+08:00",
+      "source_sha256": "efac7d265c7663723022cbef6e971dac7914ba7032e5f0513939d73bce5615d2",
+      "snapshot": "sources\\efac7d265c7663723022cbef6e971dac7914ba7032e5f0513939d73bce5615d2.py",
+      "performance_verified": false,
+      "evidence": "代码读取与主工程单元测试；非历史收益复验"
+    },
+    {
+      "id": "daily-s5",
+      "name": "S5每日信号",
+      "source": "daily_signal.py",
+      "rule": "情绪分量化到0/25/50/75/100%；调仓间隔至少5天且仓位差至少15%",
+      "status": "implemented_requires_data",
+      "notes": "依赖情绪评分文件；历史绩效文字未在本次重新回测。",
+      "component": "signals",
+      "schema_version": "strategy-dossier/v1",
+      "archived_at": "2026-10-24T15:53:40.827999+08:00",
+      "source_sha256": "9b8e5fcde717f4f111451a40b7aaf092cc588efddd92dcb390119c0cfc5a05d4",
+      "snapshot": "sources\\9b8e5fcde717f4f111451a40b7aaf092cc588efddd92dcb390119c0cfc5a05d4.py",
+      "performance_verified": false,
+      "evidence": "代码读取与主工程单元测试；非历史收益复验"
+    },
+    {
+      "id": "s0",
+      "name": "S0持有基准",
+      "source": "emotion_validation/final_comparison.py",
+      "rule": "始终满仓",
+      "status": "research_requires_revalidation",
+      "notes": "脚本结论文字仍推荐S2，与每日S5入口不一致；不能以旧文字认定策略优劣。",
+      "component": "signals",
+      "schema_version": "strategy-dossier/v1",
+      "archived_at": "2026-10-24T15:53:40.827999+08:00",
+      "source_sha256": "ad6b4fa112ac7214f99578e328682afe1f0cc779bb14bcaaddfed74f7626ba65",
+      "snapshot": "sources\\ad6b4fa112ac7214f99578e328682afe1f0cc779bb14bcaaddfed74f7626ba65.py",
+      "performance_verified": false,
+      "evidence": "代码读取与主工程单元测试；非历史收益复验"
+    },
+    {
+      "id": "s1",
+      "name": "S1区间切换",
+      "source": "emotion_validation/final_comparison.py",
+      "rule": "情绪温度区间跳变，连续确认后切换",
+      "status": "research_requires_revalidation",
+      "notes": "脚本结论文字仍推荐S2，与每日S5入口不一致；不能以旧文字认定策略优劣。",
+      "component": "signals",
+      "schema_version": "strategy-dossier/v1",
+      "archived_at": "2026-10-24T15:53:40.827999+08:00",
+      "source_sha256": "ad6b4fa112ac7214f99578e328682afe1f0cc779bb14bcaaddfed74f7626ba65",
+      "snapshot": "sources\\ad6b4fa112ac7214f99578e328682afe1f0cc779bb14bcaaddfed74f7626ba65.py",
+      "performance_verified": false,
+      "evidence": "代码读取与主工程单元测试；非历史收益复验"
+    },
+    {
+      "id": "s2",
+      "name": "S2极恐退出",
+      "source": "emotion_validation/final_comparison.py",
+      "rule": "默认评分<30连续3天退出，>40重新进入",
+      "status": "research_requires_revalidation",
+      "notes": "脚本结论文字仍推荐S2，与每日S5入口不一致；不能以旧文字认定策略优劣。",
+      "component": "signals",
+      "schema_version": "strategy-dossier/v1",
+      "archived_at": "2026-10-24T15:53:40.827999+08:00",
+      "source_sha256": "ad6b4fa112ac7214f99578e328682afe1f0cc779bb14bcaaddfed74f7626ba65",
+      "snapshot": "sources\\ad6b4fa112ac7214f99578e328682afe1f0cc779bb14bcaaddfed74f7626ba65.py",
+      "performance_verified": false,
+      "evidence": "代码读取与主工程单元测试；非历史收益复验"
+    },
+    {
+      "id": "s3",
+      "name": "S3极恐与反转",
+      "source": "emotion_validation/final_comparison.py",
+      "rule": "极恐退出加低温回升信号",
+      "status": "research_requires_revalidation",
+      "notes": "脚本结论文字仍推荐S2，与每日S5入口不一致；不能以旧文字认定策略优劣。",
+      "component": "signals",
+      "schema_version": "strategy-dossier/v1",
+      "archived_at": "2026-10-24T15:53:40.827999+08:00",
+      "source_sha256": "ad6b4fa112ac7214f99578e328682afe1f0cc779bb14bcaaddfed74f7626ba65",
+      "snapshot": "sources\\ad6b4fa112ac7214f99578e328682afe1f0cc779bb14bcaaddfed74f7626ba65.py",
+      "performance_verified": false,
+      "evidence": "代码读取与主工程单元测试；非历史收益复验"
+    },
+    {
+      "id": "s4",
+      "name": "S4情绪均线趋势",
+      "source": "emotion_validation/final_comparison.py",
+      "rule": "情绪快5日与慢20日均线比较",
+      "status": "research_requires_revalidation",
+      "notes": "脚本结论文字仍推荐S2，与每日S5入口不一致；不能以旧文字认定策略优劣。",
+      "component": "signals",
+      "schema_version": "strategy-dossier/v1",
+      "archived_at": "2026-10-24T15:53:40.827999+08:00",
+      "source_sha256": "ad6b4fa112ac7214f99578e328682afe1f0cc779bb14bcaaddfed74f7626ba65",
+      "snapshot": "sources\\ad6b4fa112ac7214f99578e328682afe1f0cc779bb14bcaaddfed74f7626ba65.py",
+      "performance_verified": false,
+      "evidence": "代码读取与主工程单元测试；非历史收益复验"
+    },
+    {
+      "id": "s5",
+      "name": "S5线性节流对比版",
+      "source": "emotion_validation/final_comparison.py",
+      "rule": "情绪分映射仓位与调仓节流",
+      "status": "research_requires_revalidation",
+      "notes": "脚本结论文字仍推荐S2，与每日S5入口不一致；不能以旧文字认定策略优劣。",
+      "component": "signals",
+      "schema_version": "strategy-dossier/v1",
+      "archived_at": "2026-10-24T15:53:40.827999+08:00",
+      "source_sha256": "ad6b4fa112ac7214f99578e328682afe1f0cc779bb14bcaaddfed74f7626ba65",
+      "snapshot": "sources\\ad6b4fa112ac7214f99578e328682afe1f0cc779bb14bcaaddfed74f7626ba65.py",
+      "performance_verified": false,
+      "evidence": "代码读取与主工程单元测试；非历史收益复验"
+    },
+    {
+      "id": "etf-rotation",
+      "name": "ETF动量与情绪过滤",
+      "source": "emotion_validation/etf_rotation/rotation_strategy.py",
+      "rule": "实际默认快5日/慢10日，权重各50%，Top2；情绪收窄候选池",
+      "status": "implemented_requires_data",
+      "notes": "注释中的20/60日不是当前默认；需ETF行情和行业分类。",
+      "component": "signals",
+      "schema_version": "strategy-dossier/v1",
+      "archived_at": "2026-10-24T15:53:40.827999+08:00",
+      "source_sha256": "9a00955bb10094a4eae5bc52dc8661c75cb45308ca6380c6e1d4c6a93ff3cb37",
+      "snapshot": "sources\\9a00955bb10094a4eae5bc52dc8661c75cb45308ca6380c6e1d4c6a93ff3cb37.py",
+      "performance_verified": false,
+      "evidence": "代码读取与主工程单元测试；非历史收益复验"
+    },
+    {
+      "id": "etf-a",
+      "name": "A纯ETF轮动",
+      "source": "emotion_validation/etf_rotation/backtest_rotation.py",
+      "rule": "四组独立组合对照；详见源文件",
+      "status": "research_requires_revalidation",
+      "notes": "",
+      "component": "signals",
+      "schema_version": "strategy-dossier/v1",
+      "archived_at": "2026-10-24T15:53:40.827999+08:00",
+      "source_sha256": "9aa734fa2361192e755f9ad3381a5586f4da6317489b62b86ee87e8efd290990",
+      "snapshot": "sources\\9aa734fa2361192e755f9ad3381a5586f4da6317489b62b86ee87e8efd290990.py",
+      "performance_verified": false,
+      "evidence": "代码读取与主工程单元测试；非历史收益复验"
+    },
+    {
+      "id": "etf-b",
+      "name": "B沪深300ETF持有基准",
+      "source": "emotion_validation/etf_rotation/backtest_rotation.py",
+      "rule": "四组独立组合对照；详见源文件",
+      "status": "research_requires_revalidation",
+      "notes": "",
+      "component": "signals",
+      "schema_version": "strategy-dossier/v1",
+      "archived_at": "2026-10-24T15:53:40.827999+08:00",
+      "source_sha256": "9aa734fa2361192e755f9ad3381a5586f4da6317489b62b86ee87e8efd290990",
+      "snapshot": "sources\\9aa734fa2361192e755f9ad3381a5586f4da6317489b62b86ee87e8efd290990.py",
+      "performance_verified": false,
+      "evidence": "代码读取与主工程单元测试；非历史收益复验"
+    },
+    {
+      "id": "etf-c",
+      "name": "C S5仓位×沪深300ETF",
+      "source": "emotion_validation/etf_rotation/backtest_rotation.py",
+      "rule": "四组独立组合对照；详见源文件",
+      "status": "research_requires_revalidation",
+      "notes": "",
+      "component": "signals",
+      "schema_version": "strategy-dossier/v1",
+      "archived_at": "2026-10-24T15:53:40.827999+08:00",
+      "source_sha256": "9aa734fa2361192e755f9ad3381a5586f4da6317489b62b86ee87e8efd290990",
+      "snapshot": "sources\\9aa734fa2361192e755f9ad3381a5586f4da6317489b62b86ee87e8efd290990.py",
+      "performance_verified": false,
+      "evidence": "代码读取与主工程单元测试；非历史收益复验"
+    },
+    {
+      "id": "etf-d",
+      "name": "D S5仓位×ETF轮动",
+      "source": "emotion_validation/etf_rotation/backtest_rotation.py",
+      "rule": "四组独立组合对照；详见源文件",
+      "status": "research_requires_revalidation",
+      "notes": "",
+      "component": "signals",
+      "schema_version": "strategy-dossier/v1",
+      "archived_at": "2026-10-24T15:53:40.827999+08:00",
+      "source_sha256": "9aa734fa2361192e755f9ad3381a5586f4da6317489b62b86ee87e8efd290990",
+      "snapshot": "sources\\9aa734fa2361192e755f9ad3381a5586f4da6317489b62b86ee87e8efd290990.py",
+      "performance_verified": false,
+      "evidence": "代码读取与主工程单元测试；非历史收益复验"
+    },
+    {
+      "id": "dragon",
+      "name": "龙回头双均线缩量回踩",
+      "source": "rps_analyzer/dragon_pullback_finder.py",
+      "rule": "15日涨幅≥25%；回撤12–40%；量低于15日天量20%；MA10/20支撑；初始风险≤8%",
+      "status": "implemented_requires_data",
+      "notes": "统一配置见config/dragon_strategy.py；旧文案绩效需新数据重跑。",
+      "component": "signals",
+      "schema_version": "strategy-dossier/v1",
+      "archived_at": "2026-10-24T15:53:40.827999+08:00",
+      "source_sha256": "68ea161182ad10ad7ad03e9eada7830545e783370b9943b9730ab2c9455e8e60",
+      "snapshot": "sources\\68ea161182ad10ad7ad03e9eada7830545e783370b9943b9730ab2c9455e8e60.py",
+      "performance_verified": false,
+      "evidence": "代码读取与主工程单元测试；非历史收益复验"
+    },
+    {
+      "id": "pocket-v1",
+      "name": "口袋支点v1",
+      "source": "rps_analyzer/pocket_pivot_finder.py",
+      "rule": "量价与均线附近支点识别",
+      "status": "implemented_requires_data",
+      "notes": "保留旧版本用于比较，不与v2同时算两份独立证据。",
+      "component": "signals",
+      "schema_version": "strategy-dossier/v1",
+      "archived_at": "2026-10-24T15:53:40.827999+08:00",
+      "source_sha256": "13780905084af09e5f25ceafe0a6b05088aeaa8176daacfd8a05154ce872d732",
+      "snapshot": "sources\\13780905084af09e5f25ceafe0a6b05088aeaa8176daacfd8a05154ce872d732.py",
+      "performance_verified": false,
+      "evidence": "代码读取与主工程单元测试；非历史收益复验"
+    },
+    {
+      "id": "pocket-v2",
+      "name": "口袋支点v2",
+      "source": "rps_analyzer/pocket_pivot_finder_v2.py",
+      "rule": "涨价、量超过过去10日下跌量、MA20/50趋势、前日靠近MA10/20",
+      "status": "implemented_requires_data",
+      "notes": "实际止损固定6%；注释均线止损与实现不同。",
+      "component": "signals",
+      "schema_version": "strategy-dossier/v1",
+      "archived_at": "2026-10-24T15:53:40.827999+08:00",
+      "source_sha256": "e1ae3c6fa8e4dd6ff02e1378153353f00cb4572d32419e97da6202d7b0a265fb",
+      "snapshot": "sources\\e1ae3c6fa8e4dd6ff02e1378153353f00cb4572d32419e97da6202d7b0a265fb.py",
+      "performance_verified": false,
+      "evidence": "代码读取与主工程单元测试；非历史收益复验"
+    },
+    {
+      "id": "trend-pullback",
+      "name": "强趋势均线缩量回踩",
+      "source": "rps_analyzer/pocket_pivot_finder_v2.py",
+      "rule": "MA10>MA20>MA50；回踩企稳；缩量；风险过滤",
+      "status": "implemented_requires_data",
+      "notes": "需独立样本外验证。",
+      "component": "signals",
+      "schema_version": "strategy-dossier/v1",
+      "archived_at": "2026-10-24T15:53:40.827999+08:00",
+      "source_sha256": "e1ae3c6fa8e4dd6ff02e1378153353f00cb4572d32419e97da6202d7b0a265fb",
+      "snapshot": "sources\\e1ae3c6fa8e4dd6ff02e1378153353f00cb4572d32419e97da6202d7b0a265fb.py",
+      "performance_verified": false,
+      "evidence": "代码读取与主工程单元测试；非历史收益复验"
+    },
+    {
+      "id": "cup-v1",
+      "name": "杯柄形态v1",
+      "source": "rps_analyzer/cup_handle_finder.py",
+      "rule": "杯底、杯右与柄部形态",
+      "status": "research_requires_revalidation",
+      "notes": "局部极值使用center=True，存在前视风险；禁止作为已验证实时策略。",
+      "component": "signals",
+      "schema_version": "strategy-dossier/v1",
+      "archived_at": "2026-10-24T15:53:40.827999+08:00",
+      "source_sha256": "04063a2a24bbd2e89922dff97ded718a81b19fe6d5ef192a5f948781cf932fe3",
+      "snapshot": "sources\\04063a2a24bbd2e89922dff97ded718a81b19fe6d5ef192a5f948781cf932fe3.py",
+      "performance_verified": false,
+      "evidence": "代码读取与主工程单元测试；非历史收益复验"
+    },
+    {
+      "id": "cup-v2",
+      "name": "杯柄形态v2",
+      "source": "rps_analyzer/cup_handle_finder_v2.py",
+      "rule": "放宽杯深10–40%、柄深5–20%的形态条件",
+      "status": "research_requires_revalidation",
+      "notes": "局部极值使用center=True，需逐日前缀验证。",
+      "component": "signals",
+      "schema_version": "strategy-dossier/v1",
+      "archived_at": "2026-10-24T15:53:40.827999+08:00",
+      "source_sha256": "bcb210da68e432d50f8bad01b40abc4d99ad71d24d86dfb887b7e768da5f2e05",
+      "snapshot": "sources\\bcb210da68e432d50f8bad01b40abc4d99ad71d24d86dfb887b7e768da5f2e05.py",
+      "performance_verified": false,
+      "evidence": "代码读取与主工程单元测试；非历史收益复验"
+    },
+    {
+      "id": "douyin-a",
+      "name": "短线A 放量突破前高",
+      "source": "emotion_validation/strategy_layer/douyin_system/stock_screener.py",
+      "rule": "收盘破前10日高、阳线、量≥5日均量1.5倍、涨幅≥3%",
+      "status": "research_requires_revalidation",
+      "notes": "A标题旧称长上影，实际为突破前高；涨停识别ST/北交所口径不完整，需修正再验收。",
+      "component": "signals",
+      "schema_version": "strategy-dossier/v1",
+      "archived_at": "2026-10-24T15:53:40.827999+08:00",
+      "source_sha256": "68bf822ee0dbf4afcfba1c0ecb8d6aebdca3102be92f61180a99da3200e4bb1c",
+      "snapshot": "sources\\68bf822ee0dbf4afcfba1c0ecb8d6aebdca3102be92f61180a99da3200e4bb1c.py",
+      "performance_verified": false,
+      "evidence": "代码读取与主工程单元测试；非历史收益复验"
+    },
+    {
+      "id": "douyin-b",
+      "name": "短线B 一进二",
+      "source": "emotion_validation/strategy_layer/douyin_system/stock_screener.py",
+      "rule": "连续两日涨停",
+      "status": "research_requires_revalidation",
+      "notes": "A标题旧称长上影，实际为突破前高；涨停识别ST/北交所口径不完整，需修正再验收。",
+      "component": "signals",
+      "schema_version": "strategy-dossier/v1",
+      "archived_at": "2026-10-24T15:53:40.827999+08:00",
+      "source_sha256": "68bf822ee0dbf4afcfba1c0ecb8d6aebdca3102be92f61180a99da3200e4bb1c",
+      "snapshot": "sources\\68bf822ee0dbf4afcfba1c0ecb8d6aebdca3102be92f61180a99da3200e4bb1c.py",
+      "performance_verified": false,
+      "evidence": "代码读取与主工程单元测试；非历史收益复验"
+    },
+    {
+      "id": "douyin-c",
+      "name": "短线C 横盘突破涨停",
+      "source": "emotion_validation/strategy_layer/douyin_system/stock_screener.py",
+      "rule": "10日波动≤12%、放量涨停",
+      "status": "research_requires_revalidation",
+      "notes": "A标题旧称长上影，实际为突破前高；涨停识别ST/北交所口径不完整，需修正再验收。",
+      "component": "signals",
+      "schema_version": "strategy-dossier/v1",
+      "archived_at": "2026-10-24T15:53:40.827999+08:00",
+      "source_sha256": "68bf822ee0dbf4afcfba1c0ecb8d6aebdca3102be92f61180a99da3200e4bb1c",
+      "snapshot": "sources\\68bf822ee0dbf4afcfba1c0ecb8d6aebdca3102be92f61180a99da3200e4bb1c.py",
+      "performance_verified": false,
+      "evidence": "代码读取与主工程单元测试；非历史收益复验"
+    },
+    {
+      "id": "douyin-d",
+      "name": "短线D 强势股回调确认",
+      "source": "emotion_validation/strategy_layer/douyin_system/stock_screener.py",
+      "rule": "10日≥2次涨停、回撤≤10%、阳线、缩量",
+      "status": "research_requires_revalidation",
+      "notes": "A标题旧称长上影，实际为突破前高；涨停识别ST/北交所口径不完整，需修正再验收。",
+      "component": "signals",
+      "schema_version": "strategy-dossier/v1",
+      "archived_at": "2026-10-24T15:53:40.827999+08:00",
+      "source_sha256": "68bf822ee0dbf4afcfba1c0ecb8d6aebdca3102be92f61180a99da3200e4bb1c",
+      "snapshot": "sources\\68bf822ee0dbf4afcfba1c0ecb8d6aebdca3102be92f61180a99da3200e4bb1c.py",
+      "performance_verified": false,
+      "evidence": "代码读取与主工程单元测试；非历史收益复验"
+    },
+    {
+      "id": "dragon-search",
+      "name": "龙回头V0–V7及深度参数搜索",
+      "source": "run_dragon_optimization.py",
+      "rule": "参数搜索实验，不是额外的线上策略",
+      "status": "research_optimizer",
+      "notes": "深度搜索入口run_deep_dragon_optimization.py；存在样本内过拟合风险。",
+      "component": "signals",
+      "schema_version": "strategy-dossier/v1",
+      "archived_at": "2026-10-24T15:53:40.827999+08:00",
+      "source_sha256": "98d39d1b8a9732c1187bff4e2ab17d35c5dae3b34baeed99db8cceaadbb53764",
+      "snapshot": "sources\\98d39d1b8a9732c1187bff4e2ab17d35c5dae3b34baeed99db8cceaadbb53764.py",
+      "performance_verified": false,
+      "evidence": "代码读取与主工程单元测试；非历史收益复验"
+    },
+    {
+      "id": "panel-active_limit_gene",
+      "name": "涨停基因活跃股",
+      "source": "F:\\88888.投资\\08.选股\\tick-stock-panel\\backend\\app\\strategy\\builtin\\active_limit_gene.py",
+      "rule": "近60日涨停次数达标的活跃标的, 且当日未涨停、缩量休整 — 股性筛选池",
+      "status": "source_present_not_runtime_verified",
+      "component": "panel",
+      "notes": "读取源文件META归档；本次未启动面板或验收其运行结果。",
+      "parameters": {
+        "META": {
+          "id": "active_limit_gene",
+          "name": "涨停基因活跃股",
+          "description": "近60日涨停次数达标的活跃标的, 且当日未涨停、缩量休整 — 股性筛选池",
+          "tags": [
+            "涨停",
+            "活跃",
+            "股性"
+          ],
+          "asset_types": [
+            "stock"
+          ],
+          "timeframes": [
+            "1d"
+          ],
+          "params": [
+            {
+              "id": "min_limit_count",
+              "label": "近60日最少涨停次数",
+              "type": "int",
+              "default": 3,
+              "min": 2,
+              "max": 10,
+              "step": 1
+            },
+            {
+              "id": "vol_ratio_max",
+              "label": "当日量比上限 (休整)",
+              "type": "float",
+              "default": 1.2,
+              "min": 0.5,
+              "max": 3.0,
+              "step": 0.1
+            },
+            {
+              "id": "max_change_pct",
+              "label": "当日涨幅上限% (排除涨停)",
+              "type": "float",
+              "default": 7.0,
+              "min": 3.0,
+              "max": 15.0,
+              "step": 0.5
+            }
+          ],
+          "scoring": {
+            "limit_up_count_60d": 0.4,
+            "momentum_20d": 0.3,
+            "turnover_ratio_5d": 0.3
+          },
+          "order_by": "score",
+          "descending": true,
+          "limit": 100
+        },
+        "ENTRY_SIGNALS": [
+          "signal_active_limit_gene"
+        ],
+        "EXIT_SIGNALS": [
+          "signal_active_gene_cool"
+        ],
+        "STOP_LOSS": -0.08,
+        "MAX_HOLD_DAYS": 25,
+        "docstring": "涨停基因活跃股 — 近期多次涨停的活跃标的池 (股性筛选, 非追板)"
+      },
+      "schema_version": "strategy-dossier/v1",
+      "archived_at": "2026-10-24T15:53:40.827999+08:00",
+      "source_sha256": "ad024a696ba5af51d5d3fa776bd8eb29ca37899a8fd015220df32d92feed4e55",
+      "snapshot": "sources\\ad024a696ba5af51d5d3fa776bd8eb29ca37899a8fd015220df32d92feed4e55.py",
+      "performance_verified": false,
+      "evidence": "代码读取与主工程单元测试；非历史收益复验"
+    },
+    {
+      "id": "panel-boll_breakout",
+      "name": "布林突破",
+      "source": "F:\\88888.投资\\08.选股\\tick-stock-panel\\backend\\app\\strategy\\builtin\\boll_breakout.py",
+      "rule": "突破布林上轨 + 放量, 强势加速信号",
+      "status": "source_present_not_runtime_verified",
+      "component": "panel",
+      "notes": "读取源文件META归档；本次未启动面板或验收其运行结果。",
+      "parameters": {
+        "META": {
+          "id": "boll_breakout",
+          "name": "布林突破",
+          "description": "突破布林上轨 + 放量, 强势加速信号",
+          "tags": [
+            "布林",
+            "突破"
+          ],
+          "asset_types": [
+            "stock",
+            "etf"
+          ],
+          "timeframes": [
+            "1d"
+          ],
+          "params": [
+            {
+              "id": "require_boll_breakout",
+              "label": "要求突破布林上轨",
+              "type": "bool",
+              "default": true
+            },
+            {
+              "id": "use_volume_filter",
+              "label": "启用量比过滤",
+              "type": "bool",
+              "default": true
+            },
+            {
+              "id": "vol_ratio_min",
+              "label": "最低量比",
+              "type": "float",
+              "default": 1.5,
+              "min": 0.5,
+              "max": 5.0,
+              "step": 0.1
+            }
+          ],
+          "scoring": {
+            "vol_ratio_5d": 0.4,
+            "change_pct": 0.3,
+            "momentum_20d": 0.3
+          },
+          "order_by": "score",
+          "descending": true,
+          "limit": 100
+        },
+        "ENTRY_SIGNALS": [
+          "signal_boll_breakout_upper"
+        ],
+        "EXIT_SIGNALS": [
+          "signal_boll_breakdown_lower"
+        ],
+        "STOP_LOSS": -0.06,
+        "MAX_HOLD_DAYS": 15,
+        "docstring": "布林突破 — 突破布林上轨 + 放量"
+      },
+      "schema_version": "strategy-dossier/v1",
+      "archived_at": "2026-10-24T15:53:40.827999+08:00",
+      "source_sha256": "8c9a08ab642941837ea1fb4a95d9c938c2452086719d109386a8ad955369fe2e",
+      "snapshot": "sources\\8c9a08ab642941837ea1fb4a95d9c938c2452086719d109386a8ad955369fe2e.py",
+      "performance_verified": false,
+      "evidence": "代码读取与主工程单元测试；非历史收益复验"
+    },
+    {
+      "id": "panel-breakout_new_high_60d",
+      "name": "放量创60日新高",
+      "source": "F:\\88888.投资\\08.选股\\tick-stock-panel\\backend\\app\\strategy\\builtin\\breakout_new_high_60d.py",
+      "rule": "收盘突破前60日最高价, 量比配合, 趋势强度确认",
+      "status": "source_present_not_runtime_verified",
+      "component": "panel",
+      "notes": "读取源文件META归档；本次未启动面板或验收其运行结果。",
+      "parameters": {
+        "META": {
+          "id": "breakout_new_high_60d",
+          "name": "放量创60日新高",
+          "description": "收盘突破前60日最高价, 量比配合, 趋势强度确认",
+          "tags": [
+            "突破",
+            "新高"
+          ],
+          "asset_types": [
+            "stock",
+            "etf"
+          ],
+          "timeframes": [
+            "1d"
+          ],
+          "params": [
+            {
+              "id": "require_volume",
+              "label": "要求量比配合",
+              "type": "bool",
+              "default": true
+            },
+            {
+              "id": "vol_ratio_min",
+              "label": "最低量比",
+              "type": "float",
+              "default": 1.3,
+              "min": 0.5,
+              "max": 5.0,
+              "step": 0.1
+            },
+            {
+              "id": "min_change_pct",
+              "label": "最低当日涨幅%",
+              "type": "float",
+              "default": 2.0,
+              "min": 0.0,
+              "max": 10.0,
+              "step": 0.5
+            }
+          ],
+          "scoring": {
+            "momentum_20d": 0.4,
+            "vol_ratio_5d": 0.3,
+            "change_pct": 0.3
+          },
+          "order_by": "score",
+          "descending": true,
+          "limit": 100
+        },
+        "ENTRY_SIGNALS": [
+          "signal_breakout_high_60d"
+        ],
+        "EXIT_SIGNALS": [
+          "signal_break_ma20_lose"
+        ],
+        "STOP_LOSS": -0.07,
+        "MAX_HOLD_DAYS": 20,
+        "docstring": "放量创60日新高 — 突破前期高点平台 + 量能确认"
+      },
+      "schema_version": "strategy-dossier/v1",
+      "archived_at": "2026-10-24T15:53:40.827999+08:00",
+      "source_sha256": "5cda885bd965b113fdbaadcaefe635d2f27e263e348467e70af0523144bb950b",
+      "snapshot": "sources\\5cda885bd965b113fdbaadcaefe635d2f27e263e348467e70af0523144bb950b.py",
+      "performance_verified": false,
+      "evidence": "代码读取与主工程单元测试；非历史收益复验"
+    },
+    {
+      "id": "panel-broken_board_recovery",
+      "name": "断板反包",
+      "source": "F:\\88888.投资\\08.选股\\tick-stock-panel\\backend\\app\\strategy\\builtin\\broken_board_recovery.py",
+      "rule": "连板≥2后断板1-2天, 出现放量反包信号",
+      "status": "source_present_not_runtime_verified",
+      "component": "panel",
+      "notes": "读取源文件META归档；本次未启动面板或验收其运行结果。",
+      "parameters": {
+        "META": {
+          "id": "broken_board_recovery",
+          "name": "断板反包",
+          "description": "连板≥2后断板1-2天, 出现放量反包信号",
+          "tags": [
+            "涨停",
+            "反包"
+          ],
+          "asset_types": [
+            "stock"
+          ],
+          "timeframes": [
+            "1d"
+          ],
+          "params": [
+            {
+              "id": "require_limit_up",
+              "label": "要求当日涨停",
+              "type": "bool",
+              "default": true
+            },
+            {
+              "id": "use_volume_filter",
+              "label": "启用量比过滤",
+              "type": "bool",
+              "default": true
+            },
+            {
+              "id": "vol_ratio_min",
+              "label": "最低量比",
+              "type": "float",
+              "default": 1.5,
+              "min": 0.5,
+              "max": 5.0,
+              "step": 0.1
+            },
+            {
+              "id": "use_change_filter",
+              "label": "启用涨幅过滤",
+              "type": "bool",
+              "default": true
+            },
+            {
+              "id": "change_pct_min",
+              "label": "最低涨幅",
+              "type": "float",
+              "default": 0.03,
+              "min": 0.01,
+              "max": 0.1,
+              "step": 0.01
+            }
+          ],
+          "scoring": {
+            "change_pct": 0.4,
+            "vol_ratio_5d": 0.3,
+            "momentum_5d": 0.3
+          },
+          "order_by": "score",
+          "descending": true,
+          "limit": 100
+        },
+        "ENTRY_SIGNALS": [
+          "signal_limit_up"
+        ],
+        "EXIT_SIGNALS": [
+          "signal_ma20_breakdown"
+        ],
+        "STOP_LOSS": -0.06,
+        "MAX_HOLD_DAYS": 10,
+        "docstring": "断板反包 — 涨停 + 放量 + 涨幅 >3%"
+      },
+      "schema_version": "strategy-dossier/v1",
+      "archived_at": "2026-10-24T15:53:40.827999+08:00",
+      "source_sha256": "a29877580cc0a042bc3361cc37da7b874c3787dbf3c82ffde6c7b6051b886213",
+      "snapshot": "sources\\a29877580cc0a042bc3361cc37da7b874c3787dbf3c82ffde6c7b6051b886213.py",
+      "performance_verified": false,
+      "evidence": "代码读取与主工程单元测试；非历史收益复验"
+    },
+    {
+      "id": "panel-bullish_alignment",
+      "name": "均线多头",
+      "source": "F:\\88888.投资\\08.选股\\tick-stock-panel\\backend\\app\\strategy\\builtin\\bullish_alignment.py",
+      "rule": "MA5>MA10>MA20>MA60多头排列 + 短期动量为正",
+      "status": "source_present_not_runtime_verified",
+      "component": "panel",
+      "notes": "读取源文件META归档；本次未启动面板或验收其运行结果。",
+      "parameters": {
+        "META": {
+          "id": "bullish_alignment",
+          "name": "均线多头",
+          "description": "MA5>MA10>MA20>MA60多头排列 + 短期动量为正",
+          "tags": [
+            "均线",
+            "多头"
+          ],
+          "asset_types": [
+            "stock",
+            "etf"
+          ],
+          "timeframes": [
+            "1d"
+          ],
+          "params": [
+            {
+              "id": "require_ma_alignment",
+              "label": "要求均线多头排列",
+              "type": "bool",
+              "default": true
+            },
+            {
+              "id": "require_positive_momentum",
+              "label": "要求20日动量为正",
+              "type": "bool",
+              "default": true
+            }
+          ],
+          "scoring": {
+            "momentum_60d": 0.4,
+            "momentum_20d": 0.3,
+            "turnover_rate": 0.3
+          },
+          "order_by": "score",
+          "descending": true,
+          "limit": 100
+        },
+        "ENTRY_SIGNALS": [
+          "signal_ma_golden_5_20",
+          "signal_ma_golden_20_60"
+        ],
+        "EXIT_SIGNALS": [
+          "signal_ma_dead_5_20",
+          "signal_ma20_breakdown"
+        ],
+        "STOP_LOSS": -0.06,
+        "MAX_HOLD_DAYS": 20,
+        "docstring": "均线多头 — MA5>MA10>MA20>MA60 + 短期动量为正"
+      },
+      "schema_version": "strategy-dossier/v1",
+      "archived_at": "2026-10-24T15:53:40.827999+08:00",
+      "source_sha256": "26bc48a1688e9342d96471d65d410e9b1ef3499bfeebe6565e28cb52bf8e26b9",
+      "snapshot": "sources\\26bc48a1688e9342d96471d65d410e9b1ef3499bfeebe6565e28cb52bf8e26b9.py",
+      "performance_verified": false,
+      "evidence": "代码读取与主工程单元测试；非历史收益复验"
+    },
+    {
+      "id": "panel-consecutive_limit_ups",
+      "name": "连板股",
+      "source": "F:\\88888.投资\\08.选股\\tick-stock-panel\\backend\\app\\strategy\\builtin\\consecutive_limit_ups.py",
+      "rule": "当日涨停且连续涨停≥2天, 强势追涨",
+      "status": "source_present_not_runtime_verified",
+      "component": "panel",
+      "notes": "读取源文件META归档；本次未启动面板或验收其运行结果。",
+      "parameters": {
+        "META": {
+          "id": "consecutive_limit_ups",
+          "name": "连板股",
+          "description": "当日涨停且连续涨停≥2天, 强势追涨",
+          "tags": [
+            "涨停",
+            "连板"
+          ],
+          "asset_types": [
+            "stock"
+          ],
+          "timeframes": [
+            "1d"
+          ],
+          "params": [
+            {
+              "id": "require_limit_up",
+              "label": "要求当日涨停",
+              "type": "bool",
+              "default": true
+            },
+            {
+              "id": "use_boards_filter",
+              "label": "启用连板数过滤",
+              "type": "bool",
+              "default": true
+            },
+            {
+              "id": "min_boards",
+              "label": "最少连板数",
+              "type": "int",
+              "default": 2,
+              "min": 1,
+              "max": 20,
+              "step": 1
+            }
+          ],
+          "scoring": {
+            "consecutive_limit_ups": 0.5,
+            "change_pct": 0.3,
+            "amount": 0.2
+          },
+          "order_by": "score",
+          "descending": true,
+          "limit": 100
+        },
+        "ENTRY_SIGNALS": [
+          "signal_limit_up"
+        ],
+        "EXIT_SIGNALS": [],
+        "STOP_LOSS": -0.05,
+        "MAX_HOLD_DAYS": 5,
+        "docstring": "连板股 — 涨停且连续涨停≥2天"
+      },
+      "schema_version": "strategy-dossier/v1",
+      "archived_at": "2026-10-24T15:53:40.827999+08:00",
+      "source_sha256": "fcfce8ea0119f77807392b18838d35fc18b41932d374202740557a288829e02b",
+      "snapshot": "sources\\fcfce8ea0119f77807392b18838d35fc18b41932d374202740557a288829e02b.py",
+      "performance_verified": false,
+      "evidence": "代码读取与主工程单元测试；非历史收益复验"
+    },
+    {
+      "id": "panel-factor_rank_research",
+      "name": "因子排名研究",
+      "source": "F:\\88888.投资\\08.选股\\tick-stock-panel\\backend\\app\\strategy\\builtin\\factor_rank_research.py",
+      "rule": "受控多因子截面评分、阈值与排名选股策略",
+      "status": "source_present_not_runtime_verified",
+      "component": "panel",
+      "notes": "读取源文件META归档；本次未启动面板或验收其运行结果。",
+      "parameters": {
+        "META": {
+          "id": "factor_rank_research",
+          "name": "因子排名研究",
+          "description": "受控多因子截面评分、阈值与排名选股策略",
+          "tags": [
+            "因子",
+            "研究",
+            "截面排名"
+          ],
+          "asset_types": [
+            "stock",
+            "etf"
+          ],
+          "timeframes": [
+            "1d"
+          ],
+          "research_only": true,
+          "params": [
+            {
+              "id": "entry_score",
+              "label": "入场最低分",
+              "type": "float",
+              "default": 70.0,
+              "min": 0.0,
+              "max": 100.0,
+              "step": 5.0
+            },
+            {
+              "id": "exit_score",
+              "label": "离场最高分",
+              "type": "float",
+              "default": 40.0,
+              "min": 0.0,
+              "max": 100.0,
+              "step": 5.0
+            },
+            {
+              "id": "top_rank",
+              "label": "每日最多入选",
+              "type": "int",
+              "default": 20,
+              "min": 1,
+              "max": 100,
+              "step": 1
+            }
+          ],
+          "scoring": {},
+          "order_by": "score",
+          "descending": true,
+          "limit": 100
+        },
+        "ENTRY_SIGNALS": [
+          "signal_factor_rank_entry"
+        ],
+        "EXIT_SIGNALS": [
+          "signal_factor_rank_exit"
+        ],
+        "STOP_LOSS": -0.08,
+        "MAX_HOLD_DAYS": 30,
+        "docstring": "Fixed matrix-native strategy for controlled factor-rank research."
+      },
+      "schema_version": "strategy-dossier/v1",
+      "archived_at": "2026-10-24T15:53:40.827999+08:00",
+      "source_sha256": "908f53dd067200ab8b49016f0be04e6c6b97778602a0cc41ea83337af7715c21",
+      "snapshot": "sources\\908f53dd067200ab8b49016f0be04e6c6b97778602a0cc41ea83337af7715c21.py",
+      "performance_verified": false,
+      "evidence": "代码读取与主工程单元测试；非历史收益复验"
+    },
+    {
+      "id": "panel-high_turnover_surge",
+      "name": "高换手拉升",
+      "source": "F:\\88888.投资\\08.选股\\tick-stock-panel\\backend\\app\\strategy\\builtin\\high_turnover_surge.py",
+      "rule": "换手率 > 5% 且涨幅 > 3%, 资金活跃",
+      "status": "source_present_not_runtime_verified",
+      "component": "panel",
+      "notes": "读取源文件META归档；本次未启动面板或验收其运行结果。",
+      "parameters": {
+        "META": {
+          "id": "high_turnover_surge",
+          "name": "高换手拉升",
+          "description": "换手率 > 5% 且涨幅 > 3%, 资金活跃",
+          "tags": [
+            "换手率",
+            "放量",
+            "资金"
+          ],
+          "asset_types": [
+            "stock"
+          ],
+          "timeframes": [
+            "1d"
+          ],
+          "params": [
+            {
+              "id": "use_turnover_filter",
+              "label": "启用换手率过滤",
+              "type": "bool",
+              "default": true
+            },
+            {
+              "id": "min_turnover",
+              "label": "最低换手率%",
+              "type": "float",
+              "default": 5.0,
+              "min": 1.0,
+              "max": 20.0,
+              "step": 0.5
+            },
+            {
+              "id": "use_change_filter",
+              "label": "启用涨幅过滤",
+              "type": "bool",
+              "default": true
+            },
+            {
+              "id": "min_change",
+              "label": "最低涨幅%",
+              "type": "float",
+              "default": 3.0,
+              "min": 1.0,
+              "max": 10.0,
+              "step": 0.5
+            }
+          ],
+          "scoring": {
+            "turnover_rate": 0.4,
+            "change_pct": 0.3,
+            "momentum_5d": 0.3
+          },
+          "order_by": "score",
+          "descending": true,
+          "limit": 50
+        },
+        "ENTRY_SIGNALS": [
+          "signal_volume_surge"
+        ],
+        "EXIT_SIGNALS": [
+          "signal_ma20_breakdown"
+        ],
+        "STOP_LOSS": -0.05,
+        "MAX_HOLD_DAYS": 10,
+        "docstring": "高换手拉升 — 换手率 > 5% 且涨幅 > 3%, 资金活跃"
+      },
+      "schema_version": "strategy-dossier/v1",
+      "archived_at": "2026-10-24T15:53:40.827999+08:00",
+      "source_sha256": "2a33b12a4f878e9561a198ffa210a4ca41468077c4977cee9041000ad01db1aa",
+      "snapshot": "sources\\2a33b12a4f878e9561a198ffa210a4ca41468077c4977cee9041000ad01db1aa.py",
+      "performance_verified": false,
+      "evidence": "代码读取与主工程单元测试；非历史收益复验"
+    },
+    {
+      "id": "panel-limit_up_momentum",
+      "name": "连板接力",
+      "source": "F:\\88888.投资\\08.选股\\tick-stock-panel\\backend\\app\\strategy\\builtin\\limit_up_momentum.py",
+      "rule": "连板股 + 今日涨幅 > 5%, 连板接力追踪",
+      "status": "source_present_not_runtime_verified",
+      "component": "panel",
+      "notes": "读取源文件META归档；本次未启动面板或验收其运行结果。",
+      "parameters": {
+        "META": {
+          "id": "limit_up_momentum",
+          "name": "连板接力",
+          "description": "连板股 + 今日涨幅 > 5%, 连板接力追踪",
+          "tags": [
+            "涨停",
+            "连板",
+            "接力"
+          ],
+          "asset_types": [
+            "stock"
+          ],
+          "timeframes": [
+            "1d"
+          ],
+          "params": [
+            {
+              "id": "use_change_filter",
+              "label": "启用涨幅过滤",
+              "type": "bool",
+              "default": true
+            },
+            {
+              "id": "min_change",
+              "label": "最低涨幅%",
+              "type": "float",
+              "default": 5.0,
+              "min": 2.0,
+              "max": 15.0,
+              "step": 0.5
+            },
+            {
+              "id": "use_boards_filter",
+              "label": "启用连板数过滤",
+              "type": "bool",
+              "default": true
+            },
+            {
+              "id": "min_boards",
+              "label": "最少连板",
+              "type": "int",
+              "default": 1,
+              "min": 1,
+              "max": 10,
+              "step": 1
+            }
+          ],
+          "scoring": {
+            "consecutive_limit_ups": 0.4,
+            "change_pct": 0.3,
+            "amount": 0.3
+          },
+          "order_by": "score",
+          "descending": true,
+          "limit": 50
+        },
+        "ENTRY_SIGNALS": [
+          "signal_limit_up"
+        ],
+        "EXIT_SIGNALS": [],
+        "STOP_LOSS": -0.05,
+        "MAX_HOLD_DAYS": 5,
+        "docstring": "连板接力 — 近2日涨停且今日涨幅 > 5%, 连板股追踪"
+      },
+      "schema_version": "strategy-dossier/v1",
+      "archived_at": "2026-10-24T15:53:40.827999+08:00",
+      "source_sha256": "d948110e0671f7a727791a0de9ea26bb2cc4d77720c226c250add8b9996a07c0",
+      "snapshot": "sources\\d948110e0671f7a727791a0de9ea26bb2cc4d77720c226c250add8b9996a07c0.py",
+      "performance_verified": false,
+      "evidence": "代码读取与主工程单元测试；非历史收益复验"
+    },
+    {
+      "id": "panel-long_lower_shadow_reversal",
+      "name": "长下影反击",
+      "source": "F:\\88888.投资\\08.选股\\tick-stock-panel\\backend\\app\\strategy\\builtin\\long_lower_shadow_reversal.py",
+      "rule": "近5日超跌后收长下影线且收盘收复实体, 下方承接强势的反转信号",
+      "status": "source_present_not_runtime_verified",
+      "component": "panel",
+      "notes": "读取源文件META归档；本次未启动面板或验收其运行结果。",
+      "parameters": {
+        "META": {
+          "id": "long_lower_shadow_reversal",
+          "name": "长下影反击",
+          "description": "近5日超跌后收长下影线且收盘收复实体, 下方承接强势的反转信号",
+          "tags": [
+            "K线形态",
+            "超跌",
+            "反转"
+          ],
+          "asset_types": [
+            "stock"
+          ],
+          "timeframes": [
+            "1d"
+          ],
+          "params": [
+            {
+              "id": "shadow_pct_min",
+              "label": "下影线最低长度% (相对昨收)",
+              "type": "float",
+              "default": 3.0,
+              "min": 1.0,
+              "max": 10.0,
+              "step": 0.5
+            },
+            {
+              "id": "drop_pct_max",
+              "label": "近5日累计跌幅下限% (负值)",
+              "type": "float",
+              "default": -5.0,
+              "min": -30.0,
+              "max": 0.0,
+              "step": 1.0
+            },
+            {
+              "id": "require_recovery",
+              "label": "要求收盘收复上半区",
+              "type": "bool",
+              "default": true
+            }
+          ],
+          "scoring": {
+            "momentum_20d": 0.3,
+            "vol_ratio_5d": 0.4,
+            "change_pct": 0.3
+          },
+          "order_by": "score",
+          "descending": true,
+          "limit": 100
+        },
+        "ENTRY_SIGNALS": [
+          "signal_long_lower_shadow"
+        ],
+        "EXIT_SIGNALS": [
+          "signal_ma5_lose_after_shadow"
+        ],
+        "STOP_LOSS": -0.05,
+        "MAX_HOLD_DAYS": 10,
+        "docstring": "长下影反击 — 超跌后放量收长下影线, 多头承接确认"
+      },
+      "schema_version": "strategy-dossier/v1",
+      "archived_at": "2026-10-24T15:53:40.827999+08:00",
+      "source_sha256": "741c4b8477a3368b5ae9734a23c60b2a1fedc76124f9ea1bf74166c77121477f",
+      "snapshot": "sources\\741c4b8477a3368b5ae9734a23c60b2a1fedc76124f9ea1bf74166c77121477f.py",
+      "performance_verified": false,
+      "evidence": "代码读取与主工程单元测试；非历史收益复验"
+    },
+    {
+      "id": "panel-low_volatility_leader",
+      "name": "低波动龙头",
+      "source": "F:\\88888.投资\\08.选股\\tick-stock-panel\\backend\\app\\strategy\\builtin\\low_volatility_leader.py",
+      "rule": "20日动量为正 + 年化波动 < 30% + MA20上方",
+      "status": "source_present_not_runtime_verified",
+      "component": "panel",
+      "notes": "读取源文件META归档；本次未启动面板或验收其运行结果。",
+      "parameters": {
+        "META": {
+          "id": "low_volatility_leader",
+          "name": "低波动龙头",
+          "description": "20日动量为正 + 年化波动 < 30% + MA20上方",
+          "tags": [
+            "低波动",
+            "龙头"
+          ],
+          "asset_types": [
+            "stock",
+            "etf"
+          ],
+          "timeframes": [
+            "1d"
+          ],
+          "params": [
+            {
+              "id": "require_positive_momentum",
+              "label": "要求20日动量为正",
+              "type": "bool",
+              "default": true
+            },
+            {
+              "id": "use_volatility_filter",
+              "label": "启用波动率过滤",
+              "type": "bool",
+              "default": true
+            },
+            {
+              "id": "vol_max",
+              "label": "最大年化波动",
+              "type": "float",
+              "default": 0.3,
+              "min": 0.05,
+              "max": 1.0,
+              "step": 0.01
+            },
+            {
+              "id": "require_above_ma20",
+              "label": "要求收盘价在MA20上方",
+              "type": "bool",
+              "default": true
+            }
+          ],
+          "scoring": {
+            "momentum_60d": 0.4,
+            "momentum_20d": 0.3,
+            "turnover_rate": 0.3
+          },
+          "order_by": "score",
+          "descending": true,
+          "limit": 100
+        },
+        "ENTRY_SIGNALS": [
+          "signal_ma20_breakout"
+        ],
+        "EXIT_SIGNALS": [
+          "signal_ma20_breakdown"
+        ],
+        "STOP_LOSS": -0.05,
+        "MAX_HOLD_DAYS": 30,
+        "docstring": "低波动龙头 — 正动量 + 低波动 + MA20上方"
+      },
+      "schema_version": "strategy-dossier/v1",
+      "archived_at": "2026-10-24T15:53:40.827999+08:00",
+      "source_sha256": "357f87df12545eb9762629a2c3c3d1d0ec636c39986e7de76a9e33fc4ebf6aa1",
+      "snapshot": "sources\\357f87df12545eb9762629a2c3c3d1d0ec636c39986e7de76a9e33fc4ebf6aa1.py",
+      "performance_verified": false,
+      "evidence": "代码读取与主工程单元测试；非历史收益复验"
+    },
+    {
+      "id": "panel-ma_convergence_breakout",
+      "name": "均线粘合突破",
+      "source": "F:\\88888.投资\\08.选股\\tick-stock-panel\\backend\\app\\strategy\\builtin\\ma_convergence_breakout.py",
+      "rule": "MA5/10/20 粘合收敛后放量突破, 挤压释放的变盘启动点",
+      "status": "source_present_not_runtime_verified",
+      "component": "panel",
+      "notes": "读取源文件META归档；本次未启动面板或验收其运行结果。",
+      "parameters": {
+        "META": {
+          "id": "ma_convergence_breakout",
+          "name": "均线粘合突破",
+          "description": "MA5/10/20 粘合收敛后放量突破, 挤压释放的变盘启动点",
+          "tags": [
+            "均线",
+            "粘合",
+            "突破"
+          ],
+          "asset_types": [
+            "stock",
+            "etf"
+          ],
+          "timeframes": [
+            "1d"
+          ],
+          "params": [
+            {
+              "id": "spread_pct_max",
+              "label": "粘合带宽上限% (三线极差/MA20)",
+              "type": "float",
+              "default": 2.5,
+              "min": 0.5,
+              "max": 8.0,
+              "step": 0.5
+            },
+            {
+              "id": "squeeze_days",
+              "label": "粘合持续天数",
+              "type": "int",
+              "default": 5,
+              "min": 3,
+              "max": 15,
+              "step": 1
+            },
+            {
+              "id": "min_change_pct",
+              "label": "突破日最低涨幅%",
+              "type": "float",
+              "default": 2.0,
+              "min": 0.0,
+              "max": 10.0,
+              "step": 0.5
+            },
+            {
+              "id": "require_volume",
+              "label": "要求量比配合",
+              "type": "bool",
+              "default": true
+            }
+          ],
+          "scoring": {
+            "vol_ratio_5d": 0.4,
+            "change_pct": 0.3,
+            "momentum_20d": 0.3
+          },
+          "order_by": "score",
+          "descending": true,
+          "limit": 100
+        },
+        "ENTRY_SIGNALS": [
+          "signal_ma_convergence_breakout"
+        ],
+        "EXIT_SIGNALS": [
+          "signal_ma10_lose"
+        ],
+        "STOP_LOSS": -0.06,
+        "MAX_HOLD_DAYS": 15,
+        "docstring": "均线粘合突破 — MA5/10/20 挤压收敛后放量向上突破 (变盘启动点)"
+      },
+      "schema_version": "strategy-dossier/v1",
+      "archived_at": "2026-10-24T15:53:40.827999+08:00",
+      "source_sha256": "3d8b8b596bc6060a1ff2a976019942aa000f4b46b4806ebb76f0ff56598ea4eb",
+      "snapshot": "sources\\3d8b8b596bc6060a1ff2a976019942aa000f4b46b4806ebb76f0ff56598ea4eb.py",
+      "performance_verified": false,
+      "evidence": "代码读取与主工程单元测试；非历史收益复验"
+    },
+    {
+      "id": "panel-ma_golden_cross",
+      "name": "MA 金叉",
+      "source": "F:\\88888.投资\\08.选股\\tick-stock-panel\\backend\\app\\strategy\\builtin\\ma_golden_cross.py",
+      "rule": "MA5上穿MA20当日触发, 量能配合",
+      "status": "source_present_not_runtime_verified",
+      "component": "panel",
+      "notes": "读取源文件META归档；本次未启动面板或验收其运行结果。",
+      "parameters": {
+        "META": {
+          "id": "ma_golden_cross",
+          "name": "MA 金叉",
+          "description": "MA5上穿MA20当日触发, 量能配合",
+          "tags": [
+            "均线",
+            "金叉"
+          ],
+          "asset_types": [
+            "stock",
+            "etf"
+          ],
+          "timeframes": [
+            "1d"
+          ],
+          "params": [
+            {
+              "id": "require_ma_golden",
+              "label": "要求MA5上穿MA20",
+              "type": "bool",
+              "default": true
+            },
+            {
+              "id": "use_volume_filter",
+              "label": "启用量比过滤",
+              "type": "bool",
+              "default": true
+            },
+            {
+              "id": "vol_ratio_min",
+              "label": "最低量比",
+              "type": "float",
+              "default": 1.2,
+              "min": 0.5,
+              "max": 5.0,
+              "step": 0.1
+            },
+            {
+              "id": "require_above_ma60",
+              "label": "要求收盘价在MA60上方",
+              "type": "bool",
+              "default": true
+            }
+          ],
+          "scoring": {
+            "momentum_20d": 0.5,
+            "vol_ratio_5d": 0.3,
+            "change_pct": 0.2
+          },
+          "order_by": "score",
+          "descending": true,
+          "limit": 100
+        },
+        "ENTRY_SIGNALS": [
+          "signal_ma_golden_5_20"
+        ],
+        "EXIT_SIGNALS": [
+          "signal_ma_dead_5_20"
+        ],
+        "STOP_LOSS": -0.06,
+        "MAX_HOLD_DAYS": 15,
+        "docstring": "MA金叉 — MA5上穿MA20 + 量能配合 + MA60上方"
+      },
+      "schema_version": "strategy-dossier/v1",
+      "archived_at": "2026-10-24T15:53:40.827999+08:00",
+      "source_sha256": "958711a5e6defd25b359f1a9efbf9e874525946f34de841f50abc2d96bb38cc3",
+      "snapshot": "sources\\958711a5e6defd25b359f1a9efbf9e874525946f34de841f50abc2d96bb38cc3.py",
+      "performance_verified": false,
+      "evidence": "代码读取与主工程单元测试；非历史收益复验"
+    },
+    {
+      "id": "panel-macd_below_zero_revival",
+      "name": "MACD 零下回升",
+      "source": "F:\\88888.投资\\08.选股\\tick-stock-panel\\backend\\app\\strategy\\builtin\\macd_below_zero_revival.py",
+      "rule": "股价创阶段新低而 MACD DIF 拒绝新低并回升 (底背离简化), 零轴下方动能修复",
+      "status": "source_present_not_runtime_verified",
+      "component": "panel",
+      "notes": "读取源文件META归档；本次未启动面板或验收其运行结果。",
+      "parameters": {
+        "META": {
+          "id": "macd_below_zero_revival",
+          "name": "MACD 零下回升",
+          "description": "股价创阶段新低而 MACD DIF 拒绝新低并回升 (底背离简化), 零轴下方动能修复",
+          "tags": [
+            "MACD",
+            "背离",
+            "超跌"
+          ],
+          "asset_types": [
+            "stock"
+          ],
+          "timeframes": [
+            "1d"
+          ],
+          "params": [
+            {
+              "id": "low_window",
+              "label": "新低回看天数",
+              "type": "int",
+              "default": 20,
+              "min": 10,
+              "max": 60,
+              "step": 5
+            },
+            {
+              "id": "revive_days",
+              "label": "DIF 回升对比天数",
+              "type": "int",
+              "default": 10,
+              "min": 5,
+              "max": 20,
+              "step": 1
+            }
+          ],
+          "scoring": {
+            "momentum_20d": 0.4,
+            "change_pct": 0.3,
+            "vol_ratio_5d": 0.3
+          },
+          "order_by": "score",
+          "descending": true,
+          "limit": 100
+        },
+        "ENTRY_SIGNALS": [
+          "signal_macd_below_zero_revival"
+        ],
+        "EXIT_SIGNALS": [
+          "signal_macd_golden_above_zero"
+        ],
+        "STOP_LOSS": -0.06,
+        "MAX_HOLD_DAYS": 20,
+        "docstring": "MACD 零下回升 — 股价新低而 DIF 拒绝新低 (底背离简化形态)"
+      },
+      "schema_version": "strategy-dossier/v1",
+      "archived_at": "2026-10-24T15:53:40.827999+08:00",
+      "source_sha256": "251d3e1c427f1e80829301ada2c23a9fe93af1baa945b27a8e9c6dc6f38c8e03",
+      "snapshot": "sources\\251d3e1c427f1e80829301ada2c23a9fe93af1baa945b27a8e9c6dc6f38c8e03.py",
+      "performance_verified": false,
+      "evidence": "代码读取与主工程单元测试；非历史收益复验"
+    },
+    {
+      "id": "panel-macd_golden",
+      "name": "MACD 金叉放量",
+      "source": "F:\\88888.投资\\08.选股\\tick-stock-panel\\backend\\app\\strategy\\builtin\\macd_golden.py",
+      "rule": "MACD金叉当日 + 量能放大",
+      "status": "source_present_not_runtime_verified",
+      "component": "panel",
+      "notes": "读取源文件META归档；本次未启动面板或验收其运行结果。",
+      "parameters": {
+        "META": {
+          "id": "macd_golden",
+          "name": "MACD 金叉放量",
+          "description": "MACD金叉当日 + 量能放大",
+          "tags": [
+            "MACD",
+            "金叉",
+            "放量"
+          ],
+          "asset_types": [
+            "stock",
+            "etf"
+          ],
+          "timeframes": [
+            "1d"
+          ],
+          "params": [
+            {
+              "id": "require_macd_golden",
+              "label": "要求MACD金叉",
+              "type": "bool",
+              "default": true
+            },
+            {
+              "id": "use_volume_filter",
+              "label": "启用量比过滤",
+              "type": "bool",
+              "default": true
+            },
+            {
+              "id": "vol_ratio_min",
+              "label": "最低量比",
+              "type": "float",
+              "default": 1.5,
+              "min": 0.5,
+              "max": 5.0,
+              "step": 0.1
+            }
+          ],
+          "scoring": {
+            "momentum_60d": 0.4,
+            "vol_ratio_5d": 0.3,
+            "change_pct": 0.3
+          },
+          "order_by": "score",
+          "descending": true,
+          "limit": 100
+        },
+        "ENTRY_SIGNALS": [
+          "signal_macd_golden"
+        ],
+        "EXIT_SIGNALS": [
+          "signal_macd_dead"
+        ],
+        "STOP_LOSS": -0.07,
+        "MAX_HOLD_DAYS": 20,
+        "docstring": "MACD金叉放量 — MACD金叉当日 + 量能放大"
+      },
+      "schema_version": "strategy-dossier/v1",
+      "archived_at": "2026-10-24T15:53:40.827999+08:00",
+      "source_sha256": "930971800b798001704981381991f0aad15cec470075b7443822a8d9ca11bf3e",
+      "snapshot": "sources\\930971800b798001704981381991f0aad15cec470075b7443822a8d9ca11bf3e.py",
+      "performance_verified": false,
+      "evidence": "代码读取与主工程单元测试；非历史收益复验"
+    },
+    {
+      "id": "panel-n_day_low_reversal",
+      "name": "新低反转",
+      "source": "F:\\88888.投资\\08.选股\\tick-stock-panel\\backend\\app\\strategy\\builtin\\n_day_low_reversal.py",
+      "rule": "触及60日新低后当日收阳放量, 反转信号",
+      "status": "source_present_not_runtime_verified",
+      "component": "panel",
+      "notes": "读取源文件META归档；本次未启动面板或验收其运行结果。",
+      "parameters": {
+        "META": {
+          "id": "n_day_low_reversal",
+          "name": "新低反转",
+          "description": "触及60日新低后当日收阳放量, 反转信号",
+          "tags": [
+            "反转",
+            "新低"
+          ],
+          "asset_types": [
+            "stock",
+            "etf"
+          ],
+          "timeframes": [
+            "1d"
+          ],
+          "params": [
+            {
+              "id": "require_n_day_low",
+              "label": "要求60日新低",
+              "type": "bool",
+              "default": true
+            },
+            {
+              "id": "require_bullish_candle",
+              "label": "要求收阳",
+              "type": "bool",
+              "default": true
+            },
+            {
+              "id": "use_volume_filter",
+              "label": "启用量比过滤",
+              "type": "bool",
+              "default": true
+            },
+            {
+              "id": "vol_ratio_min",
+              "label": "最低量比",
+              "type": "float",
+              "default": 1.5,
+              "min": 0.5,
+              "max": 5.0,
+              "step": 0.1
+            }
+          ],
+          "scoring": {
+            "change_pct": 0.4,
+            "vol_ratio_5d": 0.3,
+            "momentum_5d": 0.3
+          },
+          "order_by": "score",
+          "descending": true,
+          "limit": 100
+        },
+        "ENTRY_SIGNALS": [
+          "signal_n_day_low"
+        ],
+        "EXIT_SIGNALS": [
+          "signal_ma20_breakdown"
+        ],
+        "STOP_LOSS": -0.06,
+        "MAX_HOLD_DAYS": 15,
+        "docstring": "新低反转 — 60日新低后收阳放量"
+      },
+      "schema_version": "strategy-dossier/v1",
+      "archived_at": "2026-10-24T15:53:40.827999+08:00",
+      "source_sha256": "9e696768cfb2957fba2d6262bcd128d05809d46d5409bdf60452b86a081a19d5",
+      "snapshot": "sources\\9e696768cfb2957fba2d6262bcd128d05809d46d5409bdf60452b86a081a19d5.py",
+      "performance_verified": false,
+      "evidence": "代码读取与主工程单元测试；非历史收益复验"
+    },
+    {
+      "id": "panel-near_limit_up",
+      "name": "逼近涨停",
+      "source": "F:\\88888.投资\\08.选股\\tick-stock-panel\\backend\\app\\strategy\\builtin\\near_limit_up.py",
+      "rule": "涨幅 > 7% 且距涨停 < 3%, 追涨信号",
+      "status": "source_present_not_runtime_verified",
+      "component": "panel",
+      "notes": "读取源文件META归档；本次未启动面板或验收其运行结果。",
+      "parameters": {
+        "META": {
+          "id": "near_limit_up",
+          "name": "逼近涨停",
+          "description": "涨幅 > 7% 且距涨停 < 3%, 追涨信号",
+          "tags": [
+            "涨停",
+            "追涨"
+          ],
+          "asset_types": [
+            "stock"
+          ],
+          "timeframes": [
+            "1d"
+          ],
+          "params": [
+            {
+              "id": "use_change_filter",
+              "label": "启用涨幅过滤",
+              "type": "bool",
+              "default": true
+            },
+            {
+              "id": "min_change",
+              "label": "最低涨幅%",
+              "type": "float",
+              "default": 7.0,
+              "min": 3.0,
+              "max": 15.0,
+              "step": 1.0
+            },
+            {
+              "id": "use_limit_gap_filter",
+              "label": "启用距涨停空间过滤",
+              "type": "bool",
+              "default": true
+            },
+            {
+              "id": "limit_gap",
+              "label": "距涨停空间%",
+              "type": "float",
+              "default": 3.0,
+              "min": 1.0,
+              "max": 10.0,
+              "step": 0.5
+            }
+          ],
+          "scoring": {
+            "change_pct": 0.5,
+            "amount": 0.3,
+            "momentum_5d": 0.2
+          },
+          "order_by": "score",
+          "descending": true,
+          "limit": 50
+        },
+        "ENTRY_SIGNALS": [],
+        "EXIT_SIGNALS": [
+          "signal_ma20_breakdown"
+        ],
+        "STOP_LOSS": -0.05,
+        "MAX_HOLD_DAYS": 5,
+        "docstring": "逼近涨停 — 涨幅 > 7% 且距涨停 < 3%, 盘后选股"
+      },
+      "schema_version": "strategy-dossier/v1",
+      "archived_at": "2026-10-24T15:53:40.827999+08:00",
+      "source_sha256": "385153e9ffeded4eca2b62d663274f961c8ccbe9b44b33db00ffce76140145e8",
+      "snapshot": "sources\\385153e9ffeded4eca2b62d663274f961c8ccbe9b44b33db00ffce76140145e8.py",
+      "performance_verified": false,
+      "evidence": "代码读取与主工程单元测试；非历史收益复验"
+    },
+    {
+      "id": "panel-oversold_bounce",
+      "name": "超跌反弹",
+      "source": "F:\\88888.投资\\08.选股\\tick-stock-panel\\backend\\app\\strategy\\builtin\\oversold_bounce.py",
+      "rule": "RSI14 < 30超卖区 + 当日收阳 + 放量, 抄底信号",
+      "status": "source_present_not_runtime_verified",
+      "component": "panel",
+      "notes": "读取源文件META归档；本次未启动面板或验收其运行结果。",
+      "parameters": {
+        "META": {
+          "id": "oversold_bounce",
+          "name": "超跌反弹",
+          "description": "RSI14 < 30超卖区 + 当日收阳 + 放量, 抄底信号",
+          "tags": [
+            "超跌",
+            "反弹",
+            "RSI"
+          ],
+          "asset_types": [
+            "stock",
+            "etf"
+          ],
+          "timeframes": [
+            "1d"
+          ],
+          "params": [
+            {
+              "id": "use_rsi_filter",
+              "label": "启用RSI过滤",
+              "type": "bool",
+              "default": true
+            },
+            {
+              "id": "rsi_max",
+              "label": "RSI上限",
+              "type": "float",
+              "default": 30.0,
+              "min": 10.0,
+              "max": 50.0,
+              "step": 1.0
+            },
+            {
+              "id": "require_bullish_candle",
+              "label": "要求收阳",
+              "type": "bool",
+              "default": true
+            },
+            {
+              "id": "use_volume_filter",
+              "label": "启用量比过滤",
+              "type": "bool",
+              "default": true
+            },
+            {
+              "id": "vol_ratio_min",
+              "label": "最低量比",
+              "type": "float",
+              "default": 1.2,
+              "min": 0.5,
+              "max": 5.0,
+              "step": 0.1
+            }
+          ],
+          "scoring": {
+            "change_pct": 0.3,
+            "vol_ratio_5d": 0.3,
+            "momentum_5d": 0.2,
+            "rsi_14": 0.2
+          },
+          "order_by": "score",
+          "descending": true,
+          "limit": 100
+        },
+        "ENTRY_SIGNALS": [],
+        "EXIT_SIGNALS": [
+          "signal_ma20_breakdown"
+        ],
+        "STOP_LOSS": -0.05,
+        "MAX_HOLD_DAYS": 15,
+        "docstring": "超跌反弹 — RSI14 < 30 + 收阳 + 放量"
+      },
+      "schema_version": "strategy-dossier/v1",
+      "archived_at": "2026-10-24T15:53:40.827999+08:00",
+      "source_sha256": "8428f485720616f6ea5525bc21ba646ae8bde350da7833856fb0adebf2ad804f",
+      "snapshot": "sources\\8428f485720616f6ea5525bc21ba646ae8bde350da7833856fb0adebf2ad804f.py",
+      "performance_verified": false,
+      "evidence": "代码读取与主工程单元测试；非历史收益复验"
+    },
+    {
+      "id": "panel-oversold_reversal",
+      "name": "超跌反转",
+      "source": "F:\\88888.投资\\08.选股\\tick-stock-panel\\backend\\app\\strategy\\builtin\\oversold_reversal.py",
+      "rule": "RSI14 < 30超卖 + 涨幅 > 1% + 站上MA5, 超卖反转信号",
+      "status": "source_present_not_runtime_verified",
+      "component": "panel",
+      "notes": "读取源文件META归档；本次未启动面板或验收其运行结果。",
+      "parameters": {
+        "META": {
+          "id": "oversold_reversal",
+          "name": "超跌反转",
+          "description": "RSI14 < 30超卖 + 涨幅 > 1% + 站上MA5, 超卖反转信号",
+          "tags": [
+            "超跌",
+            "反弹",
+            "RSI"
+          ],
+          "asset_types": [
+            "stock"
+          ],
+          "timeframes": [
+            "1d"
+          ],
+          "params": [
+            {
+              "id": "use_rsi_filter",
+              "label": "启用RSI过滤",
+              "type": "bool",
+              "default": true
+            },
+            {
+              "id": "rsi_max",
+              "label": "RSI上限",
+              "type": "float",
+              "default": 30.0,
+              "min": 10.0,
+              "max": 50.0,
+              "step": 1.0
+            },
+            {
+              "id": "use_change_filter",
+              "label": "启用涨幅过滤",
+              "type": "bool",
+              "default": true
+            },
+            {
+              "id": "min_change",
+              "label": "最低涨幅%",
+              "type": "float",
+              "default": 1.0,
+              "min": 0.5,
+              "max": 5.0,
+              "step": 0.5
+            },
+            {
+              "id": "require_above_ma5",
+              "label": "要求收盘价在MA5上方",
+              "type": "bool",
+              "default": true
+            }
+          ],
+          "scoring": {
+            "change_pct": 0.4,
+            "rsi_14": 0.3,
+            "vol_ratio_5d": 0.3
+          },
+          "order_by": "score",
+          "descending": true,
+          "limit": 50
+        },
+        "ENTRY_SIGNALS": [],
+        "EXIT_SIGNALS": [
+          "signal_ma20_breakdown"
+        ],
+        "STOP_LOSS": -0.05,
+        "MAX_HOLD_DAYS": 15,
+        "docstring": "超跌反弹 — RSI14 < 30 + 涨幅 > 1% + 站上 MA5, 超卖反弹信号"
+      },
+      "schema_version": "strategy-dossier/v1",
+      "archived_at": "2026-10-24T15:53:40.827999+08:00",
+      "source_sha256": "5e43d33b78cbfd7a86e7d93347ceef4bbbfad315bd3cf60002807c9160bf1dfc",
+      "snapshot": "sources\\5e43d33b78cbfd7a86e7d93347ceef4bbbfad315bd3cf60002807c9160bf1dfc.py",
+      "performance_verified": false,
+      "evidence": "代码读取与主工程单元测试；非历史收益复验"
+    },
+    {
+      "id": "panel-platform_consolidation_breakout",
+      "name": "平台整理突破",
+      "source": "F:\\88888.投资\\08.选股\\tick-stock-panel\\backend\\app\\strategy\\builtin\\platform_consolidation_breakout.py",
+      "rule": "近N日窄幅横盘 (振幅收敛) 后放量突破平台上沿, 蓄势变盘",
+      "status": "source_present_not_runtime_verified",
+      "component": "panel",
+      "notes": "读取源文件META归档；本次未启动面板或验收其运行结果。",
+      "parameters": {
+        "META": {
+          "id": "platform_consolidation_breakout",
+          "name": "平台整理突破",
+          "description": "近N日窄幅横盘 (振幅收敛) 后放量突破平台上沿, 蓄势变盘",
+          "tags": [
+            "形态",
+            "平台",
+            "突破"
+          ],
+          "asset_types": [
+            "stock"
+          ],
+          "timeframes": [
+            "1d"
+          ],
+          "params": [
+            {
+              "id": "platform_days",
+              "label": "平台天数",
+              "type": "int",
+              "default": 10,
+              "min": 5,
+              "max": 30,
+              "step": 1
+            },
+            {
+              "id": "range_pct_max",
+              "label": "平台振幅上限%",
+              "type": "float",
+              "default": 8.0,
+              "min": 3.0,
+              "max": 20.0,
+              "step": 0.5
+            },
+            {
+              "id": "vol_ratio_min",
+              "label": "突破日最低量比",
+              "type": "float",
+              "default": 1.5,
+              "min": 1.0,
+              "max": 5.0,
+              "step": 0.1
+            }
+          ],
+          "scoring": {
+            "vol_ratio_5d": 0.4,
+            "momentum_20d": 0.3,
+            "change_pct": 0.3
+          },
+          "order_by": "score",
+          "descending": true,
+          "limit": 100
+        },
+        "ENTRY_SIGNALS": [
+          "signal_platform_breakout"
+        ],
+        "EXIT_SIGNALS": [
+          "signal_platform_fail_ma20"
+        ],
+        "STOP_LOSS": -0.06,
+        "MAX_HOLD_DAYS": 15,
+        "docstring": "平台缩量整理突破 — 窄幅横盘蓄势后放量突破平台上沿"
+      },
+      "schema_version": "strategy-dossier/v1",
+      "archived_at": "2026-10-24T15:53:40.827999+08:00",
+      "source_sha256": "f8bd5fa63744e92b9777f9df570200f62b25a7a0fe2d82f9e6d294a89034f419",
+      "snapshot": "sources\\f8bd5fa63744e92b9777f9df570200f62b25a7a0fe2d82f9e6d294a89034f419.py",
+      "performance_verified": false,
+      "evidence": "代码读取与主工程单元测试；非历史收益复验"
+    },
+    {
+      "id": "panel-pullback_ma20_bounce",
+      "name": "均线回踩反弹",
+      "source": "F:\\88888.投资\\08.选股\\tick-stock-panel\\backend\\app\\strategy\\builtin\\pullback_ma20_bounce.py",
+      "rule": "价格在MA20附近(±2%)且MA5>MA20>MA60多头排列, 回踩买入",
+      "status": "source_present_not_runtime_verified",
+      "component": "panel",
+      "notes": "读取源文件META归档；本次未启动面板或验收其运行结果。",
+      "parameters": {
+        "META": {
+          "id": "pullback_ma20_bounce",
+          "name": "均线回踩反弹",
+          "description": "价格在MA20附近(±2%)且MA5>MA20>MA60多头排列, 回踩买入",
+          "tags": [
+            "回踩",
+            "均线",
+            "反弹"
+          ],
+          "asset_types": [
+            "stock"
+          ],
+          "timeframes": [
+            "1d"
+          ],
+          "params": [
+            {
+              "id": "use_ma20_proximity",
+              "label": "启用MA20附近过滤",
+              "type": "bool",
+              "default": true
+            },
+            {
+              "id": "ma_proximity",
+              "label": "MA偏离度%",
+              "type": "float",
+              "default": 2.0,
+              "min": 0.5,
+              "max": 5.0,
+              "step": 0.5
+            },
+            {
+              "id": "require_ma_alignment",
+              "label": "要求MA5>MA20>MA60",
+              "type": "bool",
+              "default": true
+            },
+            {
+              "id": "require_positive_change",
+              "label": "要求当日上涨",
+              "type": "bool",
+              "default": true
+            }
+          ],
+          "scoring": {
+            "momentum_60d": 0.4,
+            "change_pct": 0.3,
+            "momentum_20d": 0.3
+          },
+          "order_by": "score",
+          "descending": true,
+          "limit": 50
+        },
+        "ENTRY_SIGNALS": [
+          "signal_ma_golden_5_20"
+        ],
+        "EXIT_SIGNALS": [
+          "signal_ma20_breakdown",
+          "signal_ma_dead_5_20"
+        ],
+        "STOP_LOSS": -0.05,
+        "MAX_HOLD_DAYS": 15,
+        "docstring": "均线回踩反弹 — 价格在 MA20 附近(±2%)且 MA 多头排列, 回踩买入"
+      },
+      "schema_version": "strategy-dossier/v1",
+      "archived_at": "2026-10-24T15:53:40.827999+08:00",
+      "source_sha256": "09ad7e446d19797591a71c6cfb0a532872c37ff539eb293662424dbe7d2c0b0c",
+      "snapshot": "sources\\09ad7e446d19797591a71c6cfb0a532872c37ff539eb293662424dbe7d2c0b0c.py",
+      "performance_verified": false,
+      "evidence": "代码读取与主工程单元测试；非历史收益复验"
+    },
+    {
+      "id": "panel-pullback_to_support",
+      "name": "缩量回踩",
+      "source": "F:\\88888.投资\\08.选股\\tick-stock-panel\\backend\\app\\strategy\\builtin\\pullback_to_support.py",
+      "rule": "回踩MA20附近 + 缩量 + 中期趋势向上",
+      "status": "source_present_not_runtime_verified",
+      "component": "panel",
+      "notes": "读取源文件META归档；本次未启动面板或验收其运行结果。",
+      "parameters": {
+        "META": {
+          "id": "pullback_to_support",
+          "name": "缩量回踩",
+          "description": "回踩MA20附近 + 缩量 + 中期趋势向上",
+          "tags": [
+            "回踩",
+            "支撑"
+          ],
+          "asset_types": [
+            "stock",
+            "etf"
+          ],
+          "timeframes": [
+            "1d"
+          ],
+          "params": [
+            {
+              "id": "use_ma20_proximity",
+              "label": "启用MA20附近过滤",
+              "type": "bool",
+              "default": true
+            },
+            {
+              "id": "ma_proximity",
+              "label": "均线偏离度",
+              "type": "float",
+              "default": 0.02,
+              "min": 0.01,
+              "max": 0.05,
+              "step": 0.005
+            },
+            {
+              "id": "use_volume_filter",
+              "label": "启用缩量过滤",
+              "type": "bool",
+              "default": true
+            },
+            {
+              "id": "vol_ratio_max",
+              "label": "最大量比",
+              "type": "float",
+              "default": 0.8,
+              "min": 0.2,
+              "max": 1.5,
+              "step": 0.1
+            },
+            {
+              "id": "require_above_ma60",
+              "label": "要求收盘价在MA60上方",
+              "type": "bool",
+              "default": true
+            },
+            {
+              "id": "require_positive_momentum",
+              "label": "要求20日动量为正",
+              "type": "bool",
+              "default": true
+            }
+          ],
+          "scoring": {
+            "momentum_60d": 0.4,
+            "momentum_20d": 0.3,
+            "turnover_rate": 0.3
+          },
+          "order_by": "score",
+          "descending": true,
+          "limit": 100
+        },
+        "ENTRY_SIGNALS": [
+          "signal_ma_golden_5_20"
+        ],
+        "EXIT_SIGNALS": [
+          "signal_ma20_breakdown"
+        ],
+        "STOP_LOSS": -0.05,
+        "MAX_HOLD_DAYS": 20,
+        "docstring": "缩量回踩 — 回踩MA20附近 + 缩量 + 中期趋势向上"
+      },
+      "schema_version": "strategy-dossier/v1",
+      "archived_at": "2026-10-24T15:53:40.827999+08:00",
+      "source_sha256": "4cc6172232a184d36bd5190e4ec7e6f0a178ef5de02ed279f081356b131022cf",
+      "snapshot": "sources\\4cc6172232a184d36bd5190e4ec7e6f0a178ef5de02ed279f081356b131022cf.py",
+      "performance_verified": false,
+      "evidence": "代码读取与主工程单元测试；非历史收益复验"
+    },
+    {
+      "id": "panel-rsi_midline_pullback",
+      "name": "RSI 中轴回踩",
+      "source": "F:\\88888.投资\\08.选股\\tick-stock-panel\\backend\\app\\strategy\\builtin\\rsi_midline_pullback.py",
+      "rule": "多头趋势 (MA60 上方) 中 RSI 回落至 50 中轴区间企稳, 强势股低吸",
+      "status": "source_present_not_runtime_verified",
+      "component": "panel",
+      "notes": "读取源文件META归档；本次未启动面板或验收其运行结果。",
+      "parameters": {
+        "META": {
+          "id": "rsi_midline_pullback",
+          "name": "RSI 中轴回踩",
+          "description": "多头趋势 (MA60 上方) 中 RSI 回落至 50 中轴区间企稳, 强势股低吸",
+          "tags": [
+            "RSI",
+            "趋势",
+            "低吸"
+          ],
+          "asset_types": [
+            "stock",
+            "etf"
+          ],
+          "timeframes": [
+            "1d"
+          ],
+          "params": [
+            {
+              "id": "rsi_period",
+              "label": "RSI 周期",
+              "type": "int",
+              "default": 14,
+              "min": 6,
+              "max": 24,
+              "step": 2
+            },
+            {
+              "id": "mid_low",
+              "label": "中轴区间下沿",
+              "type": "float",
+              "default": 45.0,
+              "min": 30.0,
+              "max": 55.0,
+              "step": 1.0
+            },
+            {
+              "id": "mid_high",
+              "label": "中轴区间上沿",
+              "type": "float",
+              "default": 60.0,
+              "min": 45.0,
+              "max": 70.0,
+              "step": 1.0
+            }
+          ],
+          "scoring": {
+            "momentum_20d": 0.4,
+            "up_days_20d": 0.3,
+            "vol_ratio_5d": 0.3
+          },
+          "order_by": "score",
+          "descending": true,
+          "limit": 100
+        },
+        "ENTRY_SIGNALS": [
+          "signal_rsi_midline_pullback"
+        ],
+        "EXIT_SIGNALS": [
+          "signal_rsi_midline_fail"
+        ],
+        "STOP_LOSS": -0.06,
+        "MAX_HOLD_DAYS": 15,
+        "docstring": "RSI 中轴回踩 — 强趋势中 RSI 回落至 50 中轴附近而不破, 低吸点"
+      },
+      "schema_version": "strategy-dossier/v1",
+      "archived_at": "2026-10-24T15:53:40.827999+08:00",
+      "source_sha256": "0341a78d17b354886b9c506833e18d07d772735f0cf178593494e8bc14f83416",
+      "snapshot": "sources\\0341a78d17b354886b9c506833e18d07d772735f0cf178593494e8bc14f83416.py",
+      "performance_verified": false,
+      "evidence": "代码读取与主工程单元测试；非历史收益复验"
+    },
+    {
+      "id": "panel-strong_open",
+      "name": "强势高开",
+      "source": "F:\\88888.投资\\08.选股\\tick-stock-panel\\backend\\app\\strategy\\builtin\\strong_open.py",
+      "rule": "高开 > 3% 且收盘高于开盘价, 集合竞价强势",
+      "status": "source_present_not_runtime_verified",
+      "component": "panel",
+      "notes": "读取源文件META归档；本次未启动面板或验收其运行结果。",
+      "parameters": {
+        "META": {
+          "id": "strong_open",
+          "name": "强势高开",
+          "description": "高开 > 3% 且收盘高于开盘价, 集合竞价强势",
+          "tags": [
+            "高开",
+            "强势"
+          ],
+          "asset_types": [
+            "stock"
+          ],
+          "timeframes": [
+            "1d"
+          ],
+          "params": [
+            {
+              "id": "use_open_gap_filter",
+              "label": "启用高开过滤",
+              "type": "bool",
+              "default": true
+            },
+            {
+              "id": "min_open_gap",
+              "label": "最低高开%",
+              "type": "float",
+              "default": 3.0,
+              "min": 1.0,
+              "max": 10.0,
+              "step": 0.5
+            },
+            {
+              "id": "require_close_above_open",
+              "label": "要求收盘高于开盘",
+              "type": "bool",
+              "default": true
+            },
+            {
+              "id": "use_change_filter",
+              "label": "启用涨幅过滤",
+              "type": "bool",
+              "default": true
+            },
+            {
+              "id": "min_change",
+              "label": "最低涨幅%",
+              "type": "float",
+              "default": 3.0,
+              "min": 1.0,
+              "max": 10.0,
+              "step": 0.5
+            }
+          ],
+          "scoring": {
+            "change_pct": 0.4,
+            "amplitude": 0.2,
+            "amount": 0.4
+          },
+          "order_by": "score",
+          "descending": true,
+          "limit": 50
+        },
+        "ENTRY_SIGNALS": [],
+        "EXIT_SIGNALS": [
+          "signal_ma20_breakdown"
+        ],
+        "STOP_LOSS": -0.05,
+        "MAX_HOLD_DAYS": 10,
+        "docstring": "强势高开 — 高开 > 3% 且保持上涨, 集合竞价强势"
+      },
+      "schema_version": "strategy-dossier/v1",
+      "archived_at": "2026-10-24T15:53:40.827999+08:00",
+      "source_sha256": "f1ee5cd08d47b8e1039a63088394c6e2df63dc0ca8b78ddbf6cb4bcd8684c5ce",
+      "snapshot": "sources\\f1ee5cd08d47b8e1039a63088394c6e2df63dc0ca8b78ddbf6cb4bcd8684c5ce.py",
+      "performance_verified": false,
+      "evidence": "代码读取与主工程单元测试；非历史收益复验"
+    },
+    {
+      "id": "panel-trend_breakout",
+      "name": "趋势突破",
+      "source": "F:\\88888.投资\\08.选股\\tick-stock-panel\\backend\\app\\strategy\\builtin\\trend_breakout.py",
+      "rule": "MA60上方 + 60日新高 + 量能 ≥ 2倍均量",
+      "status": "source_present_not_runtime_verified",
+      "component": "panel",
+      "notes": "读取源文件META归档；本次未启动面板或验收其运行结果。",
+      "parameters": {
+        "META": {
+          "id": "trend_breakout",
+          "name": "趋势突破",
+          "description": "MA60上方 + 60日新高 + 量能 ≥ 2倍均量",
+          "tags": [
+            "趋势",
+            "突破",
+            "放量"
+          ],
+          "asset_types": [
+            "stock",
+            "etf"
+          ],
+          "timeframes": [
+            "1d"
+          ],
+          "basic_filter": {
+            "price_min": 5,
+            "price_max": 200,
+            "market_cap_min": 2000000000.0,
+            "amount_min": 100000000.0,
+            "exclude_st": true,
+            "exclude_new_days": 60
+          },
+          "params": [
+            {
+              "id": "require_above_ma60",
+              "label": "要求收盘价在MA60上方",
+              "type": "bool",
+              "default": true
+            },
+            {
+              "id": "require_n_day_high",
+              "label": "要求60日新高",
+              "type": "bool",
+              "default": true
+            },
+            {
+              "id": "use_volume_filter",
+              "label": "启用量比过滤",
+              "type": "bool",
+              "default": true
+            },
+            {
+              "id": "vol_ratio_min",
+              "label": "最低量比",
+              "type": "float",
+              "default": 2.0,
+              "min": 0.5,
+              "max": 10.0,
+              "step": 0.1
+            }
+          ],
+          "scoring": {
+            "momentum_60d": 0.4,
+            "vol_ratio_5d": 0.3,
+            "change_pct": 0.3
+          },
+          "order_by": "score",
+          "descending": true,
+          "limit": 100
+        },
+        "ENTRY_SIGNALS": [
+          "signal_n_day_high"
+        ],
+        "EXIT_SIGNALS": [
+          "signal_ma20_breakdown"
+        ],
+        "STOP_LOSS": -0.08,
+        "MAX_HOLD_DAYS": 20,
+        "docstring": "趋势突破 — MA60上方 + 60日新高 + 放量"
+      },
+      "schema_version": "strategy-dossier/v1",
+      "archived_at": "2026-10-24T15:53:40.827999+08:00",
+      "source_sha256": "c677ecad3f1d842b07aeafef99d8fe6a6bc0cc7e023e71e6353be24d076848a3",
+      "snapshot": "sources\\c677ecad3f1d842b07aeafef99d8fe6a6bc0cc7e023e71e6353be24d076848a3.py",
+      "performance_verified": false,
+      "evidence": "代码读取与主工程单元测试；非历史收益复验"
+    },
+    {
+      "id": "panel-volume_price_surge",
+      "name": "量价齐升",
+      "source": "F:\\88888.投资\\08.选股\\tick-stock-panel\\backend\\app\\strategy\\builtin\\volume_price_surge.py",
+      "rule": "突破MA20 + 放量 + 收阳",
+      "status": "source_present_not_runtime_verified",
+      "component": "panel",
+      "notes": "读取源文件META归档；本次未启动面板或验收其运行结果。",
+      "parameters": {
+        "META": {
+          "id": "volume_price_surge",
+          "name": "量价齐升",
+          "description": "突破MA20 + 放量 + 收阳",
+          "tags": [
+            "量价",
+            "突破"
+          ],
+          "asset_types": [
+            "stock",
+            "etf"
+          ],
+          "timeframes": [
+            "1d"
+          ],
+          "params": [
+            {
+              "id": "require_ma20_breakout",
+              "label": "要求突破MA20",
+              "type": "bool",
+              "default": true
+            },
+            {
+              "id": "use_volume_filter",
+              "label": "启用量比过滤",
+              "type": "bool",
+              "default": true
+            },
+            {
+              "id": "vol_ratio_min",
+              "label": "最低量比",
+              "type": "float",
+              "default": 2.0,
+              "min": 0.5,
+              "max": 10.0,
+              "step": 0.1
+            },
+            {
+              "id": "require_bullish_candle",
+              "label": "要求收阳",
+              "type": "bool",
+              "default": true
+            }
+          ],
+          "scoring": {
+            "vol_ratio_5d": 0.4,
+            "change_pct": 0.3,
+            "momentum_20d": 0.3
+          },
+          "order_by": "score",
+          "descending": true,
+          "limit": 100
+        },
+        "ENTRY_SIGNALS": [
+          "signal_ma20_breakout"
+        ],
+        "EXIT_SIGNALS": [
+          "signal_ma20_breakdown"
+        ],
+        "STOP_LOSS": -0.06,
+        "MAX_HOLD_DAYS": 15,
+        "docstring": "量价齐升 — 突破MA20 + 放量 + 收阳"
+      },
+      "schema_version": "strategy-dossier/v1",
+      "archived_at": "2026-10-24T15:53:40.827999+08:00",
+      "source_sha256": "76d37878f73a772873680bfcc94eefd3b9371b6b170def2cbdbb292ae3798246",
+      "snapshot": "sources\\76d37878f73a772873680bfcc94eefd3b9371b6b170def2cbdbb292ae3798246.py",
+      "performance_verified": false,
+      "evidence": "代码读取与主工程单元测试；非历史收益复验"
+    }
+  ]
+}

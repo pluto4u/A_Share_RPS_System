@@ -1,0 +1,41 @@
+{
+  "protocol_id": "short-volume-discovery-20261024-v0",
+  "status": "exploratory_case_review_not_validated_strategy",
+  "case": "301047.SZ",
+  "sector_reference": "886015.TI",
+  "benchmark": "399006.SZ",
+  "review_start": "2026-08-04",
+  "review_end": "2026-10-23",
+  "warmup_start": "2026-06-01",
+  "max_feature_lookback_sessions": 15,
+  "rps_is_base": false,
+  "future_optional_rps_periods": [5, 10, 15],
+  "proposed_holding_horizons_sessions": [2, 3, 5],
+  "chip_distribution_observed": false,
+  "chip_proxy": "prior 15 sessions volume allocated to each bar typical price; not actual shareholder costs",
+  "prototype": {
+    "prior_range15_max": 0.20,
+    "overhead_proxy15_max": 0.20,
+    "volume3_to_prior_volume10_min": 1.30,
+    "above_prior10_volume_days_in_last3_min": 2,
+    "close_location_min": 0.60,
+    "trend": "close > MA5 > MA10",
+    "breakout": "close > previous 10 session high"
+  },
+  "constraints": [
+    "This user-selected winner and interval are discovery material, not untouched out-of-sample evidence.",
+    "All daily decisions at close; no buy at that same close; next-session execution subject to T+1 and tradeability.",
+    "No inference of accumulation, washout, insider ownership, or actual chip concentration from daily OHLCV.",
+    "Do not optimize thresholds until the named case fits; preserve all failed and missed examples.",
+    "Prototype v0 misses the September second leg; this is retained as a failed coverage result.",
+    "A-share innovation-drug concept index is not all individual innovative drug stocks or Hong Kong biotech.",
+    "Historical sector constituent breadth is unavailable and must not be rebuilt using today's member list."
+  ],
+  "next_research": [
+    "Separate compressed-base first activation from higher-volatility second activation; keep independent identities.",
+    "Record a causal base-observation state for at most 3 sessions rather than requiring compression to persist after breakout; this is an unimplemented hypothesis, not a v0 fix.",
+    "Use an unfiltered volume-price baseline, then chip-proxy and sector-context ablations, then optional RPS5/10/15.",
+    "Evaluate complete eligible stock populations including failures and controls; date boundaries follow audited data coverage and prior exposure.",
+    "Prioritize 2/3/5-session net outcomes and adverse excursion, rejection rate and turnover; no annualized winner-case claims."
+  ]
+}

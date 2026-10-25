@@ -1,0 +1,457 @@
+{
+  "surface": "report",
+  "manifest": {
+    "version": 1,
+    "surface": "report",
+    "title": "前复权修复与六问下单卡",
+    "description": "综合决策链数据修复、自检证据，以及适用于A股T+1的六问交易检查表。",
+    "generatedAt": "2026-08-30T21:13:39+08:00",
+    "cards": [
+      {
+        "id": "selfcheck_status",
+        "description": "前复权数据链的综合自检结论。",
+        "dataset": "headline",
+        "sourceId": "selfcheck",
+        "metrics": [{"label": "修复自检", "field": "status"}]
+      },
+      {
+        "id": "rps_exact",
+        "description": "新计算与冻结同花顺RPS快照的最大绝对差。",
+        "dataset": "headline",
+        "sourceId": "selfcheck",
+        "metrics": [{"label": "RPS最大差", "field": "rps_max_abs_diff"}]
+      },
+      {
+        "id": "rps_gate",
+        "description": "RPS120大于等于80的名单对账。",
+        "dataset": "headline",
+        "sourceId": "selfcheck",
+        "metrics": [{"label": "RPS120≥80误入/漏选", "field": "gate_errors"}]
+      },
+      {
+        "id": "tests",
+        "description": "新增回归测试通过情况。",
+        "dataset": "headline",
+        "sourceId": "tests_source",
+        "metrics": [{"label": "回归测试", "field": "tests"}]
+      }
+    ],
+    "charts": [
+      {
+        "id": "rps_gate_error_chart",
+        "title": "RPS120门限名单错误数",
+        "subtitle": "修复前为未复权输入对前复权基准；修复后为新计算对冻结前复权快照",
+        "type": "bar",
+        "dataset": "rps_gate_errors",
+        "sourceId": "rps_error_comparison",
+        "encodings": {
+          "x": {"field": "case", "type": "nominal", "label": "对账项目"},
+          "y": {"field": "stocks", "type": "quantitative", "label": "股票数"},
+          "tooltip": [
+            {"field": "basis", "type": "nominal", "label": "比较口径"}
+          ]
+        }
+      }
+    ],
+    "tables": [
+      {
+        "id": "validation_table",
+        "title": "修复自检明细",
+        "subtitle": "数据截至2026年8月28日；价格、量额、RPS和代码副本分别核对",
+        "dataset": "validation_checks",
+        "sourceId": "selfcheck",
+        "columns": [
+          {"field": "check", "label": "检查项", "type": "text"},
+          {"field": "result", "label": "结果", "type": "text"},
+          {"field": "evidence", "label": "证据", "type": "text"},
+          {"field": "status", "label": "状态", "type": "text"}
+        ]
+      },
+      {
+        "id": "changes_table",
+        "title": "代码行为变化",
+        "subtitle": "只修复数据口径和结果分层，不放宽RPS、均线、乖离或流动性阈值",
+        "dataset": "code_changes",
+        "sourceId": "code_review",
+        "columns": [
+          {"field": "area", "label": "模块", "type": "text"},
+          {"field": "before", "label": "修复前", "type": "text"},
+          {"field": "after", "label": "修复后", "type": "text"},
+          {"field": "reason", "label": "为什么", "type": "text"}
+        ]
+      },
+      {
+        "id": "six_questions_table",
+        "title": "六问下单卡",
+        "subtitle": "每一问都要求可观察证据；不能用感觉、故事或亏损后的不甘替代",
+        "dataset": "six_questions",
+        "sourceId": "exit_rules",
+        "columns": [
+          {"field": "question", "label": "问题", "type": "text"},
+          {"field": "pass", "label": "什么叫通过", "type": "text"},
+          {"field": "fail", "label": "什么叫失败", "type": "text"},
+          {"field": "action", "label": "失败后的动作", "type": "text"}
+        ]
+      },
+      {
+        "id": "risk_examples_table",
+        "title": "2R必须按有效风险计算",
+        "subtitle": "示例只说明算法；实际ATR、涨跌幅限制、入场价和阻力位必须逐股计算",
+        "dataset": "risk_examples",
+        "sourceId": "exit_rules",
+        "columns": [
+          {"field": "case", "label": "示例", "type": "text"},
+          {"field": "planned_stop", "label": "计划止损", "type": "text"},
+          {"field": "effective_r", "label": "有效1R", "type": "text"},
+          {"field": "minimum_target", "label": "至少2R目标", "type": "text"},
+          {"field": "reading", "label": "理解", "type": "text"}
+        ]
+      }
+    ],
+    "sources": [
+      {
+        "id": "selfcheck",
+        "label": "综合决策链前复权修复自检",
+        "path": "output/integrated_qfq_selfcheck_20260830.json"
+      },
+      {
+        "id": "tests_source",
+        "label": "前复权回归测试",
+        "path": "tests/test_integrated_decision_qfq.py"
+      },
+      {
+        "id": "rps_error_comparison",
+        "label": "修复前诊断与修复后自检对账",
+        "path": "output/hithink_qfq_rps_verify_20260821.json"
+      },
+      {
+        "id": "code_review",
+        "label": "综合决策链修复代码",
+        "path": "skills/a-share-rotation-trader/scripts/run_integrated_decision.py"
+      },
+      {
+        "id": "current_g0",
+        "label": "当前腾讯前复权抽样硬门",
+        "path": "output/qfq_verification.json"
+      },
+      {
+        "id": "exit_rules",
+        "label": "A股买点、仓位与退出规则",
+        "path": ".agents/skills/a-share-rotation-trader/references/exit-rules.md"
+      }
+    ],
+    "blocks": [
+      {
+        "id": "executive_summary",
+        "type": "markdown",
+        "body": "## Executive Summary\n\n- **核心数据BUG已经修复并通过自检。** 综合决策脚本现在直接读取同花顺生产库 `v_daily_qfq` 的前复权OHLC；成交量和成交额仍保持原始口径。MA、ATR、跨日收益和RPS共享同一份前复权输入。\n- **修复结果可以逐项复现。** 5,212只股票、1,649,837行尾部日K通过质量检查；RPS50/120/250与冻结快照最大绝对差不超过1.42×10⁻¹⁴，仅为浮点运算噪声；RPS120≥80的1,034只名单误入0、漏选0；量和成交额全库对账均为0差异。\n- **正式链当前仍是零交易，但原因已经分清。** 最新腾讯抽样G0为13/16，按现有硬门仍必须停算。这是独立复权验证器的阻断，不是新前复权计算链失败，也不能通过放宽选股条件绕过。\n- **六问不是心理鸡汤，而是六道下单门。** 顺势、关键位置、市场确认、T+1可退出、至少2R、可承受1R，任何硬项无法回答都应缩仓或不做。"
+      },
+      {
+        "id": "metrics",
+        "type": "metric-strip",
+        "cardIds": ["selfcheck_status", "rps_exact", "rps_gate", "tests"]
+      },
+      {
+        "id": "fix_finding",
+        "type": "markdown",
+        "sourceId": "selfcheck",
+        "body": "## 修复已经消除未复权RPS错选\n\n修复前，直接用通达信未复权价格与同花顺前复权基准比较，RPS120≥80名单有81只误入、81只漏选。修复后，新综合链与冻结前复权快照逐只一致，误入和漏选都降为0。图中的0不是缺失值，而是完整名单对账后的结果。"
+      },
+      {"id": "rps_error_chart", "type": "chart", "chartId": "rps_gate_error_chart"},
+      {
+        "id": "validation_intro",
+        "type": "markdown",
+        "sourceId": "selfcheck",
+        "body": "## 自检覆盖了输入、计算和输出三层\n\n输入层检查唯一键、价格完整性、价格范围及量额口径；计算层重新计算三个周期RPS；输出层确认两份技能脚本哈希一致，并增加静态接线回归测试，确保 `build_snapshot` 不再调用未复权 `load_tail`。"
+      },
+      {"id": "validation", "type": "table", "tableId": "validation_table"},
+      {
+        "id": "production_gate",
+        "type": "markdown",
+        "sourceId": "current_g0",
+        "body": "## 计算链已修好，正式G0仍需单独处理\n\n截至2026年8月30日，`qfq_verification.json` 的腾讯抽样为13/16、通过率81.2%，其中3只混合公司行动股票无法被现有“纯等差或纯等比”验证器解释，因此状态仍是 `unadjusted`。按照硬门规则，正式链继续输出零交易是正确行为。\n\n下一步应修复验证器对送转、拆并股、现金分红混合事件的识别，并增加固定分层样本；不能把G0直接关闭，也不能因为生产库自检通过就伪造G0通过。"
+      },
+      {
+        "id": "changes_intro",
+        "type": "markdown",
+        "sourceId": "code_review",
+        "body": "## 这次没有偷偷放宽策略\n\nRPS120≥80、站上MA20/MA60、距MA20不超过12%、ADV20不少于1.5亿元等选股条件保持不变。变化只发生在数据输入、上市历史分母和结果展示：RPS先按所有具备对应历史的股票排名，再在候选阶段要求至少260根日K；账户参数只清零订单，不再清空候选含义。"
+      },
+      {"id": "changes", "type": "table", "tableId": "changes_table"},
+      {
+        "id": "six_questions_intro",
+        "type": "markdown",
+        "body": "## 六问的本质：先证明值得冒险，再谈看多\n\n这六问按顺序回答：方向、位置、确认、退出、赔率、心理与账户承受力。前三问决定有没有优势，第四问决定能否活着离场，第五问决定值得不值得做，第六问决定仓位是否超过你的真实能力。"
+      },
+      {"id": "six_questions", "type": "table", "tableId": "six_questions_table"},
+      {
+        "id": "r_definition",
+        "type": "markdown",
+        "sourceId": "exit_rules",
+        "body": "## 1R不是图上那条细止损线\n\n对A股T+1，单股有效风险应按三者最大值计算：`计划失效距离`、`涨跌幅限制×0.6`、`1×ATR20`。潜在收益则是从入场价到第一真实阻力或保守目标的空间。只有 `潜在收益 / 有效风险 ≥ 2` 才叫至少2R。\n\n例如10元买入、计划止损9.70元，看起来只冒3%；但普通10%涨跌幅股票的不可成交风险下限是6%，若ATR为4%，有效1R仍是6%，所以至少要看到11.20元才有2R。科创板或创业板20%涨跌幅下，同样算法会更严格；如果目标必须穿越强阻力才能凑够2R，就不是2R。"
+      },
+      {"id": "risk_examples", "type": "table", "tableId": "risk_examples_table"},
+      {
+        "id": "practical_rule",
+        "type": "markdown",
+        "body": "## 实盘只用一个简单结论\n\n- Q1、Q2、Q3任何一项失败：不是右侧交易，最多观察。\n- Q4失败：即使看对也不买，因为你没有可执行的错误出口。\n- Q5低于2R：不为低赔率承担T+1隔夜风险。\n- Q6不能平静接受：风险预算至少减半；仍不平静就不下单。\n\n对近期经历较大亏损的账户，建议先把单笔账户风险压到权益的0.25%—0.40%，连续完成20笔按计划交易后再评估，而不是靠扩大仓位把亏损赚回来。"
+      },
+      {
+        "id": "next_steps",
+        "type": "markdown",
+        "body": "## Recommended Next Steps\n\n1. 单独修复腾讯G0验证器的混合公司行动识别，并固定分层抽样名单。\n2. G0通过后重新运行综合链，检查信号—交易资格—订单三层漏斗。\n3. 用本次新增测试作为持续回归门：任何RPS差异、量额差异或未复权调用重新出现都应阻断发布。\n4. 把六问卡加入每日选股文档，每笔交易保存入场前答案和截图，复盘时只评价是否按答案执行。"
+      },
+      {
+        "id": "further_questions",
+        "type": "markdown",
+        "body": "## Further Questions\n\n- 你的账户权益、可用现金和一笔亏损多少元会影响下一笔执行？这决定真实的1R。\n- 你主要做2—8周趋势单，还是1—3日情绪单？两类交易不能共用退出规则。\n- 当前持仓是否集中在同一科技或地产链？相关股票应合并视为一笔风险。"
+      },
+      {
+        "id": "caveats",
+        "type": "markdown",
+        "body": "## Caveats and Assumptions\n\n- 数据修复通过不代表选股策略已经证明盈利；盈利能力仍需包含T+1、涨跌停不可成交、次日成交和交易成本的滚动样本外回测。\n- 当前正式G0未通过，因此本报告不输出可执行股票或仓位。\n- 0.25%—0.40%的单笔风险是亏损恢复期的保守建议，不是经过你个人账户历史验证的最优参数。\n- 本报告为研究与风险管理材料，不构成收益保证。"
+      }
+    ]
+  },
+  "snapshot": {
+    "version": 1,
+    "generatedAt": "2026-08-30T21:13:39+08:00",
+    "status": "partial",
+    "datasets": {
+      "headline": [
+        {
+          "status": "通过",
+          "rps_max_abs_diff": "≤1.42e-14",
+          "gate_errors": "0 / 0",
+          "tests": "4 / 4"
+        }
+      ],
+      "rps_gate_errors": [
+        {
+          "case": "修复前·误入",
+          "stocks": 81,
+          "basis": "通达信未复权RPS vs 同花顺前复权RPS"
+        },
+        {
+          "case": "修复前·漏选",
+          "stocks": 81,
+          "basis": "通达信未复权RPS vs 同花顺前复权RPS"
+        },
+        {
+          "case": "修复后·误入",
+          "stocks": 0,
+          "basis": "新综合链RPS vs 冻结同花顺前复权快照"
+        },
+        {
+          "case": "修复后·漏选",
+          "stocks": 0,
+          "basis": "新综合链RPS vs 冻结同花顺前复权快照"
+        }
+      ],
+      "validation_checks": [
+        {
+          "check": "生产库健康",
+          "result": "通过",
+          "evidence": "data validate: ok=true，issues=[]；最新日2026-08-28",
+          "status": "PASS"
+        },
+        {
+          "check": "前复权尾部面板",
+          "result": "5,212只 / 1,649,837行",
+          "evidence": "重复0、价格缺失0、非正价格0、高低价倒置0",
+          "status": "PASS"
+        },
+        {
+          "check": "RPS50/120/250",
+          "result": "最大绝对差≤1.42×10⁻¹⁴",
+          "evidence": "新计算逐只对账冻结同花顺RPS快照",
+          "status": "PASS"
+        },
+        {
+          "check": "RPS120≥80名单",
+          "result": "1,034 / 1,034完全重合",
+          "evidence": "误入0、漏选0",
+          "status": "PASS"
+        },
+        {
+          "check": "成交量/成交额",
+          "result": "全库差异0 / 0",
+          "evidence": "v_daily_qfq与v_daily连接10,258,564行",
+          "status": "PASS"
+        },
+        {
+          "check": "最新价锚定",
+          "result": "差异0",
+          "evidence": "2026-08-28连接5,547个代码，收盘价差异0",
+          "status": "PASS"
+        },
+        {
+          "check": "代码副本与回归",
+          "result": "哈希一致；4项测试通过",
+          "evidence": "skills与.agents硬链接内容一致；pytest 4 passed",
+          "status": "PASS"
+        }
+      ],
+      "code_changes": [
+        {
+          "area": "价格输入",
+          "before": "通达信.day未复权OHLC",
+          "after": "同花顺v_daily_qfq前复权OHLC",
+          "reason": "MA、ATR、收益和RPS必须使用前复权价格"
+        },
+        {
+          "area": "量额输入",
+          "before": "通达信原始量额",
+          "after": "v_daily_qfq携带的原始volume/amount",
+          "reason": "量额不随价格复权；全库对账差异为0"
+        },
+        {
+          "area": "RPS分母",
+          "before": "先删除不足260根股票再排名",
+          "after": "各周期按有足够N日历史的股票排名，候选阶段再要求260根",
+          "reason": "避免改变RPS50/120横截面分母"
+        },
+        {
+          "area": "结果语义",
+          "before": "账户参数缺失容易被理解成没有信号",
+          "after": "分别显示发现候选、第一主线资格、观察股、授权订单",
+          "reason": "0张订单不等于0个信号"
+        },
+        {
+          "area": "策略阈值",
+          "before": "RPS/均线/乖离/流动性原标准",
+          "after": "保持不变",
+          "reason": "工程修复不能夹带策略放宽"
+        }
+      ],
+      "six_questions": [
+        {
+          "question": "1. 我是在顺势，还是跌多了想抄底？",
+          "pass": "价格站上且MA20/MA60至少不下降；RPS120强；行业位于前列；买入理由不依赖“便宜、跌多了”",
+          "fail": "均线向下、低点不断降低、RPS弱；唯一理由是反弹预期",
+          "action": "失败即定义为左侧抄底，不纳入右侧趋势账户"
+        },
+        {
+          "question": "2. 这个K线出现在关键位置吗？",
+          "pass": "出现在平台边缘、前高突破/回踩、MA20/60、成交密集区或明确枢轴；附近能定义失效位",
+          "fail": "K线悬在半空或已经远离MA20；单看形态漂亮但没有结构位置",
+          "action": "没有位置就没有低风险定义；等待回踩或下一次结构"
+        },
+        {
+          "question": "3. 市场确认了吗，还是我在抢跑？",
+          "pass": "第一行业主线靠前，板块多数核心同步，量价和宽度不恶化；个股收盘确认或回踩后重新转强",
+          "fail": "只有单股拉升、板块走弱、盘中刺穿后未收回；依赖明天别人来接",
+          "action": "未确认只观察；先手必须小风险且主线已初步成立"
+        },
+        {
+          "question": "4. 错了在哪里认错？T+1会不会来不及？",
+          "pass": "下单前写出硬失效价、结构失效、次日开盘动作；有效止损已考虑ATR和跌停不可成交",
+          "fail": "止损写成“看看再说”；买入当日一旦走弱就无次日计划；止损距离小于正常波动",
+          "action": "不能定义次日退出就不买；能定义但隔夜风险大则缩仓"
+        },
+        {
+          "question": "5. 至少有2R潜在空间吗？",
+          "pass": "到第一真实阻力的保守空间≥2×有效风险，并扣除滑点与费用",
+          "fail": "必须连续突破多个阻力或靠涨停才能凑够2R；按图上窄止损虚增赔率",
+          "action": "低于2R放弃，等待更低风险入场或更清晰空间"
+        },
+        {
+          "question": "6. 亏掉1R后还能平静执行下一笔吗？",
+          "pass": "能接受明确金额损失，不补仓、不报复交易、不改变下一笔规则",
+          "fail": "亏损会影响睡眠、急于回本、移动止损或加码摊平",
+          "action": "风险预算减半；仍不平静则停止新开仓"
+        }
+      ],
+      "risk_examples": [
+        {
+          "case": "普通10%涨跌幅股票，10元入场",
+          "planned_stop": "9.70元（3%）",
+          "effective_r": "max(3%, 6%, ATR4%) = 6%",
+          "minimum_target": "11.20元（+12%）",
+          "reading": "不能拿3%名义止损声称有4R"
+        },
+        {
+          "case": "科创/创业20%涨跌幅股票，10元入场",
+          "planned_stop": "9.50元（5%）",
+          "effective_r": "max(5%, 12%, ATR7%) = 12%",
+          "minimum_target": "12.40元（+24%）",
+          "reading": "T+1与20%跌停风险使仓位必须明显更小"
+        }
+      ]
+    },
+    "accessIssues": [
+      {
+        "id": "g0_currently_blocked",
+        "dataset": "headline",
+        "message": "腾讯前复权抽样G0当前为13/16，正式交易链仍按硬门停算。"
+      },
+      {
+        "id": "profitability_not_validated",
+        "dataset": "code_changes",
+        "message": "本次验证的是数据口径和工程接线，不是策略样本外盈利能力。"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "id": "selfcheck",
+      "query": {
+        "engine": "python+pandas+hithink-finance",
+        "sql": "SELECT * FROM output.integrated_qfq_selfcheck_20260830",
+        "description": "读取前复权尾部面板，重算RPS，并对账原始量额、最新价锚定和代码副本。",
+        "executed_at": "2026-08-30T21:11:00+08:00",
+        "tables_used": ["v_daily_qfq", "v_daily", "output/hithink_rps_latest.csv"],
+        "filters": ["沪深A股", "目标日不晚于2026-08-28", "每股最多320根日K"],
+        "metric_definitions": ["RPS_n=股票N日收益率在同交易日横截面的百分位排名×100"]
+      }
+    },
+    {
+      "id": "tests_source",
+      "query": {
+        "engine": "pytest",
+        "sql": "SELECT passed, total FROM reviewed_pytest_results WHERE suite='tests/test_integrated_decision_qfq.py'",
+        "description": "执行项目根目录解析、生产前复权加载、RPS快照对账、候选历史门和静态接线回归。",
+        "executed_at": "2026-08-30T21:08:00+08:00",
+        "tables_used": ["tests/test_integrated_decision_qfq.py"],
+        "filters": [],
+        "metric_definitions": ["通过=4项测试全部成功且无警告"]
+      }
+    },
+    {
+      "id": "rps_error_comparison",
+      "query": {
+        "engine": "reviewed-local-evidence",
+        "sql": "SELECT case, stocks, basis FROM reviewed_rps_gate_error_comparison",
+        "description": "合并修复前未复权RPS对账与修复后前复权自检结果。",
+        "executed_at": "2026-08-30T21:13:39+08:00",
+        "tables_used": ["output/hithink_qfq_rps_verify_20260821.json", "output/integrated_qfq_selfcheck_20260830.json"],
+        "filters": ["RPS120>=80"],
+        "metric_definitions": ["误入=待测名单有而基准名单无；漏选=基准名单有而待测名单无"]
+      }
+    },
+    {
+      "id": "code_review",
+      "query": {
+        "engine": "reviewed-python-code",
+        "sql": "SELECT area, before, after, reason FROM reviewed_integrated_decision_changes",
+        "description": "核对综合决策链价格输入、RPS分母、信号漏斗及保持不变的选股阈值。",
+        "executed_at": "2026-08-30T21:13:39+08:00",
+        "tables_used": ["skills/a-share-rotation-trader/scripts/run_integrated_decision.py"],
+        "filters": ["仅本次前复权修复相关变更"],
+        "metric_definitions": []
+      }
+    },
+    {
+      "id": "exit_rules",
+      "query": {
+        "engine": "reviewed-trading-rules",
+        "sql": "SELECT question, pass, fail, action FROM reviewed_pretrade_six_questions",
+        "description": "把项目的买点、仓位、T+1和退出规则整理成六问下单卡。",
+        "executed_at": "2026-08-30T21:13:39+08:00",
+        "tables_used": [".agents/skills/a-share-rotation-trader/references/exit-rules.md"],
+        "filters": ["趋势交易", "A股T+1"],
+        "metric_definitions": ["有效1R=max(计划失效距离, 涨跌幅限制×0.6, 1×ATR20)"]
+      }
+    }
+  ]
+}

@@ -1,0 +1,319 @@
+<div id="post-april-7-sector-rally" class="sector-rally">
+  <style>
+    #post-april-7-sector-rally {
+      width: 100%;
+      color: var(--foreground);
+    }
+
+    #post-april-7-sector-rally * {
+      box-sizing: border-box;
+    }
+
+    #post-april-7-sector-rally .legend {
+      justify-content: flex-end;
+      margin-bottom: 8px;
+    }
+
+    #post-april-7-sector-rally .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      color: var(--muted-foreground);
+    }
+
+    #post-april-7-sector-rally .legend-dot,
+    #post-april-7-sector-rally .legend-ring {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex: 0 0 auto;
+    }
+
+    #post-april-7-sector-rally .legend-dot {
+      background: var(--viz-series-1);
+    }
+
+    #post-april-7-sector-rally .legend-ring {
+      border: 2px solid var(--viz-series-1);
+      background: var(--background);
+    }
+
+    #post-april-7-sector-rally .legend-line {
+      width: 1px;
+      height: 14px;
+      background: var(--foreground);
+      opacity: 0.38;
+      flex: 0 0 auto;
+    }
+
+    #post-april-7-sector-rally .group + .group {
+      margin-top: 20px;
+    }
+
+    #post-april-7-sector-rally .group-heading {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 10px;
+      margin: 0 0 8px;
+    }
+
+    #post-april-7-sector-rally .group-heading h3 {
+      margin: 0;
+    }
+
+    #post-april-7-sector-rally .chart-head,
+    #post-april-7-sector-rally .sector-row {
+      display: grid;
+      grid-template-columns: minmax(108px, 140px) minmax(150px, 1fr) minmax(112px, 132px);
+      gap: 10px;
+      align-items: center;
+    }
+
+    #post-april-7-sector-rally .chart-head {
+      margin-bottom: 2px;
+      color: var(--muted-foreground);
+    }
+
+    #post-april-7-sector-rally .axis {
+      display: flex;
+      justify-content: space-between;
+      position: relative;
+    }
+
+    #post-april-7-sector-rally .axis-thirty {
+      color: var(--foreground);
+      font-weight: 500;
+    }
+
+    #post-april-7-sector-rally .metric-head,
+    #post-april-7-sector-rally .values {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      text-align: right;
+    }
+
+    #post-april-7-sector-rally .sector-row {
+      min-height: 36px;
+      padding: 5px 0;
+      border-bottom: 1px solid color-mix(in srgb, var(--border) 72%, transparent);
+      --series: var(--viz-series-1);
+    }
+
+    #post-april-7-sector-rally .sector-row.retraced {
+      --series: var(--viz-series-4);
+    }
+
+    #post-april-7-sector-rally .sector-name {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    #post-april-7-sector-rally .sector-name span:first-child {
+      font-weight: 500;
+    }
+
+    #post-april-7-sector-rally .plot {
+      position: relative;
+      height: 22px;
+      min-width: 0;
+    }
+
+    #post-april-7-sector-rally .baseline {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 10px;
+      height: 1px;
+      background: var(--border);
+    }
+
+    #post-april-7-sector-rally .threshold {
+      position: absolute;
+      left: 25%;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: var(--foreground);
+      opacity: 0.36;
+    }
+
+    #post-april-7-sector-rally .end-bar,
+    #post-april-7-sector-rally .giveback-bar {
+      position: absolute;
+      top: 7px;
+      height: 7px;
+    }
+
+    #post-april-7-sector-rally .end-bar {
+      left: 0;
+      background: var(--series);
+      opacity: 0.82;
+    }
+
+    #post-april-7-sector-rally .giveback-bar {
+      background: var(--series);
+      opacity: 0.18;
+    }
+
+    #post-april-7-sector-rally .end-marker,
+    #post-april-7-sector-rally .peak-marker {
+      position: absolute;
+      transform: translateX(-50%);
+      border-radius: 50%;
+    }
+
+    #post-april-7-sector-rally .end-marker {
+      top: 5px;
+      width: 11px;
+      height: 11px;
+      background: var(--series);
+    }
+
+    #post-april-7-sector-rally .peak-marker {
+      top: 3px;
+      width: 15px;
+      height: 15px;
+      border: 2px solid var(--series);
+      background: var(--background);
+    }
+
+    #post-april-7-sector-rally .values span {
+      white-space: nowrap;
+    }
+
+    #post-april-7-sector-rally .benchmark-note {
+      margin-top: 12px;
+      color: var(--muted-foreground);
+    }
+
+    @media (max-width: 480px) {
+      #post-april-7-sector-rally .legend {
+        justify-content: flex-start;
+      }
+
+      #post-april-7-sector-rally .chart-head,
+      #post-april-7-sector-rally .sector-row {
+        grid-template-columns: 88px minmax(130px, 1fr);
+        gap: 8px;
+      }
+
+      #post-april-7-sector-rally .metric-head {
+        display: none;
+      }
+
+      #post-april-7-sector-rally .values {
+        grid-column: 2;
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+      }
+
+      #post-april-7-sector-rally .sector-row {
+        padding: 7px 0;
+      }
+    }
+  </style>
+
+  <div class="viz-row legend text-small" aria-label="图例">
+    <span class="legend-item"><span class="legend-dot" aria-hidden="true"></span>年末涨幅</span>
+    <span class="legend-item"><span class="legend-ring" aria-hidden="true"></span>区间峰值</span>
+    <span class="legend-item"><span class="legend-line" aria-hidden="true"></span>+30%门槛</span>
+  </div>
+
+  <section class="group" aria-labelledby="kept-heading">
+    <div class="group-heading">
+      <h3 id="kept-heading">年末仍守住30%</h3>
+      <span class="viz-badge">11个行业</span>
+    </div>
+    <div class="chart-head text-small" aria-hidden="true">
+      <span>行业 · 首次越线</span>
+      <div class="axis"><span>0</span><span class="axis-thirty">30%</span><span>60%</span><span>90%</span><span>120%</span></div>
+      <div class="metric-head"><span>峰值</span><span>年末</span></div>
+    </div>
+    <div data-sector-group="kept"></div>
+  </section>
+
+  <section class="group" aria-labelledby="retraced-heading">
+    <div class="group-heading">
+      <h3 id="retraced-heading">到过30%，但年末跌回去</h3>
+      <span class="viz-badge">8个行业</span>
+    </div>
+    <div class="chart-head text-small" aria-hidden="true">
+      <span>行业 · 首次越线</span>
+      <div class="axis"><span>0</span><span class="axis-thirty">30%</span><span>60%</span><span>90%</span><span>120%</span></div>
+      <div class="metric-head"><span>峰值</span><span>年末</span></div>
+    </div>
+    <div data-sector-group="retraced"></div>
+  </section>
+
+  <div class="benchmark-note text-small">
+    同期基准：沪深300峰值 +32.3%、年末 +29.0%；上证指数峰值 +30.1%、年末 +28.2%。
+  </div>
+
+  <script>
+    (() => {
+      const root = document.getElementById('post-april-7-sector-rally');
+      const scaleMax = 120;
+      const sectors = [
+        { name: '通信', first: '7/15', peak: 119.5, peakDate: '12/24', end: 114.7, kept: true },
+        { name: '有色金属', first: '7/24', peak: 95.2, peakDate: '12/31', end: 95.2, kept: true },
+        { name: '电力设备', first: '8/18', peak: 79.3, peakDate: '11/13', end: 65.2, kept: true },
+        { name: '电子', first: '8/13', peak: 75.0, peakDate: '10/09', end: 64.9, kept: true },
+        { name: '综合', first: '7/24', peak: 73.7, peakDate: '12/10', end: 64.4, kept: true },
+        { name: '国防军工', first: '7/28', peak: 51.9, peakDate: '12/31', end: 51.9, kept: true },
+        { name: '机械设备', first: '8/13', peak: 47.8, peakDate: '12/30', end: 47.7, kept: true },
+        { name: '基础化工', first: '8/22', peak: 44.6, peakDate: '11/13', end: 41.9, kept: true },
+        { name: '传媒', first: '8/05', peak: 51.6, peakDate: '9/25', end: 38.5, kept: true },
+        { name: '轻工制造', first: '9/17', peak: 36.3, peakDate: '12/25', end: 34.7, kept: true },
+        { name: '钢铁', first: '11/03', peak: 36.0, peakDate: '11/17', end: 30.6, kept: true },
+        { name: '计算机', first: '8/18', peak: 43.2, peakDate: '8/28', end: 27.7, kept: false },
+        { name: '医药生物', first: '8/13', peak: 35.6, peakDate: '9/08', end: 17.6, kept: false },
+        { name: '非银金融', first: '8/18', peak: 34.3, peakDate: '8/25', end: 28.0, kept: false },
+        { name: '环保', first: '11/04', peak: 32.8, peakDate: '11/11', end: 26.3, kept: false },
+        { name: '商贸零售', first: '9/16', peak: 32.7, peakDate: '12/22', end: 29.0, kept: false },
+        { name: '汽车', first: '9/17', peak: 32.6, peakDate: '9/17', end: 27.5, kept: false },
+        { name: '建筑材料', first: '12/25', peak: 30.8, peakDate: '12/26', end: 28.7, kept: false },
+        { name: '房地产', first: '11/17', peak: 30.2, peakDate: '11/17', end: 17.4, kept: false }
+      ];
+
+      function pct(value) {
+        return `${Math.max(0, Math.min(100, value / scaleMax * 100))}%`;
+      }
+
+      function rowFor(item) {
+        const row = document.createElement('div');
+        row.className = `sector-row ${item.kept ? 'kept' : 'retraced'}`;
+        const givebackLeft = Math.min(item.end, item.peak);
+        const givebackWidth = Math.max(0, item.peak - item.end);
+        const summary = `${item.name}：首次收盘站上30%为${item.first}；区间峰值${item.peak.toFixed(1)}%，峰值日${item.peakDate}；2025年末${item.end.toFixed(1)}%。`;
+        row.innerHTML = `
+          <div class="sector-name">
+            <span>${item.name}</span>
+            <span class="text-small text-muted">首次 ${item.first}</span>
+          </div>
+          <div class="plot" role="img" aria-label="${summary}" data-tooltip="${summary}">
+            <span class="baseline" aria-hidden="true"></span>
+            <span class="threshold" aria-hidden="true"></span>
+            <span class="end-bar" style="width:${pct(item.end)}" aria-hidden="true"></span>
+            <span class="giveback-bar" style="left:${pct(givebackLeft)};width:${pct(givebackWidth)}" aria-hidden="true"></span>
+            <span class="peak-marker" style="left:${pct(item.peak)}" aria-hidden="true"></span>
+            <span class="end-marker" style="left:${pct(item.end)}" aria-hidden="true"></span>
+          </div>
+          <div class="values text-small">
+            <span>峰 ${item.peak.toFixed(1)}%</span>
+            <span>末 ${item.end.toFixed(1)}%</span>
+          </div>`;
+        return row;
+      }
+
+      const keptRoot = root.querySelector('[data-sector-group="kept"]');
+      const retracedRoot = root.querySelector('[data-sector-group="retraced"]');
+      sectors.forEach((item) => {
+        (item.kept ? keptRoot : retracedRoot).appendChild(rowFor(item));
+      });
+    })();
+  </script>
+</div>
