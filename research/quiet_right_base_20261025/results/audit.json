@@ -1,0 +1,21 @@
+{
+  "data_date": "2026-10-23",
+  "last_signal_month": "2026-09",
+  "eligible_median_per_month": 2552,
+  "h1_list_size": 27,
+  "verdict": {
+    "h1_positive_all_periods": false,
+    "h1_beats_c2_periods": 1,
+    "supported": false,
+    "h1_3m_by_period": {
+      "design_2018-2021": 1.76,
+      "stress_2022-2024.01": -0.59,
+      "recent_2024.02-": -2.25
+    },
+    "c2_3m_by_period": {
+      "design_2018-2021": 1.65,
+      "stress_2022-2024.01": 1.36,
+      "recent_2024.02-": -0.82
+    }
+  }
+}
