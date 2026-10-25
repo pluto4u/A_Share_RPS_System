@@ -1,8 +1,9 @@
 """Read-only daily board: market layer + sector whitelist + engine gates + leader zone, one page.
 
-Inputs (all local): TDX daily files, output/market_timing_<date>.json, output/macro_*_<date>.csv.
+Inputs (all local): TDX daily files, outputs/market_timing_<date>.json, outputs/macro_*_<date>.csv.
+Inputs fall back to the legacy output/ folder for files written before the move.
 Missing market-timing / macro outputs are produced first by their own entry scripts.
-Outputs: output/daily_board_<date>.json and .html. No orders, no position sizing.
+Outputs: outputs/daily_board_<date>.json and .html. No orders, no position sizing.
 
     python run_daily_board.py                 # latest TDX session
     python run_daily_board.py --date 2026-10-23
@@ -15,7 +16,7 @@ import sys as _bootstrap_sys
 _BOOTSTRAP_ROOT = _BootstrapPath(__file__).resolve().parents[2]
 if str(_BOOTSTRAP_ROOT) not in _bootstrap_sys.path:
     _bootstrap_sys.path.insert(0, str(_BOOTSTRAP_ROOT))
-from project_paths import PROJECT_ROOT, ensure_script_imports, script_file
+from project_paths import LEGACY_OUTPUT_DIR, OUTPUT_ROOT, PROJECT_ROOT, ensure_script_imports, script_file
 ensure_script_imports()
 
 import argparse
@@ -49,8 +50,14 @@ from trend_start.theme_layer import (  # noqa: E402
     reason_heat, strong_stocks,
 )
 
-OUT = ROOT / "output"
+OUT = OUTPUT_ROOT
 THEME_CACHE = ROOT / "data/theme_cache"
+
+
+def read_out(name: str) -> Path:
+    """Prefer outputs/; fall back to the legacy output/ folder for files written before the move."""
+    new = OUT / name
+    return new if new.exists() else LEGACY_OUTPUT_DIR / name
 
 
 def theme_layer(as_of: pd.Timestamp, tdx_root: Path, panel, name_of, st: np.ndarray, decorate) -> dict:
@@ -85,11 +92,11 @@ def theme_layer(as_of: pd.Timestamp, tdx_root: Path, panel, name_of, st: np.ndar
 
 def ensure_inputs(as_of: pd.Timestamp, tdx_root: Path) -> None:
     tag = f"{as_of:%Y%m%d}"
-    if not (OUT / f"market_timing_{tag}.json").exists():
+    if not read_out(f"market_timing_{tag}.json").exists():
         print("[BOARD] market_timing missing -> running it", flush=True)
         subprocess.run([sys.executable, str(ROOT / "research/legacy_workspace/run_market_timing.py"),
                         "--date", f"{as_of:%Y-%m-%d}", "--tdx-dir", str(tdx_root / "vipdoc")], check=True)
-    if not (OUT / f"macro_regime_{tag}.csv").exists():
+    if not read_out(f"macro_regime_{tag}.csv").exists():
         print("[BOARD] macro regime missing -> running it", flush=True)
         subprocess.run([sys.executable, str(script_file("run_macro_regime.py")), "--date", tag,
                         "--tdx-dir", str(tdx_root / "vipdoc"), "--incon", str(tdx_root / "incon.dat"),
@@ -98,12 +105,12 @@ def ensure_inputs(as_of: pd.Timestamp, tdx_root: Path) -> None:
 
 def market_layer(as_of: pd.Timestamp) -> dict:
     tag = f"{as_of:%Y%m%d}"
-    mt = json.loads((OUT / f"market_timing_{tag}.json").read_text(encoding="utf-8"))
+    mt = json.loads(read_out(f"market_timing_{tag}.json").read_text(encoding="utf-8"))
     L = mt["latest"]
     keys = ("breadth", "up", "down", "amount_yi", "ma20_pct", "ma60_pct", "high60", "low60",
             "bottom_state", "oversold_votes", "vol_temp", "vol_state", "vol_direction", "whipsaw",
             "csi300_breadth", "csi1000_breadth", "core_warning", "index_close", "divergence")
-    regime = pd.read_csv(OUT / f"macro_regime_{tag}.csv").iloc[-1].to_dict()
+    regime = pd.read_csv(read_out(f"macro_regime_{tag}.csv")).iloc[-1].to_dict()
     conf = {(s["signal"], s["horizon"]): s for s in mt.get("bottom_study", [])}
     return {"timing": {k: L.get(k) for k in keys}, "limit_official": mt.get("limit_official"),
             "regime": regime, "bottom_20d": conf.get(("bottom_confirmed", 20)),
@@ -115,8 +122,8 @@ def sector_layer(as_of: pd.Timestamp, tdx_root: Path) -> tuple[pd.DataFrame, pd.
     current TDX industry codes when run without --incon (e.g. T1001 is 银行, not 国防军工)."""
     tag = f"{as_of:%Y%m%d}"
     incon = load_industry_names(tdx_root / "incon.dat")
-    sectors = pd.read_csv(OUT / f"sector_weekly_{tag}.csv").drop_duplicates("industry").set_index("industry")
-    white = pd.read_csv(OUT / f"sector_whitelist_{tag}.csv").drop_duplicates("industry").set_index("industry")
+    sectors = pd.read_csv(read_out(f"sector_weekly_{tag}.csv")).drop_duplicates("industry").set_index("industry")
+    white = pd.read_csv(read_out(f"sector_whitelist_{tag}.csv")).drop_duplicates("industry").set_index("industry")
     for df in (sectors, white):
         df["name"] = [incon.get(c, n) for c, n in zip(df.index, df["name"])]
     return sectors, white
@@ -367,6 +374,7 @@ def main() -> int:
         as_of = pd.Timestamp(read_day(args.tdx_root / "vipdoc/sh/lday/sh000001.day").trade_date.iloc[-1])
     board = clean(build(as_of, args.tdx_root))
     tag = f"{as_of:%Y%m%d}"
+    OUT.mkdir(parents=True, exist_ok=True)
     (OUT / f"daily_board_{tag}.json").write_text(json.dumps(board, ensure_ascii=False, allow_nan=False), encoding="utf-8")
     hp = OUT / f"daily_board_{tag}.html"
     hp.write_text(render(board), encoding="utf-8")

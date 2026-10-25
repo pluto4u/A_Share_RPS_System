@@ -9,9 +9,15 @@ import pandas as pd
 # tmp/ may be a junction into research/legacy_workspace, so locate the repo root instead of a fixed depth.
 ROOT=next(p for p in Path(__file__).absolute().parents if (p/'rps_analyzer').is_dir())
 sys.path.insert(0,str(ROOT));sys.path.insert(0,str(ROOT/'skills/a-share-rotation-trader/scripts'))
+from project_paths import LEGACY_OUTPUT_DIR, OUTPUT_ROOT
 from build_limit_ecology import load_tail, RECORD_DTYPE
 from rps_analyzer.market_timing import TimingConfig, BottomConfig, VolConfig, VOL_COMPONENTS, stock_features, aggregate_days, add_signals, event_study, summarize_events, add_bottom_signals, bottom_event_study, episode_starts, cap_group_check, permutation_test, add_volatility, vol_study
 CAP_INDICES={'csi300':('000300.SH','沪深300'),'csi1000':('000852.SH','中证1000')}
+
+def read_output(name):
+    """Prefer outputs/; fall back to the legacy output/ folder for files written before the move."""
+    new = OUTPUT_ROOT / name
+    return new if new.exists() else LEGACY_OUTPUT_DIR / name
 
 def load_limit_official(target):
     """Official same-day pool sizes (THS) to cross-check the TDX board-rule approximation."""
@@ -56,14 +62,14 @@ def main():
     ap.add_argument('--divergence-max',type=float,default=.65);ap.add_argument('--breadth-min',type=float,default=.70)
     ap.add_argument('--collapse-pp',type=float,default=25);ap.add_argument('--down-intensity-min',type=float,default=1.5)
     ap.add_argument('--key-step',type=float,default=500);ap.add_argument('--key-tolerance',type=float,default=.01)
-    args=ap.parse_args(); out=ROOT/'output';out.mkdir(exist_ok=True)
+    args=ap.parse_args(); out=OUTPUT_ROOT;out.mkdir(parents=True,exist_ok=True)
     cfg=TimingConfig(divergence_max=args.divergence_max,breadth_min=args.breadth_min,collapse_pp=args.collapse_pp,down_intensity_min=args.down_intensity_min,key_step=args.key_step,key_tolerance=args.key_tolerance)
     if args.bars<400 or cfg.key_step<=0 or not 0<cfg.breadth_min<1 or cfg.collapse_pp<=0:raise ValueError('Invalid history or thresholds')
     local=load_tail(Path(args.tdx_dir),args.bars,1,verbose=False)
     target=pd.Timestamp(args.date) if args.date else local.trade_date.max()
     local=local.loc[(local.trade_date<=target)&(local.trade_date>=target-pd.DateOffset(years=5))].copy()
     if local.empty or local.trade_date.max()!=target:raise RuntimeError('Requested date absent from local TDX')
-    gate=json.loads((out/'qfq_verification.json').read_text(encoding='utf-8'))
+    gate=json.loads(read_output('qfq_verification.json').read_text(encoding='utf-8'))
     if gate['price_adjustment']!='verified_qfq':raise RuntimeError('G0未通过，请先运行verify_qfq.py')
     gate_date=pd.Timestamp(gate['full_market_checks']['latest_anchor']['max_date'])
     if gate_date<target:raise RuntimeError('G0早于目标日')

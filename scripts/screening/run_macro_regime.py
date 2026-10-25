@@ -25,7 +25,7 @@
     # 用白名单过滤已有选股结果
     py -3 run_macro_regime.py --filter-picks output/tdx_screener_20260717.csv
 
-输出 (默认 output/):
+输出 (默认 outputs/):
     macro_dashboard_{date}.html      仪表盘 (双击即开, 无需联网)
     macro_regime_{date}.csv          每日状态与目标仓位时间序列
     macro_factors_{date}.csv         17 个因子原始值
@@ -41,7 +41,7 @@ import sys as _bootstrap_sys
 _BOOTSTRAP_ROOT = _BootstrapPath(__file__).resolve().parents[2]
 if str(_BOOTSTRAP_ROOT) not in _bootstrap_sys.path:
     _bootstrap_sys.path.insert(0, str(_BOOTSTRAP_ROOT))
-from project_paths import PROJECT_ROOT, ensure_script_imports, script_file
+from project_paths import OUTPUT_ROOT, PROJECT_ROOT, ensure_script_imports, script_file
 ensure_script_imports()
 
 import argparse
@@ -73,7 +73,7 @@ from macro.geopolitics import (
 )
 from macro.dashboard import build_dashboard, save_dashboard
 
-OUTPUT_DIR = Path("output")
+OUTPUT_DIR = OUTPUT_ROOT  # absolute, so runs from any working directory write to the same place
 
 
 # =============================================================================
