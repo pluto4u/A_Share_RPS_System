@@ -34,6 +34,12 @@ class SuperStrongConfig:
         20 日累计涨幅上限，避免抓刚加速完的票。
     min_amount : float
         当日成交额下限（元），过滤流动性差的票。
+    rps50_min_premium : float
+        Premium 等级要求的 RPS_50 阈值（短期强势确认）。
+    vs_ma60_premium : float
+        Premium 等级要求的 close/MA60 - 1 上限（更严格的位置控制）。
+    ret20_premium : float
+        Premium 等级要求的 20 日累计涨幅上限（更严格）。
     """
 
     rps120_min: float = 98.0
@@ -41,6 +47,9 @@ class SuperStrongConfig:
     vs_ma60_max: float = 0.60
     ret20_max: float = 0.60
     min_amount: float = 5e7
+    rps50_min_premium: float = 90.0
+    vs_ma60_premium: float = 0.25
+    ret20_premium: float = 0.30
 
 
 def screen_super_strong(
@@ -112,17 +121,34 @@ def screen_super_strong(
         & (amount_col >= cfg.min_amount)
     )
     passed = today[cond].copy()
+
+    if not passed.empty:
+        rps50 = passed["RPS_50"] if "RPS_50" in passed.columns else pd.Series(
+            [float("nan")] * len(passed), index=passed.index
+        )
+        premium_mask = (
+            (rps50 >= cfg.rps50_min_premium)
+            & (passed["vs_ma60"] <= cfg.vs_ma60_premium)
+            & (passed["ret20"] <= cfg.ret20_premium)
+        )
+        passed["tier"] = premium_mask.map({True: "premium", False: "extended"})
+
     passed = passed.sort_values(
         ["RPS_120", "RPS_250"], ascending=[False, False]
     ).reset_index(drop=True)
 
     if verbose:
+        n_premium = int((passed["tier"] == "premium").sum()) if not passed.empty else 0
         print(f"[极强榜] 目标日: {target_dt.strftime('%Y-%m-%d')}  L1 候选 {len(l1_codes)} 只")
         print(
             f"[极强榜] 参数: RPS120≥{cfg.rps120_min} RPS250≥{cfg.rps250_min} "
             f"vs MA60≤{cfg.vs_ma60_max:.0%}  ret20≤{cfg.ret20_max:.0%}"
         )
-        print(f"[极强榜] 通过: {len(passed)} 只")
+        print(
+            f"[极强榜] Premium 阈值: RPS50≥{cfg.rps50_min_premium} "
+            f"vs MA60≤{cfg.vs_ma60_premium:.0%}  ret20≤{cfg.ret20_premium:.0%}"
+        )
+        print(f"[极强榜] 通过: {len(passed)} 只 (premium={n_premium}, extended={len(passed)-n_premium})")
 
     return passed
 
@@ -131,13 +157,26 @@ def print_super_strong_summary(result: pd.DataFrame, top_n: int = 30) -> None:
     if result.empty:
         print("  无极强 RPS 榜入选")
         return
-    show = result.head(top_n)[
-        ["ts_code", "close", "RPS_120", "RPS_250", "ret20", "vs_ma60"]
-    ].copy()
+    extra_cols = []
+    if "tier" in result.columns:
+        extra_cols.append("tier")
+    if "RPS_50" in result.columns:
+        extra_cols.insert(0, "RPS_50")
+
+    base_cols = ["ts_code", "close"] + extra_cols + ["RPS_120", "RPS_250", "ret20", "vs_ma60"]
+    show = result.head(top_n)[base_cols].copy()
     show["ret20"] = (show["ret20"] * 100).round(1)
     show["vs_ma60"] = (show["vs_ma60"] * 100).round(1)
     show["RPS_120"] = show["RPS_120"].round(1)
     show["RPS_250"] = show["RPS_250"].round(1)
-    show.columns = ["代码", "收盘", "RPS120", "RPS250", "ret20%", "vs60%"]
-    print(f"\n  极强 RPS 榜 Top {len(show)} (共 {len(result)} 只):")
+    if "RPS_50" in show.columns:
+        show["RPS_50"] = show["RPS_50"].round(1)
+    rename = {
+        "ts_code": "代码", "close": "收盘", "tier": "档",
+        "RPS_50": "RPS50", "RPS_120": "RPS120", "RPS_250": "RPS250",
+        "ret20": "ret20%", "vs_ma60": "vs60%",
+    }
+    show = show.rename(columns=rename)
+    n_premium = int((result["tier"] == "premium").sum()) if "tier" in result.columns else 0
+    print(f"\n  极强 RPS 榜 Top {len(show)} (共 {len(result)} 只, premium={n_premium}):")
     print(show.to_string(index=False))

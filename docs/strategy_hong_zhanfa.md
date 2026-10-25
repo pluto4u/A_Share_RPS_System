@@ -131,4 +131,4 @@
 
 ## 六、通达信条件选股
 
-已提供可粘贴至通达信「条件选股」的完整公式（朝天椒 / 大阳共振 / 中线 / 融合），见 **[tdx_formulas_hong_zhanfa.md](./tdx_formulas_hong_zhanfa.md)**。
+已提供可粘贴至通达信「条件选股」的完整公式（朝天椒 / 大阳共振 / 中线 / 融合），见 **[tdx_formulas_hong_zhanfa.md](tdx_formulas_hong_zhanfa.md)**。

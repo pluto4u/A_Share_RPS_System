@@ -1,4 +1,4 @@
-"""临时: 从 0508 全量扫描的源数据重算 MA20 验证 close>MA20.
+r"""临时: 从 0508 全量扫描的源数据重算 MA20 验证 close>MA20.
 
 用法: py -3 .\tools\_check_form_0508.py [code1 code2 ...]
 默认验证 5/11 候选 + 持仓.
@@ -7,7 +7,7 @@ import sys
 import os
 import pandas as pd
 
-from rps_analyzer.tdx_reader import load_tdx_market
+from rps_analyzer.tdx_reader import DEFAULT_TDX_DIR, load_tdx_market
 
 DEFAULT_CODES = [
     "603929.SH", "301338.SZ", "001270.SZ", "002353.SZ", "301362.SZ",
@@ -18,8 +18,8 @@ DEFAULT_CODES = [
 target = pd.Timestamp("2026-05-08")
 codes = sys.argv[1:] if len(sys.argv) > 1 else DEFAULT_CODES
 
-print("[load] 从 D:\\tdx\\vipdoc 直接读全市场...")
-df = load_tdx_market(r"D:\tdx\vipdoc", min_days=200)
+print(f"[load] 从 {DEFAULT_TDX_DIR} 直接读全市场...")
+df = load_tdx_market(DEFAULT_TDX_DIR, min_days=200)
 df["trade_date"] = pd.to_datetime(df["trade_date"])
 
 print(f"\n{'code':<13}{'close':>9}{'MA20':>10}{'MA60':>10}{'vs20%':>8}{'vs60%':>8}{'ret20%':>8}  SOP-6")

@@ -1,7 +1,7 @@
 # 朝天椒战法 — 通达信本地选股 + 主图叠加
 
-> 与 [strategy_hong_zhanfa.md](./strategy_hong_zhanfa.md)「一、朝天椒战法」及 [tdx_formulas_hong_zhanfa.md](./tdx_formulas_hong_zhanfa.md) 逻辑一致。本文**自包含**：选股与主图各一份完整公式，无需再复制「公共块」。
-> **RPS**：完整版依赖扩展数据 `EXTDATA_USER(6)`、`EXTDATA_USER(7)`，配置方式见 [tdx_rps_extension_zhutu.md](./tdx_rps_extension_zhutu.md)。无扩展数据请用下文「精简版选股」。
+> 与 [strategy_hong_zhanfa.md](strategy_hong_zhanfa.md)「一、朝天椒战法」及 [tdx_formulas_hong_zhanfa.md](tdx_formulas_hong_zhanfa.md) 逻辑一致。本文**自包含**：选股与主图各一份完整公式，无需再复制「公共块」。
+> **RPS**：完整版依赖扩展数据 `EXTDATA_USER(6)`、`EXTDATA_USER(7)`，配置方式见 [tdx_rps_extension_zhutu.md](tdx_rps_extension_zhutu.md)。无扩展数据请用下文「精简版选股」。
 
 ---
 
@@ -32,7 +32,7 @@
 
 ### 2.2 完整版（含 RPS + 未翻倍）
 
-与 [tdx_formulas_hong_zhanfa.md](./tdx_formulas_hong_zhanfa.md) 第二节一致，末行 **`朝天椒;`** 为选股输出。
+与 [tdx_formulas_hong_zhanfa.md](tdx_formulas_hong_zhanfa.md) 第二节一致，末行 **`朝天椒;`** 为选股输出。
 
 ```text
 {======== 朝天椒选股 · 完整版（需 RPS 扩展数据 6/7）========}
@@ -291,7 +291,7 @@ DRAWTEXT(朝天椒精简,L*0.93,'朝天椒'),COLORRED;
 
 | 现象 | 可能原因 | 处理 |
 |------|-----------|------|
-| 提示 **未知函数 EXTDATA_USER** | 未配置或未刷新 RPS 扩展数据 | 按 [tdx_rps_extension_zhutu.md](./tdx_rps_extension_zhutu.md) 配置；或改用 **2.3 精简版** |
+| 提示 **未知函数 EXTDATA_USER** | 未配置或未刷新 RPS 扩展数据 | 按 [tdx_rps_extension_zhutu.md](tdx_rps_extension_zhutu.md) 配置；或改用 **2.3 精简版** |
 | 选股结果 **为空** | 条件过严（粘合+RPS+倍量同时满足较少） | 先改用精简版；或放宽「粘合」「RPS」阈值 |
 | 主图 **无图标/无文字** | 未选「主图叠加」；或当前周期不是 **日线** | 切到日线；检查公式画线方法 |
 | 主图 **满屏黄色** | `STICKLINE` 条件恒真 | 检查 `朝天椒` 是否误写成无条件的 1 |
@@ -301,9 +301,9 @@ DRAWTEXT(朝天椒精简,L*0.93,'朝天椒'),COLORRED;
 
 ## 六、与仓库其它文档的关系
 
-- 策略定义：[strategy_hong_zhanfa.md](./strategy_hong_zhanfa.md)
-- 三套战法 + 融合选股：[tdx_formulas_hong_zhanfa.md](./tdx_formulas_hong_zhanfa.md)
-- RPS 扩展数据：[tdx_rps_extension_zhutu.md](./tdx_rps_extension_zhutu.md)
+- 策略定义：[strategy_hong_zhanfa.md](strategy_hong_zhanfa.md)
+- 三套战法 + 融合选股：[tdx_formulas_hong_zhanfa.md](tdx_formulas_hong_zhanfa.md)
+- RPS 扩展数据：[tdx_rps_extension_zhutu.md](tdx_rps_extension_zhutu.md)
 
 ---
 

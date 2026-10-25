@@ -5,6 +5,8 @@ import seaborn as sns
 from datetime import datetime, timedelta
 import os
 
+from project_paths import REPORTS_DIR
+
 
 class BacktestReport:
     """
@@ -13,7 +15,7 @@ class BacktestReport:
     - 与情绪策略和指数的对比
     """
     
-    def __init__(self, output_dir: str = "backtest/reports"):
+    def __init__(self, output_dir: str | os.PathLike = REPORTS_DIR / "douyin"):
         """
         初始化报告生成器
         

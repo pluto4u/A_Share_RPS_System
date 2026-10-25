@@ -7,7 +7,7 @@
   2. 加载历史数据做趋势分析 (连涨/连跌天数, 移动均值)
   3. 输出趋势摘要供飞书卡片展示
 
-文件位置:  output/sentiment_history.csv
+文件位置:  outputs/signals/sentiment_history.csv
 ================================================================================
 """
 
@@ -15,9 +15,11 @@ import csv
 import os
 from datetime import datetime
 
+from project_paths import SIGNALS_DIR
+
 # ── 默认路径 ──
-_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "output")
-_CSV = os.path.join(_DIR, "sentiment_history.csv")
+_DIR = str(SIGNALS_DIR)
+_CSV = str(SIGNALS_DIR / "sentiment_history.csv")
 
 _COLUMNS = [
     "date",           # 交易日 YYYY-MM-DD

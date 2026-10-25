@@ -8,7 +8,9 @@ if sys.platform == 'win32':
 import pandas as pd
 import numpy as np
 
-nav = pd.read_csv('backtest/reports/etf_rotation/rotation_nav_all.csv', parse_dates=['trade_date'])
+from project_paths import report_file
+
+nav = pd.read_csv(report_file("etf_rotation", "rotation_nav_all.csv"), parse_dates=['trade_date'])
 
 nav['month'] = nav['trade_date'].dt.to_period('M')
 monthly = nav.groupby('month').agg(

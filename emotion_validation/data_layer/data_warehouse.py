@@ -25,9 +25,11 @@ from typing import Optional
 import pandas as pd
 import numpy as np
 
+from project_paths import MARKET_DATA_DIR
+
 logger = logging.getLogger(__name__)
 
-DEFAULT_DATA_DIR = Path(__file__).resolve().parents[2] / 'backtest' / 'data'
+DEFAULT_DATA_DIR = MARKET_DATA_DIR
 
 STOCK_HIST_COL_MAP = {
     '日期': 'trade_date',
@@ -451,7 +453,7 @@ def main():
     parser.add_argument('--workers', type=int, default=8,
                         help='并发线程数 (默认: 8)')
     parser.add_argument('--data-dir', default=None,
-                        help='数据目录 (默认: backtest/data)')
+                        help='数据目录 (默认: data/market)')
     parser.add_argument('-v', '--verbose', action='store_true',
                         help='详细日志')
 

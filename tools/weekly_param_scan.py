@@ -3,13 +3,13 @@ import sys, os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import pandas as pd
-from rps_analyzer.tdx_reader import load_tdx_market
+from rps_analyzer.tdx_reader import DEFAULT_TDX_DIR, load_tdx_market
 from rps_analyzer.weekly_rps_screener import (
     daily_to_weekly, calculate_weekly_rps, WeeklyRpsScreener, WeeklyScreenerConfig,
 )
 
 print("Loading TDX data...")
-df = load_tdx_market(r"D:\tdx\vipdoc", markets=["sh", "sz"], min_days=300, verbose=False)
+df = load_tdx_market(DEFAULT_TDX_DIR, markets=["sh", "sz"], min_days=300, verbose=False)
 
 print("Building weekly data...")
 weekly = daily_to_weekly(df)

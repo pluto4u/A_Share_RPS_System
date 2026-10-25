@@ -25,9 +25,11 @@ from typing import Optional
 import pandas as pd
 import numpy as np
 
+from project_paths import MARKET_DATA_DIR
+
 logger = logging.getLogger(__name__)
 
-DEFAULT_DATA_DIR = Path(__file__).resolve().parents[2] / 'backtest' / 'data'
+DEFAULT_DATA_DIR = MARKET_DATA_DIR
 
 LIMIT_UP_THRESHOLD = 9.8
 LIMIT_DOWN_THRESHOLD = -9.8
@@ -40,6 +42,7 @@ class HistoricalEcologyBuilder:
 
     def __init__(self, data_dir: str = None):
         self.data_dir = Path(data_dir) if data_dir else DEFAULT_DATA_DIR
+        self.data_dir.mkdir(parents=True, exist_ok=True)
         self.stock_daily_path = self.data_dir / 'stock_daily.parquet'
         self.stock_daily_csv_path = self.data_dir / 'stock_daily.csv'
         self.ecology_cache_path = self.data_dir / 'ecology_cache.csv'

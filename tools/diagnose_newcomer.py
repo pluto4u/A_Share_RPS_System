@@ -15,9 +15,9 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from rps_analyzer.tdx_reader import read_day_file
+from rps_analyzer.tdx_reader import DEFAULT_TDX_DIR, normalize_tdx_dir, read_day_file
 
-TDX_DIR = Path(r"D:\tdx\vipdoc")
+TDX_DIR = Path(normalize_tdx_dir(DEFAULT_TDX_DIR))
 
 
 def code_to_filepath(ts_code: str) -> Path:

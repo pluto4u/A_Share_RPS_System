@@ -17,6 +17,8 @@ from pathlib import Path
 import sys
 import time
 
+from project_paths import REPORTS_DIR, market_data_file, report_file
+
 if sys.platform == 'win32':
     sys.stdout.reconfigure(encoding='utf-8', errors='replace')
     sys.stderr.reconfigure(encoding='utf-8', errors='replace')
@@ -62,7 +64,7 @@ VARIANTS = {
 
 
 def get_emotion_scores():
-    score_csv = Path('backtest/reports/emotion_validation/emotion_scores.csv')
+    score_csv = report_file("emotion_validation", "emotion_scores.csv")
     if not score_csv.exists():
         return None
     df = pd.read_csv(score_csv)
@@ -71,7 +73,7 @@ def get_emotion_scores():
 
 
 def load_data():
-    data_path = Path("backtest/data/stock_daily.parquet")
+    data_path = market_data_file("stock_daily.parquet")
     if not data_path.exists():
         print(f"数据文件不存在: {data_path}")
         sys.exit(1)
@@ -233,7 +235,7 @@ def main():
     improvement = best['total_return'] - worst['total_return']
     print(f"\n最优 vs 最差改善幅度: {improvement:+.1f}%")
     
-    report_dir = Path("backtest/reports/dragon_optimization")
+    report_dir = REPORTS_DIR / "dragon_optimization"
     report_dir.mkdir(parents=True, exist_ok=True)
     pd.DataFrame(all_results).to_csv(report_dir / "optimization_results.csv", index=False, encoding='utf-8-sig')
     print(f"\n详细结果已保存至: {report_dir}")

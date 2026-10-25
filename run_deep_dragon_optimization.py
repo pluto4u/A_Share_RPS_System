@@ -16,6 +16,8 @@ import sys
 import time
 from itertools import product
 
+from project_paths import REPORTS_DIR, market_data_file, report_file
+
 if sys.platform == 'win32':
     sys.stdout.reconfigure(encoding='utf-8', errors='replace')
     sys.stderr.reconfigure(encoding='utf-8', errors='replace')
@@ -40,14 +42,14 @@ FIXED_PARAMS = {
 }
 
 def get_emotion_scores():
-    score_csv = Path('backtest/reports/emotion_validation/emotion_scores.csv')
+    score_csv = report_file("emotion_validation", "emotion_scores.csv")
     if not score_csv.exists(): return None
     df = pd.read_csv(score_csv)
     df['trade_date'] = pd.to_datetime(df['trade_date'])
     return df[['trade_date', 'emotion_score']].copy()
 
 def load_data():
-    data_path = Path("backtest/data/stock_daily.parquet")
+    data_path = market_data_file("stock_daily.parquet")
     df = pd.read_parquet(data_path)
     df['trade_date'] = pd.to_datetime(df['trade_date'])
     df = df[df['trade_date'] >= pd.to_datetime('2022-01-01')].copy()
@@ -174,7 +176,7 @@ def main():
     df_res = pd.DataFrame(all_results)
     df_res = df_res.sort_values('total_return', ascending=False)
     
-    report_dir = Path("backtest/reports/dragon_optimization")
+    report_dir = REPORTS_DIR / "dragon_optimization"
     report_dir.mkdir(parents=True, exist_ok=True)
     df_res.to_csv(report_dir / "deep_optimization_results.csv", index=False)
     
@@ -190,7 +192,7 @@ def main():
         print(f"{r['params_str']:<35} {r['total_return']:>+7.1f}% {r['max_drawdown']:>+7.1f}% "
               f"{r['win_rate']:>5.1f}% {r['pnl_ratio']:>6.2f} {r['n_trades']:>5}")
 
-    print("\n详细搜索结果已保存至: backtest/reports/dragon_optimization/deep_optimization_results.csv")
+    print(f"\n详细搜索结果已保存至: {report_dir / 'deep_optimization_results.csv'}")
     print("=" * 80)
 
 if __name__ == '__main__':

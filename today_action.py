@@ -26,6 +26,8 @@ if sys.platform == 'win32':
 
 import pandas as pd
 
+from project_paths import market_data_file
+
 logging.basicConfig(level=logging.WARNING)
 
 from daily_signal import (
@@ -215,7 +217,7 @@ def main():
     scores = load_scores()
 
     try:
-        ecology = pd.read_csv('backtest/data/ecology_cache.csv',
+        ecology = pd.read_csv(market_data_file("ecology_cache.csv"),
                               parse_dates=['trade_date'])
         ecology = ecology.sort_values('trade_date').reset_index(drop=True)
     except Exception:

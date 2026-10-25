@@ -35,11 +35,12 @@ PROJECT_ROOT = Path(__file__).resolve().parent
 MANIFEST_KEY = "_sync_manifest.json"
 
 SYNC_DIRS: List[Dict] = [
-    {"local": "backtest/data", "remote": "backtest/data", "patterns": ["*.parquet", "*.csv", "*.json"]},
-    {"local": "backtest/data/incremental_updates", "remote": "backtest/data/incremental_updates", "patterns": ["*.parquet"]},
-    {"local": "backtest/reports/emotion_validation", "remote": "backtest/reports/emotion_validation", "patterns": ["*.csv", "*.png"]},
-    {"local": "backtest/reports/etf_rotation", "remote": "backtest/reports/etf_rotation", "patterns": ["*.csv", "*.png"]},
-    {"local": "output", "remote": "output", "patterns": ["*.csv"]},
+    # Keep the remote prefixes stable so existing cloud archives remain readable.
+    {"local": "data/market", "remote": "backtest/data", "patterns": ["*.parquet", "*.csv", "*.json"]},
+    {"local": "data/market/incremental_updates", "remote": "backtest/data/incremental_updates", "patterns": ["*.parquet"]},
+    {"local": "outputs/reports/emotion_validation", "remote": "backtest/reports/emotion_validation", "patterns": ["*.csv", "*.png", "*.txt"]},
+    {"local": "outputs/reports/etf_rotation", "remote": "backtest/reports/etf_rotation", "patterns": ["*.csv", "*.png", "*.txt"]},
+    {"local": "outputs/signals", "remote": "output", "patterns": ["*.csv", "*.txt"]},
 ]
 
 VALID_ROLES = ("cloud_ecs", "local_laptop")
@@ -277,9 +278,18 @@ class TosStorage:
         for pattern in patterns:
             for f in local_dir.glob(pattern):
                 if f.is_file():
-                    rel = f.relative_to(PROJECT_ROOT).as_posix()
+                    rel = f.relative_to(local_dir).as_posix()
                     result[rel] = (f.stat().st_mtime, f.stat().st_size)
         return result
+
+    @staticmethod
+    def _remote_key(prefix: str, relative_path: str) -> str:
+        return f"{prefix.rstrip('/')}/{relative_path.lstrip('/')}"
+
+    @staticmethod
+    def _relative_remote_key(prefix: str, remote_key: str) -> str:
+        normalized = prefix.rstrip('/') + "/"
+        return remote_key[len(normalized):] if remote_key.startswith(normalized) else remote_key
 
     def _collect_remote_files(self, prefix: str) -> Dict[str, Tuple[float, int]]:
         """收集 TOS 上指定前缀的文件及其 mtime 和 size"""
@@ -305,10 +315,11 @@ class TosStorage:
 
         for sync_cfg in SYNC_DIRS:
             local_dir = PROJECT_ROOT / sync_cfg["local"]
+            remote_prefix = sync_cfg["remote"]
             local_files = self._collect_local_files(local_dir, sync_cfg["patterns"])
 
             for rel_path, (_, size) in local_files.items():
-                remote_key = rel_path.replace("\\", "/")
+                remote_key = self._remote_key(remote_prefix, rel_path)
 
                 conflict = manifest.check_conflict(remote_key, self.role)
                 if conflict and not force:
@@ -319,7 +330,7 @@ class TosStorage:
                     stats["conflict"] += 1
                     continue
 
-                abs_path = str(PROJECT_ROOT / rel_path)
+                abs_path = str(local_dir / rel_path)
 
                 if dry_run:
                     tag = "[FORCE] " if conflict else ""
@@ -341,11 +352,13 @@ class TosStorage:
         stats = {"downloaded": 0, "skipped": 0, "failed": 0, "total_mb": 0.0}
 
         for sync_cfg in SYNC_DIRS:
+            local_dir = PROJECT_ROOT / sync_cfg["local"]
             remote_prefix = sync_cfg["remote"]
             remote_files = self._collect_remote_files(remote_prefix + "/")
 
             for remote_key, (_, size) in remote_files.items():
-                local_path = str(PROJECT_ROOT / remote_key)
+                rel_path = self._relative_remote_key(remote_prefix, remote_key)
+                local_path = str(local_dir / rel_path)
 
                 if dry_run:
                     logger.info(f"[DRY] 将下载: {remote_key} ({size / 1024 / 1024:.1f} MB)")
@@ -375,7 +388,7 @@ class TosStorage:
             remote_files = self._collect_remote_files(remote_prefix + "/")
 
             for rel_path, (local_mtime, local_size) in local_files.items():
-                remote_key = rel_path.replace("\\", "/")
+                remote_key = self._remote_key(remote_prefix, rel_path)
                 remote_info = remote_files.get(remote_key)
 
                 if remote_info:
@@ -399,7 +412,7 @@ class TosStorage:
                     stats["skipped"] += 1
                     continue
 
-                abs_path = str(PROJECT_ROOT / rel_path)
+                abs_path = str(local_dir / rel_path)
                 if self.upload_file(abs_path, remote_key):
                     stats["uploaded"] += 1
                     stats["total_mb"] += local_size / 1024 / 1024
@@ -420,7 +433,8 @@ class TosStorage:
             remote_files = self._collect_remote_files(remote_prefix + "/")
 
             for remote_key, (remote_mtime, remote_size) in remote_files.items():
-                local_info = local_files.get(remote_key)
+                rel_path = self._relative_remote_key(remote_prefix, remote_key)
+                local_info = local_files.get(rel_path)
 
                 if local_info:
                     local_mtime, local_size = local_info
@@ -428,7 +442,7 @@ class TosStorage:
                         stats["skipped"] += 1
                         continue
 
-                local_path = str(PROJECT_ROOT / remote_key)
+                local_path = str(local_dir / rel_path)
 
                 if dry_run:
                     logger.info(f"[DRY] 将下载: {remote_key} ({remote_size / 1024 / 1024:.1f} MB)")
@@ -460,7 +474,7 @@ class TosStorage:
             local_files = self._collect_local_files(local_dir, sync_cfg["patterns"])
             remote_files = self._collect_remote_files(remote_prefix + "/")
 
-            local_keys = set(local_files.keys())
+            local_keys = {self._remote_key(remote_prefix, key) for key in local_files}
             remote_keys = set(remote_files.keys())
 
             local_total_mb = sum(s for _, s in local_files.values()) / 1024 / 1024
@@ -553,7 +567,7 @@ def main():
     python tos_storage.py status              # 查看状态 + 文件归属
     python tos_storage.py verify              # 确认云端数据是否近期有更新
     python tos_storage.py ls                  # 列出 TOS 全部文件
-    python tos_storage.py ls backtest/data    # 列出指定前缀
+    python tos_storage.py ls backtest/data    # TOS 远端仍沿用历史前缀
 
 角色说明:
     cloud_ecs     云端服务器 (主写入方, 自由读写)

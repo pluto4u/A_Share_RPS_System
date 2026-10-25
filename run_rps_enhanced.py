@@ -26,7 +26,7 @@ import argparse
 import pandas as pd
 from pathlib import Path
 
-from rps_analyzer.tdx_reader import load_tdx_market
+from rps_analyzer.tdx_reader import DEFAULT_TDX_DIR, load_tdx_market
 from rps_analyzer.rps_calculator import calculate_rps
 from rps_analyzer.tdx_stock_screener import (
     TdxStockScreener, TdxScreenerConfig, screen_layer2,
@@ -38,7 +38,7 @@ from rps_analyzer.codes_csv import write_codes_csv
 from csv_to_tdx_blk import convert_csv_to_blk
 
 OUTPUT_DIR = Path("output")
-DEFAULT_BLK_DIR = Path(r"D:\tdx\T0002\blocknew")
+DEFAULT_BLK_DIR = Path(r"C:/new_tdx/T0002/blocknew")
 
 
 def save_result(result: pd.DataFrame, name: str, target: str):
@@ -54,7 +54,7 @@ def save_result(result: pd.DataFrame, name: str, target: str):
 
 def main():
     parser = argparse.ArgumentParser(description="RPS 增强选股 (日线+周线+行业+跟踪+板块)")
-    parser.add_argument("--tdx-dir", default=r"D:\tdx\vipdoc", help="通达信 vipdoc 路径")
+    parser.add_argument("--tdx-dir", default=DEFAULT_TDX_DIR, help="通达信 vipdoc 路径，或 sh/sz lday 路径")
     parser.add_argument("--date", default=None, help="目标日期 YYYYMMDD (默认最新)")
     parser.add_argument("--min-days", type=int, default=300, help="最少交易天数 (默认300)")
     parser.add_argument("--rps-sum", type=float, default=180, help="日线 RPS 阈值 (默认180)")

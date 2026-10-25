@@ -20,7 +20,6 @@ A股市场情绪监控  v2.0       market_gambler_watch.py
 ================================================================================
 """
 
-import io
 import os
 import sys
 import time
@@ -38,10 +37,17 @@ from risk_engine import evaluate_risk_controls
 
 warnings.filterwarnings("ignore")
 
-# ── Windows 终端中文修复 ─────────────────────────────────────────────────────
-if sys.platform == "win32":
-    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
-    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace")
+def _configure_windows_console():
+    """Configure a real console without replacing pytest/Jupyter streams."""
+    if sys.platform != "win32":
+        return
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if callable(reconfigure):
+            try:
+                reconfigure(encoding="utf-8", errors="replace")
+            except (OSError, ValueError):
+                pass
     os.system("")
 
 
@@ -1108,6 +1114,7 @@ def run_loop(full=False, feishu=False, interval_minutes=15, session_only=False, 
 
 
 def main():
+    _configure_windows_console()
     parser = argparse.ArgumentParser(description="A股市场情绪监控 v2.0")
     parser.add_argument("--full", action="store_true",
                         help="完整模式: 包含 MA20 广度 + RPS 筛选 (耗时 3-5 分钟)")

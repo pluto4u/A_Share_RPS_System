@@ -13,6 +13,8 @@ from datetime import datetime, timedelta
 import logging
 from pathlib import Path
 
+from project_paths import MARKET_DATA_DIR, REPORTS_DIR
+
 # 添加项目路径
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
 
@@ -48,8 +50,8 @@ class DouyinBacktest:
         else:
             self.root_dir = os.path.abspath(os.path.join(os.path.dirname(data_dir), '..'))
             
-        self.data_dir = data_dir or os.path.abspath(os.path.join(self.root_dir, 'backtest', 'data'))
-        self.output_dir = output_dir or os.path.abspath(os.path.join(self.root_dir, 'backtest', 'reports'))
+        self.data_dir = data_dir or str(MARKET_DATA_DIR)
+        self.output_dir = output_dir or str(REPORTS_DIR / 'douyin')
         
         # 确保输出目录存在
         if not os.path.exists(self.output_dir):
@@ -448,13 +450,13 @@ def main():
     
     parser.add_argument('--data-dir', 
                        type=str, 
-                       help='数据目录 (默认: backtest/data)',
-                       default='backtest/data')
+                       help='数据目录 (默认: data/market)',
+                       default=str(MARKET_DATA_DIR))
     
     parser.add_argument('--output-dir', 
                        type=str, 
-                       help='输出目录 (默认: backtest/reports)',
-                       default='backtest/reports')
+                       help='输出目录 (默认: outputs/reports/douyin)',
+                       default=str(REPORTS_DIR / 'douyin'))
     
     parser.add_argument('--start-date', 
                        type=str, 

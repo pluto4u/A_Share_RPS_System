@@ -5,7 +5,7 @@
 从通达信本地 tdxhy.cfg 读取个股行业归属，计算板块级别 RPS，
 筛选"强行业中的强个股"。
 
-数据来源: D:\tdx\T0002\hq_cache\tdxhy.cfg
+数据来源: C:/new_tdx/T0002/hq_cache/tdxhy.cfg
 格式: market|code|industry_code|||secondary_code
   market: 0=SZ, 1=SH, 2=BJ
 """
@@ -16,7 +16,7 @@ from pathlib import Path
 from typing import Optional
 
 
-DEFAULT_INDUSTRY_CFG = Path(r"D:\tdx\T0002\hq_cache\tdxhy.cfg")
+DEFAULT_INDUSTRY_CFG = Path(r"C:/new_tdx/T0002/hq_cache/tdxhy.cfg")
 
 
 def load_industry_map(

@@ -17,6 +17,8 @@ from datetime import datetime
 import pandas as pd
 import numpy as np
 
+from project_paths import REPORTS_DIR
+
 logger = logging.getLogger(__name__)
 
 
@@ -24,7 +26,7 @@ class EmotionReport:
     """情绪验证研究报告"""
 
     def __init__(self, output_dir: str = None):
-        self.output_dir = Path(output_dir) if output_dir else Path('backtest/reports/emotion_validation')
+        self.output_dir = Path(output_dir) if output_dir else REPORTS_DIR / 'emotion_validation'
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
     # ------------------------------------------------------------------

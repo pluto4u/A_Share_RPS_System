@@ -247,6 +247,8 @@ class TdxStockScreener:
                 "RPS_120": today["RPS_120"],
                 "RPS_250": today["RPS_250"],
             }
+            if "RPS_50" in today.index and not pd.isna(today.get("RPS_50")):
+                rec["RPS_50"] = today["RPS_50"]
 
             rec["SXHCG1"] = self._cond1_rps(today)
             rec["SXHCG2"] = self._cond2_ma_bull(window)

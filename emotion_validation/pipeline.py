@@ -20,9 +20,11 @@ from typing import Optional
 
 import pandas as pd
 
+from project_paths import MARKET_DATA_DIR, REPORTS_DIR
+
 logger = logging.getLogger(__name__)
 
-DEFAULT_DATA_DIR = Path(__file__).resolve().parent.parent / 'backtest' / 'data'
+DEFAULT_DATA_DIR = MARKET_DATA_DIR
 
 
 def run_pipeline(data_dir: str = None,
@@ -95,7 +97,7 @@ def run_pipeline(data_dir: str = None,
     logger.info("Step 5: 生成报告...")
     from .reporting.emotion_report import EmotionReport
 
-    report_dir = output_dir or str(data_path.parent / 'reports' / 'emotion_validation')
+    report_dir = output_dir or str(REPORTS_DIR / 'emotion_validation')
     reporter = EmotionReport(output_dir=report_dir)
     report_text = reporter.generate_all(experiment_results, emotion_df)
 
@@ -173,7 +175,7 @@ def main():
 示例:
     python -m emotion_validation.pipeline
     python -m emotion_validation.pipeline --benchmark 399006
-    python -m emotion_validation.pipeline --data-dir backtest/data --output-dir backtest/reports
+    python -m emotion_validation.pipeline --data-dir data/market --output-dir outputs/reports
 '''
     )
 

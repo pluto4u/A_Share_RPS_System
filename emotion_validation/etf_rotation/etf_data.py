@@ -11,6 +11,8 @@ from typing import Dict, List, Optional
 
 import pandas as pd
 
+from project_paths import MARKET_DATA_DIR
+
 logger = logging.getLogger(__name__)
 
 ETF_POOL = [
@@ -73,7 +75,7 @@ COL_MAP = {
     '涨跌幅': 'pct_chg',
 }
 
-DEFAULT_DATA_DIR = Path(__file__).resolve().parent.parent.parent / 'backtest' / 'data' / 'etf'
+DEFAULT_DATA_DIR = MARKET_DATA_DIR / 'etf'
 
 
 class ETFDataManager:

@@ -23,7 +23,7 @@ from typing import Dict, List, Set
 
 import pandas as pd
 
-from rps_analyzer.tdx_reader import load_tdx_market
+from rps_analyzer.tdx_reader import DEFAULT_TDX_DIR, load_tdx_market
 from rps_analyzer.rps_calculator import calculate_rps
 from rps_analyzer.codes_csv import read_codes_csv
 
@@ -267,7 +267,7 @@ def main():
     ap.add_argument("--portfolio", default="portfolio.csv", help="持仓 csv 文件")
     ap.add_argument("--hold-days", type=int, default=3, help="候选 Super 持续 ≥ N 天才推荐 (默认3)")
     ap.add_argument("--lookback", type=int, default=21, help="历史 codes 回看自然日 (默认21)")
-    ap.add_argument("--tdx-dir", default=r"D:\tdx\vipdoc")
+    ap.add_argument("--tdx-dir", default=DEFAULT_TDX_DIR)
     ap.add_argument("--min-days", type=int, default=250)
     args = ap.parse_args()
 

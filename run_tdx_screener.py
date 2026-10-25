@@ -16,7 +16,8 @@ import argparse
 import pandas as pd
 from pathlib import Path
 
-from rps_analyzer.tdx_reader import load_tdx_market
+from rps_analyzer.tdx_reader import DEFAULT_TDX_DIR, load_tdx_market, normalize_tdx_dir
+from rps_analyzer.price_adjust import default_gbbq_path, forward_adjust_market, load_gbbq
 from rps_analyzer.rps_calculator import calculate_rps
 from rps_analyzer.tdx_stock_screener import (
     TdxStockScreener, TdxScreenerConfig, print_diagnosis, screen_layer2,
@@ -38,13 +39,17 @@ OUTPUT_DIR = Path("output")
 
 def main():
     parser = argparse.ArgumentParser(description="通达信 RPS 选股一键脚本")
-    parser.add_argument("--tdx-dir", default=r"D:\tdx\vipdoc", help="通达信 vipdoc 路径")
+    parser.add_argument("--tdx-dir", default=DEFAULT_TDX_DIR, help="通达信 vipdoc 路径，或 sh/sz lday 路径")
     parser.add_argument("--date", default=None, help="目标日期 YYYYMMDD (默认最新)")
     parser.add_argument("--rps-sum", type=float, default=180, help="RPS120+RPS250 阈值 (默认180)")
     parser.add_argument("--near-high", type=float, default=0.80, help="接近新高比例 (默认0.80)")
     parser.add_argument("--diagnose", default=None, help="诊断指定股票代码 (如 600519.SH)")
     parser.add_argument("--save-data", action="store_true", help="保存中间数据到 parquet")
     parser.add_argument("--min-days", type=int, default=250, help="最少交易天数 (默认250)")
+    parser.add_argument("--price-basis", choices=("qfq", "raw"), default="qfq",
+                        help="qfq: 按目标日等比前复权 (默认, 除权跳空不计入涨幅/均线)；raw: 原始 .day 价格")
+    parser.add_argument("--gbbq", default=None,
+                        help="除权除息文件，默认 vipdoc 同级 T0002/hq_cache/gbbq")
 
     # 火车轨阈值（Step 6）
     parser.add_argument("--huoche-rps", type=float, default=90.0,
@@ -79,6 +84,12 @@ def main():
     parser.add_argument("--super-rps250-min", type=float, default=98.0)
     parser.add_argument("--super-vs-ma60-max", type=float, default=0.60)
     parser.add_argument("--super-ret20-max", type=float, default=0.60)
+    parser.add_argument("--super-rps50-premium", type=float, default=90.0,
+                        help="Super premium RPS_50 下限")
+    parser.add_argument("--super-vs-ma60-premium", type=float, default=0.25,
+                        help="Super premium close/MA60-1 上限")
+    parser.add_argument("--super-ret20-premium", type=float, default=0.30,
+                        help="Super premium ret20 上限")
 
     # 信号跟踪（Step 9）
     parser.add_argument("--skip-track", action="store_true",
@@ -95,6 +106,15 @@ def main():
     print("=" * 70)
     t0 = time.time()
     df = load_tdx_market(args.tdx_dir, min_days=args.min_days)
+    if args.price_basis == "qfq":
+        gbbq = Path(args.gbbq) if args.gbbq else default_gbbq_path(normalize_tdx_dir(args.tdx_dir))
+        df, excluded = forward_adjust_market(df, load_gbbq(gbbq), target=args.date)
+        if not excluded.empty:
+            target_tag = args.date or df["trade_date"].max().strftime("%Y%m%d")
+            excluded_path = OUTPUT_DIR / f"tdx_screener_{target_tag}_qfq_excluded.csv"
+            excluded.to_csv(excluded_path, index=False, encoding="utf-8-sig")
+            print(f"  前复权排除清单: {excluded_path}")
+    print(f"  价格口径: {args.price_basis}")
     t_read = time.time() - t0
     print(f"  耗时: {t_read:.1f}s\n")
 
@@ -102,10 +122,10 @@ def main():
     # Step 2: 计算 RPS
     # =========================================================================
     print("=" * 70)
-    print("Step 2: 计算 RPS_120, RPS_250")
+    print("Step 2: 计算 RPS_50, RPS_120, RPS_250")
     print("=" * 70)
     t1 = time.time()
-    df = calculate_rps(df, periods=[120, 250], verbose=True)
+    df = calculate_rps(df, periods=[50, 120, 250], verbose=True)
     t_rps = time.time() - t1
     print(f"  耗时: {t_rps:.1f}s\n")
 
@@ -319,6 +339,9 @@ def main():
             rps250_min=args.super_rps250_min,
             vs_ma60_max=args.super_vs_ma60_max,
             ret20_max=args.super_ret20_max,
+            rps50_min_premium=args.super_rps50_premium,
+            vs_ma60_premium=args.super_vs_ma60_premium,
+            ret20_premium=args.super_ret20_premium,
         )
         super_result = screen_super_strong(
             df, result["ts_code"].tolist(),
@@ -346,9 +369,18 @@ def main():
             n_l2 = int(super_result["IN_L2"].sum())
             n_hu = int(super_result["IN_HUOCHE"].sum())
             n_el = int(super_result["IN_EARLY"].sum())
+            n_premium = int((super_result["tier"] == "premium").sum()) if "tier" in super_result.columns else 0
             print(f"\n  覆盖统计: L2 ∩ Super = {n_l2}/{n}  火车轨 ∩ Super = {n_hu}/{n}  Early ∩ Super = {n_el}/{n}")
+            print(f"  分档: premium = {n_premium}  extended = {n - n_premium}")
             print(f"  完整结果: {super_full}")
             print(f"  代码清单: {super_codes}")
+
+            if "tier" in super_result.columns:
+                premium_df = super_result[super_result["tier"] == "premium"]
+                if not premium_df.empty:
+                    super_premium_codes = OUTPUT_DIR / f"tdx_screener_{target}_super_premium_codes.csv"
+                    write_codes_csv(super_premium_codes, premium_df["ts_code"])
+                    print(f"  Premium 清单: {super_premium_codes}")
 
     # =========================================================================
     # Step 9: 信号跟踪 (NEW / EXIT / HOLD)

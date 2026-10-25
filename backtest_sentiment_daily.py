@@ -16,6 +16,8 @@ from datetime import datetime
 import numpy as np
 import pandas as pd
 
+from project_paths import REPORTS_DIR
+
 from risk_engine import evaluate_risk_controls
 
 
@@ -205,8 +207,9 @@ def main():
     # 4. 调用 run_backtest(price_df, signal_df)
 
     # 保存报告目录
-    os.makedirs("backtest/reports", exist_ok=True)
-    print("  报告目录已就绪: backtest/reports/")
+    report_dir = REPORTS_DIR / "sentiment_daily"
+    report_dir.mkdir(parents=True, exist_ok=True)
+    print(f"  报告目录已就绪: {report_dir}")
 
 
 if __name__ == "__main__":

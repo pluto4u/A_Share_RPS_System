@@ -2,10 +2,12 @@ import pandas as pd
 from pathlib import Path
 from typing import Dict, Optional
 
+from project_paths import market_data_file
+
 
 class MarketBreadth:
-    def __init__(self, stock_daily_path: str = 'backtest/data/stock_daily.csv'):
-        self.stock_daily_path = stock_daily_path
+    def __init__(self, stock_daily_path: str | Path | None = None):
+        self.stock_daily_path = str(stock_daily_path or market_data_file('stock_daily.csv'))
         self.breadth_cache: Dict[str, Dict] = {}
         
     def load_data(self, start_date: Optional[str] = None, end_date: Optional[str] = None) -> pd.DataFrame:

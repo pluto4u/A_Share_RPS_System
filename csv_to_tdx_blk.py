@@ -3,7 +3,7 @@ Convert screener CSV output into a TDX custom block `.blk` file.
 
 Default behavior:
   - Discover the latest `output/tdx_screener_*.csv`
-  - Write `RPS_YYYYMMDD.blk` to `D:\\tdx\\T0002\\blocknew`
+  - Write `RPS_YYYYMMDD.blk` to `C:/new_tdx/T0002/blocknew`
 
 Optional CLI overrides:
   --csv      input CSV path
@@ -22,7 +22,7 @@ import pandas as pd
 from rps_analyzer.codes_csv import read_codes_csv
 
 
-DEFAULT_OUTPUT_DIR = Path(r"D:\tdx\T0002\blocknew")
+DEFAULT_OUTPUT_DIR = Path(r"C:/new_tdx/T0002/blocknew")
 
 
 def to_tdx_blk_code(ts_code: str) -> str:

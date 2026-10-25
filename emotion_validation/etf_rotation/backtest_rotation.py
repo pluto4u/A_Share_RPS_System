@@ -32,12 +32,14 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+from project_paths import REPORTS_DIR as OUTPUT_REPORTS_DIR
+
 if sys.platform == 'win32':
     sys.stdout.reconfigure(encoding='utf-8', errors='replace')
 
 logger = logging.getLogger(__name__)
 
-REPORT_DIR = Path(__file__).resolve().parent.parent.parent / 'backtest' / 'reports' / 'etf_rotation'
+REPORT_DIR = OUTPUT_REPORTS_DIR / 'etf_rotation'
 COST       = 0.0001   # 单边万一 (ETF 场内)
 INIT       = 1_000_000
 
@@ -107,8 +109,9 @@ def build_s5_positions(emotion_df: pd.DataFrame,
 # ======================================================================
 
 def load_emotion_scores() -> pd.DataFrame:
-    score_csv = (Path(__file__).resolve().parent.parent.parent
-                 / 'backtest' / 'reports' / 'emotion_validation' / 'emotion_scores.csv')
+    from project_paths import report_file
+
+    score_csv = report_file('emotion_validation', 'emotion_scores.csv')
     if not score_csv.exists():
         raise FileNotFoundError(
             f"情绪评分文件不存在: {score_csv}\n请先运行: python -m emotion_validation.pipeline"

@@ -83,6 +83,11 @@ def _scan_one(sdf: pd.DataFrame, target_dt: pd.Timestamp,
     sdf = sdf.reset_index(drop=True)
     today = sdf.iloc[-1]
 
+    # 个股必须在目标日有有效行情。停牌、退市等缺少目标日记录的股票，
+    # 不能用更早的最后一条历史记录冒充当日信号。
+    if pd.Timestamp(today["trade_date"]) != target_dt:
+        return None
+
     # 数据完整性
     if pd.isna(today.get("RPS_120")) or pd.isna(today.get("MA60")) or pd.isna(today.get("MA20")):
         return None
@@ -138,7 +143,7 @@ def _scan_one(sdf: pd.DataFrame, target_dt: pd.Timestamp,
 
     el_all = el1 and el2 and el3 and el4 and el5 and el6 and el7
 
-    return {
+    rec = {
         "ts_code": today["ts_code"],
         "trade_date": today["trade_date"],
         "close": today["close"],
@@ -159,6 +164,11 @@ def _scan_one(sdf: pd.DataFrame, target_dt: pd.Timestamp,
         "EL7_pre_quiet": el7,
         "EL_ALL": el_all,
     }
+    if "RPS_50" in today.index and not pd.isna(today.get("RPS_50")):
+        rec["RPS_50"] = today["RPS_50"]
+    if "RPS_250" in today.index and not pd.isna(today.get("RPS_250")):
+        rec["RPS_250"] = today["RPS_250"]
+    return rec
 
 
 def screen_early_launch(

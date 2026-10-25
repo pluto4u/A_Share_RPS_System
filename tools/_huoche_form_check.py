@@ -1,4 +1,4 @@
-"""对 Huoche 周线持续榜的票跑日线形态核对.
+r"""对 Huoche 周线持续榜的票跑日线形态核对.
 
 输出:
   - 每只票的 close / MA20 / MA60 / ret20 / vs MA20 / vs MA60
@@ -14,7 +14,7 @@ import sys
 import pandas as pd
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from rps_analyzer.tdx_reader import load_tdx_market
+from rps_analyzer.tdx_reader import DEFAULT_TDX_DIR, load_tdx_market
 
 
 def parse_args():
@@ -41,7 +41,7 @@ def main():
         super_codes = pd.read_csv(super_csv, header=None)[0].astype(str).tolist()
 
     print(f"[load] 读 TDX 全市场 ...")
-    df = load_tdx_market(r"D:\tdx\vipdoc", min_days=200)
+    df = load_tdx_market(DEFAULT_TDX_DIR, min_days=200)
     df["trade_date"] = pd.to_datetime(df["trade_date"])
 
     rows = []

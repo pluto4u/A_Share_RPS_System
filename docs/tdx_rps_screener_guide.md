@@ -20,7 +20,7 @@
 
 - **Python**：3.10+（建议 3.12）
 - **依赖**：`pandas`、`numpy`（见项目 `requirements.txt`）
-- **数据源**：通达信本地安装目录下的 `vipdoc`，默认路径 `D:\tdx\vipdoc`（可通过参数修改）
+- **数据源**：通达信本地安装目录下的 `vipdoc`，默认路径 `C:/new_tdx/vipdoc`（可通过参数修改）
 
 ```bash
 # 克隆后在项目根目录
@@ -43,7 +43,7 @@ pip install -r requirements.txt
 output/tdx_screener_YYYYMMDD.csv          # 完整条件
 output/tdx_screener_YYYYMMDD_codes.csv    # 仅 ts_code
     ↓ csv_to_tdx_blk.py（可选）
-D:\tdx\T0002\blocknew\RPS_YYYYMMDD.blk    # 通达信自定义板块
+C:/new_tdx/T0002/blocknew/RPS_YYYYMMDD.blk    # 通达信自定义板块
 ```
 
 ---
@@ -55,7 +55,7 @@ D:\tdx\T0002\blocknew\RPS_YYYYMMDD.blk    # 通达信自定义板块
 从通达信读日线 → 算 RPS → 跑日线 8 条件选股 → 写出**两套 CSV**。
 
 ```bash
-# 默认：最新交易日，TDX 路径 D:\tdx\vipdoc
+# 默认：最新交易日，TDX 路径 C:/new_tdx/vipdoc
 py -3 run_tdx_screener.py
 
 # 指定日期
@@ -78,7 +78,7 @@ py -3 run_tdx_screener.py --save-data
 
 **可选参数：**
 
-- `--tdx-dir`：通达信 vipdoc 路径，默认 `D:\tdx\vipdoc`
+- `--tdx-dir`：通达信 vipdoc 路径，默认 `C:/new_tdx/vipdoc`
 - `--min-days`：最少交易天数，少于此的股票不参与，默认 250
 
 ---
@@ -88,14 +88,14 @@ py -3 run_tdx_screener.py --save-data
 将选股结果 CSV 转为通达信自定义板块文件，在通达信里打开「自定义板块」即可看到对应股票。
 
 ```bash
-# 默认：自动找最新 output/tdx_screener_*.csv，写出 RPS_日期.blk 到 D:\tdx\T0002\blocknew
+# 默认：自动找最新 output/tdx_screener_*.csv，写出 RPS_日期.blk 到 C:/new_tdx/T0002/blocknew
 py -3 csv_to_tdx_blk.py
 
 # 指定输入与板块名
 py -3 csv_to_tdx_blk.py --csv output/tdx_screener_20260305.csv --name RPS观察池
 
 # 指定输出目录
-py -3 csv_to_tdx_blk.py --out-dir D:\tdx\T0002\blocknew
+py -3 csv_to_tdx_blk.py --out-dir C:/new_tdx/T0002/blocknew
 ```
 
 **要求：** 输入 CSV 须包含列 `ts_code`（格式如 `600519.SH`、`000001.SZ`）。  
@@ -114,7 +114,7 @@ from rps_analyzer.tdx_reader import load_tdx_market
 from rps_analyzer.weekly_rps_screener import WeeklyRpsScreener, WeeklyScreenerConfig
 
 # 读日线（或使用已有带 RPS 的日线）
-df = load_tdx_market(r"D:\tdx\vipdoc", min_days=300)
+df = load_tdx_market(r"C:/new_tdx/vipdoc", min_days=300)
 screener = WeeklyRpsScreener(config=WeeklyScreenerConfig())
 result = screener.screen(df, target_date="20260305", verbose=True)
 # result 为通过周线条件的 DataFrame，可自行写入 CSV
@@ -147,13 +147,13 @@ result = screener.screen(df, target_date="20260305", verbose=True)
    git clone <repo_url> && cd A_Share_RPS_System
    pip install -r requirements.txt
    ```
-2. 若通达信不在 `D:\tdx\vipdoc`，使用 `--tdx-dir` 指定。
+2. 若通达信不在 `C:/new_tdx/vipdoc`，使用 `--tdx-dir` 指定。
 3. 执行选股与导出：
    ```bash
    py -3 run_tdx_screener.py
    py -3 csv_to_tdx_blk.py
    ```
-4. 结果在 `output/`，板块文件在 `D:\tdx\T0002\blocknew\`（或你指定的 `--out-dir`）。
+4. 结果在 `output/`，板块文件在 `C:/new_tdx/T0002/blocknew/`（或你指定的 `--out-dir`）。
 
 ### 6.2 与 Cursor 交互时继承上下文
 

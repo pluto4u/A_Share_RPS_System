@@ -2,7 +2,7 @@
 ================================================================================
 通达信本地 .day 文件读取器
 ================================================================================
-读取 D:/tdx/vipdoc/{sh,sz}/lday/ 下的二进制日线文件，输出标准 DataFrame。
+读取 C:/new_tdx/vipdoc/{sh,sz}/lday/ 下的二进制日线文件，输出标准 DataFrame。
 
 .day 文件格式 (每条记录 32 字节):
   date    : uint32  (YYYYMMDD)
@@ -27,6 +27,21 @@ RECORD_SIZE = struct.calcsize(RECORD_FORMAT)  # 32
 
 A_SHARE_PREFIXES_SH = ("600", "601", "603", "605", "688", "689")
 A_SHARE_PREFIXES_SZ = ("000", "001", "002", "003", "300", "301")
+DEFAULT_TDX_DIR = r"C:\new_tdx\vipdoc\sh\lday"
+
+
+def normalize_tdx_dir(tdx_dir: str) -> str:
+    """
+    统一 TDX 数据目录。
+
+    支持传入 vipdoc 根目录，也支持传入具体 lday 目录，例如:
+    C:\\new_tdx\\vipdoc\\sh\\lday -> C:\\new_tdx\\vipdoc
+    """
+    path = Path(tdx_dir)
+    parts = [part.lower() for part in path.parts]
+    if len(parts) >= 2 and parts[-1] == "lday" and parts[-2] in ("sh", "sz"):
+        return str(path.parents[1])
+    return str(path)
 
 
 def read_day_file(filepath: str) -> Optional[pd.DataFrame]:
@@ -80,7 +95,7 @@ def _to_ts_code(filename: str, market: str) -> str:
 
 
 def load_tdx_market(
-    tdx_dir: str = r"D:\tdx\vipdoc",
+    tdx_dir: str = DEFAULT_TDX_DIR,
     markets: List[str] = None,
     min_days: int = 250,
     verbose: bool = True,
@@ -91,7 +106,7 @@ def load_tdx_market(
     参数
     ----------
     tdx_dir : str
-        通达信 vipdoc 目录路径
+        通达信 vipdoc 目录路径，或 sh/sz lday 目录路径
     markets : list
         要读取的市场，默认 ["sh", "sz"]
     min_days : int
@@ -104,6 +119,8 @@ def load_tdx_market(
     pd.DataFrame
         含 trade_date, ts_code, open, high, low, close, amount, vol 列
     """
+    tdx_dir = normalize_tdx_dir(tdx_dir)
+
     if markets is None:
         markets = ["sh", "sz"]
 
@@ -159,7 +176,7 @@ if __name__ == "__main__":
     import argparse, time
 
     parser = argparse.ArgumentParser(description="通达信本地数据读取器")
-    parser.add_argument("--dir", default=r"D:\tdx\vipdoc", help="vipdoc 路径")
+    parser.add_argument("--dir", default=DEFAULT_TDX_DIR, help="vipdoc 路径，或 sh/sz lday 路径")
     parser.add_argument("--save", default=None, help="保存为 parquet/csv")
     parser.add_argument("--min-days", type=int, default=250, help="最少交易天数")
     args = parser.parse_args()

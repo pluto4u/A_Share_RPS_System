@@ -1,8 +1,10 @@
 import pandas as pd
 import sys
 
+from project_paths import report_file
+
 try:
-    df = pd.read_csv('d:/project/BYD/code/A_Share_RPS_System/backtest/reports/etf_rotation/rotation_nav_all.csv', parse_dates=['trade_date'], index_col='trade_date')
+    df = pd.read_csv(report_file("etf_rotation", "rotation_nav_all.csv"), parse_dates=['trade_date'], index_col='trade_date')
     df['year'] = df.index.year
     
     # nav_D is the D strategy

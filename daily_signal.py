@@ -30,6 +30,7 @@ from sentiment_engine import (
     kelly_vol_adjustment,
     drawdown_elastic_multiplier,
 )
+from project_paths import SIGNALS_DIR, market_data_file, report_file
 
 # Windows 终端强制 UTF-8 输出，避免 GBK 乱码
 if sys.platform == 'win32':
@@ -38,8 +39,8 @@ if sys.platform == 'win32':
 
 logging.basicConfig(level=logging.WARNING)
 
-SCORE_CSV = Path('backtest/reports/emotion_validation/emotion_scores.csv')
-LOG_CSV   = Path('backtest/reports/daily_signals.csv')
+SCORE_CSV = report_file("emotion_validation", "emotion_scores.csv")
+LOG_CSV = SIGNALS_DIR / "daily_signals.csv"
 
 # S5 参数 (与 final_comparison.py 保持一致)
 MIN_DAYS_BETWEEN = 5     # 调仓冷却期: 至少间隔 5 天
@@ -470,7 +471,7 @@ def main():
 
     # Try to load ecology data for emergency checks
     try:
-        ecology = pd.read_csv('backtest/data/ecology_cache.csv', parse_dates=['trade_date'])
+        ecology = pd.read_csv(market_data_file("ecology_cache.csv"), parse_dates=['trade_date'])
         ecology = ecology.sort_values('trade_date').reset_index(drop=True)
     except Exception as e:
         print(f"Warning: Could not load ecology data for emergency checks: {e}")

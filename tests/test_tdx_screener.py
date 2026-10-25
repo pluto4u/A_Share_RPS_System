@@ -13,6 +13,7 @@ import pandas as pd
 import numpy as np
 from rps_analyzer.rps_calculator import calculate_rps
 from rps_analyzer.tdx_stock_screener import TdxStockScreener, TdxScreenerConfig, print_diagnosis
+from rps_analyzer.early_launch_screener import _scan_one, EarlyLaunchConfig
 
 
 def generate_stock_data(
@@ -136,6 +137,29 @@ def generate_market_data(n_stocks: int = 200, days: int = 300) -> pd.DataFrame:
     return market
 
 
+def test_early_launch_excludes_stock_without_target_date():
+    """停牌等缺少目标日行情的股票，不能用旧记录冒充当日信号。"""
+    dates = pd.bdate_range("2026-03-01", periods=100)
+    stale = pd.DataFrame({
+        "trade_date": dates,
+        "ts_code": "600213.SH",
+        "close": 10.0,
+        "high": 10.2,
+        "amount": 1e8,
+        "vol": 1e7,
+        "RPS_120": 95.0,
+        "RPS_50": 95.0,
+        "RPS_250": 95.0,
+        "MA20": 9.5,
+        "MA60": 9.0,
+        "VOL_MA60": 1e7,
+        "pct": 0.01,
+    })
+    target_dt = dates[-1] + pd.offsets.BDay(1)
+
+    assert _scan_one(stale, target_dt, EarlyLaunchConfig()) is None
+
+
 def test_screener():
     """主测试流程"""
     print("=" * 70)
@@ -221,6 +245,9 @@ def test_with_real_data(data_path: str, date: str = None):
 
     return result
 
+
+# This is a manual CLI helper requiring a real file path, not a pytest fixture test.
+test_with_real_data.__test__ = False
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:

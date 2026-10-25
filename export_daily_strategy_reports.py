@@ -4,6 +4,7 @@ from pathlib import Path
 from daily_signal import get_signal, load_scores
 from emotion_validation.etf_rotation.etf_data import ETFDataManager
 from emotion_validation.etf_rotation.rotation_strategy import ETFRotationStrategy
+from project_paths import REPORTS_DIR, report_file
 
 
 def export_etf_daily_report(out_path: Path) -> pd.DataFrame:
@@ -88,12 +89,12 @@ def export_rps_daily_report(trades_path: Path, nav_path: Path, out_path: Path) -
 
 
 def main() -> None:
-    base = Path("backtest/reports")
+    base = REPORTS_DIR
     etf_out = base / "etf_rotation" / "etf_daily_position_control.csv"
     rps_out = base / "dragon_pullback_backtest" / "rps_daily_stock_actions.csv"
 
-    trades_path = base / "dragon_pullback_backtest" / "dragon_trades.csv"
-    nav_path = base / "dragon_pullback_backtest" / "dragon_nav.csv"
+    trades_path = report_file("dragon_pullback_backtest", "dragon_trades.csv")
+    nav_path = report_file("dragon_pullback_backtest", "dragon_nav.csv")
 
     etf_df = export_etf_daily_report(etf_out)
     rps_df = export_rps_daily_report(trades_path, nav_path, rps_out)

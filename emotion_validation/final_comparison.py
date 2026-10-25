@@ -27,10 +27,11 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from sentiment_engine import score_to_target_kelly, kelly_vol_adjustment, drawdown_elastic_multiplier
+from project_paths import REPORTS_DIR as OUTPUT_REPORTS_DIR, market_data_file, report_file
 
 logging.basicConfig(level=logging.WARNING, format='%(message)s')
 
-REPORT_DIR = Path('backtest/reports/final_comparison')
+REPORT_DIR = OUTPUT_REPORTS_DIR / 'final_comparison'
 COST = 0.003   # 单边万三
 INIT  = 1_000_000
 
@@ -40,7 +41,7 @@ INIT  = 1_000_000
 # ======================================================================
 
 def load_data():
-    score_csv = Path('backtest/reports/emotion_validation/emotion_scores.csv')
+    score_csv = report_file('emotion_validation', 'emotion_scores.csv')
     if not score_csv.exists():
         print("找不到情绪评分文件，请先运行 pipeline")
         sys.exit(1)
@@ -50,7 +51,7 @@ def load_data():
     scores = scores.sort_values('trade_date').reset_index(drop=True)
 
     import pyarrow.parquet as pq
-    idx = pq.read_table('backtest/data/index_daily.parquet').to_pandas()
+    idx = pq.read_table(market_data_file('index_daily.parquet')).to_pandas()
     idx = idx[idx['symbol'] == '000300'].sort_values('trade_date').reset_index(drop=True)
     idx['trade_date'] = pd.to_datetime(idx['trade_date'])
     idx['pct_chg'] = idx['close'].pct_change() * 100

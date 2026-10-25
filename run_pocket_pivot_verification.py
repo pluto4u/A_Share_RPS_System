@@ -4,6 +4,8 @@ from pathlib import Path
 import os
 import sys
 
+from project_paths import REPORTS_DIR, market_data_file
+
 if sys.platform == 'win32':
     sys.stdout.reconfigure(encoding='utf-8', errors='replace')
     sys.stderr.reconfigure(encoding='utf-8', errors='replace')
@@ -17,7 +19,7 @@ def main():
     print("=" * 60)
     print("加载历史数据...")
     
-    data_path = Path("backtest/data/stock_daily.parquet")
+    data_path = market_data_file("stock_daily.parquet")
     if not data_path.exists():
         print(f"数据文件不存在: {data_path}")
         return
@@ -135,7 +137,7 @@ def main():
         print(f"平均亏损 : {avg_loss:.2f}%")
         print(f"盈亏比   : {pnl_ratio:.2f}")
         
-        report_dir = Path("backtest/reports/pocket_pivot_backtest")
+        report_dir = REPORTS_DIR / "pocket_pivot_backtest"
         report_dir.mkdir(parents=True, exist_ok=True)
         trades_df.to_csv(report_dir / "pocket_pivot_trades.csv", index=False, encoding='utf-8-sig')
         nav_df.to_csv(report_dir / "pocket_pivot_nav.csv", index=False, encoding='utf-8-sig')

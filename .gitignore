@@ -27,6 +27,7 @@ htmlcov/
 # Data files (large, from akshare/local cache)
 backtest/data/
 backtest/reports/
+data/*.db
 
 # Backups
 A_share_projects_backup_*/
@@ -55,3 +56,31 @@ opencode.json
 # Server backup archives
 projects.tar.gz
 projects/
+
+# Imported worktree artifacts; keep the main repository's existing output policy.
+outputs/*
+!outputs/README.md
+config/workspace.local.json
+
+# Local notebook environments and regenerable project catalogs.
+.venvs/
+.venv-*/
+data/*.duckdb
+data/*.duckdb.wal
+data/*.parquet
+
+# Compatibility directory aliases: canonical source is tracked at its new location.
+tmp/
+reports/
+logs/
+reference_doc/
+learn/
+08.tdx_qushi/
+serenity-skill/
+
+# Newly generated strategy outputs stay local; previously tracked files are retained.
+output/
+
+# Market databases and raw caches are external runtime assets, not source code.
+data/**
+!data/README.md

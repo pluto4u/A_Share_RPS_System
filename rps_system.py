@@ -17,7 +17,6 @@ A 股 RPS 选股与风控系统 v1.0
 """
 
 import argparse
-import io
 import os
 import sys
 import time
@@ -30,12 +29,18 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
+from project_paths import EXPORTS_DIR
+
 warnings.filterwarnings("ignore")
 
-# 修复 Windows 终端中文乱码
-if sys.platform == "win32":
-    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
-    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace")
+def _configure_windows_console():
+    """Configure a real console without replacing pytest/Jupyter streams."""
+    if sys.platform != "win32":
+        return
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if callable(reconfigure):
+            reconfigure(encoding="utf-8", errors="replace")
     os.system("")  # 启用 ANSI 转义序列支持
 
 
@@ -64,7 +69,7 @@ class Config:
     MAX_WORKERS = 8                 # 历史行情并发线程数
     RETRY_TIMES = 3                 # 单次请求最大重试
     RETRY_DELAY = 0.5               # 重试间隔（秒）
-    OUTPUT_DIR = "output"           # 结果输出目录
+    OUTPUT_DIR = EXPORTS_DIR / "rps"  # 结果导出目录
 
 
 # ╔══════════════════════════════════════════════════════════════════════════════╗
@@ -451,10 +456,10 @@ def output_results(selected_df, filtered_df, industry_map):
     ]
 
     # ── 写 Excel ──
-    os.makedirs(Config.OUTPUT_DIR, exist_ok=True)
+    Config.OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     today_str = datetime.now().strftime("%Y%m%d")
     filename = f"RPS_选股结果_{today_str}.xlsx"
-    filepath = os.path.join(Config.OUTPUT_DIR, filename)
+    filepath = Config.OUTPUT_DIR / filename
 
     with pd.ExcelWriter(filepath, engine="openpyxl") as writer:
         output.to_excel(writer, sheet_name="RPS选股", index=True, index_label="排名")
@@ -498,6 +503,7 @@ def output_results(selected_df, filtered_df, industry_map):
 # ╚══════════════════════════════════════════════════════════════════════════════╝
 
 def main():
+    _configure_windows_console()
     parser = argparse.ArgumentParser(description="A股 RPS 选股与风控系统 v1.0")
     parser.add_argument("--feishu", action="store_true",
                         help="推送结果到飞书群 (需先配置 feishu_config.json)")

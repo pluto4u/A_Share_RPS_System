@@ -16,6 +16,7 @@
 
 import argparse
 import sys
+from project_paths import SIGNALS_DIR
 import traceback
 from datetime import datetime
 
@@ -118,7 +119,9 @@ def main():
             subprocess.run([sys.executable, "-m", "emotion_validation.etf_rotation.backtest_rotation"], check=True)
             # 4. 生成今日交易指令与S5判定并推送精美飞书卡片
             print("[cloud_runner] 执行 today_action.py 并推送飞书卡片...")
-            with open("daily_signal_output.txt", "w", encoding="utf-8") as f:
+            SIGNALS_DIR.mkdir(parents=True, exist_ok=True)
+            signal_output = SIGNALS_DIR / "daily_signal_output.txt"
+            with signal_output.open("w", encoding="utf-8") as f:
                 subprocess.run([sys.executable, "today_action.py", "--feishu"], stdout=f, stderr=subprocess.STDOUT, check=True)
 
             # TOS 同步: 流水线完成后将更新的数据上传 TOS

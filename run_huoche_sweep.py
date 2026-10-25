@@ -22,7 +22,7 @@ import argparse
 import pandas as pd
 from pathlib import Path
 
-from rps_analyzer.tdx_reader import load_tdx_market
+from rps_analyzer.tdx_reader import DEFAULT_TDX_DIR, load_tdx_market
 from rps_analyzer.rps_calculator import calculate_rps
 from rps_analyzer.huoche_screener import screen_huoche, HuocheConfig
 from rps_analyzer.codes_csv import read_codes_csv
@@ -112,7 +112,7 @@ def run_one(df, l1_codes, target_date, name, params) -> dict:
 
 def main():
     parser = argparse.ArgumentParser(description="周线火车轨参数扫参")
-    parser.add_argument("--tdx-dir", default=r"D:\tdx\vipdoc")
+    parser.add_argument("--tdx-dir", default=DEFAULT_TDX_DIR)
     parser.add_argument("--date", default=None, help="目标日期 YYYYMMDD")
     parser.add_argument("--min-days", type=int, default=250)
     parser.add_argument("--l1-csv", default=None, help="L1 候选清单 csv (默认从 output/ 读对应日期)")

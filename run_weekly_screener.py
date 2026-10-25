@@ -16,7 +16,7 @@ import argparse
 import pandas as pd
 from pathlib import Path
 
-from rps_analyzer.tdx_reader import load_tdx_market
+from rps_analyzer.tdx_reader import DEFAULT_TDX_DIR, load_tdx_market
 from rps_analyzer.weekly_rps_screener import (
     WeeklyRpsScreener, WeeklyScreenerConfig,
 )
@@ -27,7 +27,7 @@ OUTPUT_DIR = Path("output")
 
 def main():
     parser = argparse.ArgumentParser(description="周线 RPS 吸筹突破选股")
-    parser.add_argument("--tdx-dir", default=r"D:\tdx\vipdoc", help="通达信 vipdoc 路径")
+    parser.add_argument("--tdx-dir", default=DEFAULT_TDX_DIR, help="通达信 vipdoc 路径，或 sh/sz lday 路径")
     parser.add_argument("--date", default=None, help="目标日期 YYYYMMDD (默认最新)")
     parser.add_argument("--diagnose", action="append", default=None, help="诊断指定股票 (可多次使用)")
     parser.add_argument("--min-days", type=int, default=300, help="最少交易天数 (默认300)")

@@ -4,10 +4,10 @@
 ================================================================================
 
 架构设计：
-1. 原始数据：backtest/data/stock_daily.parquet (全量数据)
-2. RPS 数据：backtest/data/stock_daily_with_rps.parquet (全量数据)
-3. 增量更新：backtest/data/incremental_updates/ (每日增量)
-4. 元数据：backtest/data/metadata.json (最后更新时间)
+1. 原始数据：data/market/stock_daily.parquet (全量数据)
+2. RPS 数据：data/market/stock_daily_with_rps.parquet (全量数据)
+3. 增量更新：data/market/incremental_updates/ (每日增量)
+4. 元数据：data/market/metadata.json (最后更新时间)
 """
 
 import pandas as pd
@@ -18,11 +18,13 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Optional, Dict, List
 
+from project_paths import MARKET_DATA_DIR
+
 
 class IncrementalDataManager:
     """增量数据管理器"""
 
-    def __init__(self, base_dir: str = "backtest/data"):
+    def __init__(self, base_dir: str | Path = MARKET_DATA_DIR):
         self.base_dir = Path(base_dir)
         self.base_dir.mkdir(parents=True, exist_ok=True)
 
@@ -237,7 +239,7 @@ class IncrementalDataManager:
 
 
 # 便捷函数
-def get_data_manager(base_dir: str = "backtest/data") -> IncrementalDataManager:
+def get_data_manager(base_dir: str | Path = MARKET_DATA_DIR) -> IncrementalDataManager:
     """获取数据管理器实例"""
     return IncrementalDataManager(base_dir)
 

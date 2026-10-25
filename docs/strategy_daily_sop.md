@@ -1,6 +1,6 @@
 # A 股 RPS / TDX 系统 — 实战策略与每日 SOP
 
-> 版本 v1.0  |  与 [strategy_early_launch.md](./strategy_early_launch.md) 互补
+> 版本 v1.0  |  与 [strategy_early_launch.md](strategy_early_launch.md) 互补
 >
 > 本文是**操作手册**，不是验证报告。所有阈值都基于已验证的几个月窗口给出
 > 默认值，长期跑后再回测调整。
@@ -280,8 +280,8 @@ flowchart TD
 | 月度持续性扫描 | [`run_persistence_scan.py`](../run_persistence_scan.py) |
 | 持仓体检 | [`run_portfolio_check.py`](../run_portfolio_check.py) (配 [`portfolio_template.csv`](../portfolio_template.csv)) |
 | 输出板块导通达信 | [`csv_to_tdx_blk.py`](../csv_to_tdx_blk.py) |
-| 早期启涨策略 | [`strategy_early_launch.md`](./strategy_early_launch.md) |
-| 洪战法 | [`strategy_hong_zhanfa.md`](./strategy_hong_zhanfa.md) |
+| 早期启涨策略 | [`strategy_early_launch.md`](strategy_early_launch.md) |
+| 洪战法 | [`strategy_hong_zhanfa.md`](strategy_hong_zhanfa.md) |
 
 ---
 

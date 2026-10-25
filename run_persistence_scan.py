@@ -25,6 +25,7 @@ from typing import List, Tuple
 import pandas as pd
 
 from rps_analyzer.tdx_reader import load_tdx_market
+from rps_analyzer.tdx_reader import DEFAULT_TDX_DIR
 from rps_analyzer.rps_calculator import calculate_rps
 from rps_analyzer.tdx_stock_screener import (
     TdxStockScreener, screen_layer2,
@@ -41,7 +42,8 @@ from rps_analyzer.codes_csv import write_codes_csv
 OUTPUT_DIR = Path("output")
 
 LAYER_WEIGHTS = {
-    "Super": 5,
+    "Super_Premium": 6,
+    "Super_Extended": 3,
     "Huoche": 4,
     "L2": 3,
     "L1": 2,
@@ -77,8 +79,14 @@ def _scan_one_date(
             df, l1_codes, target_date=date_str,
             config=SuperStrongConfig(), verbose=False,
         )
-        for c in super_res["ts_code"]:
-            rows.append((c, date_str, "Super"))
+        if not super_res.empty:
+            if "tier" in super_res.columns:
+                for _, row in super_res.iterrows():
+                    tag = "Super_Premium" if row["tier"] == "premium" else "Super_Extended"
+                    rows.append((row["ts_code"], date_str, tag))
+            else:
+                for c in super_res["ts_code"]:
+                    rows.append((c, date_str, "Super_Extended"))
 
     if not skip["huoche"]:
         h_res = screen_huoche(
@@ -103,8 +111,9 @@ def _scan_one_date(
 
 def _aggregate(long_df: pd.DataFrame, n_samples: int) -> pd.DataFrame:
     """聚合长表为每只票一行的持续性 DataFrame"""
+    base_cols = ["ts_code", "Super"] + LAYERS + ["layers_covered", "score"]
     if long_df.empty:
-        return pd.DataFrame(columns=["ts_code"] + LAYERS + ["layers_covered", "score"])
+        return pd.DataFrame(columns=base_cols)
 
     pivot = (
         long_df.groupby(["ts_code", "layer"]).size().unstack(fill_value=0)
@@ -114,14 +123,20 @@ def _aggregate(long_df: pd.DataFrame, n_samples: int) -> pd.DataFrame:
             pivot[L] = 0
     pivot = pivot[LAYERS]
 
-    pivot["layers_covered"] = (pivot > 0).sum(axis=1)
+    # 向后兼容: Super = Super_Premium + Super_Extended
+    pivot["Super"] = pivot["Super_Premium"] + pivot["Super_Extended"]
+    # layers_covered 用合并后的层数 (Super 算 1 层, 不重复计 Premium/Extended)
+    layer_cover_cols = [c for c in ["L1", "L2", "Super", "Huoche", "Early_L1"] if c in pivot.columns]
+    pivot["layers_covered"] = (pivot[layer_cover_cols] > 0).sum(axis=1)
     pivot["score"] = sum(pivot[L] * w for L, w in LAYER_WEIGHTS.items())
     pivot["samples"] = n_samples
     pivot["super_rate"] = pivot["Super"] / max(1, n_samples)
+    pivot["super_premium_rate"] = pivot["Super_Premium"] / max(1, n_samples)
     pivot["l1_rate"] = pivot["L1"] / max(1, n_samples)
 
     pivot = pivot.sort_values(
-        ["score", "Super", "L1"], ascending=[False, False, False]
+        ["score", "Super_Premium", "Super", "L1"],
+        ascending=[False, False, False, False],
     ).reset_index()
     return pivot
 
@@ -179,7 +194,7 @@ def main():
     ap.add_argument("--hold", type=int, default=0,
                     help="窗口结束后 N 个交易日做 forward return 回测 (默认0=不做)")
     ap.add_argument("--top-n", type=int, default=30, help="榜单显示行数")
-    ap.add_argument("--tdx-dir", default=r"D:\tdx\vipdoc")
+    ap.add_argument("--tdx-dir", default=DEFAULT_TDX_DIR)
     ap.add_argument("--min-days", type=int, default=250)
 
     ap.add_argument("--skip-l2", action="store_true")
@@ -201,7 +216,7 @@ def main():
 
     t0 = time.time()
     df = load_tdx_market(args.tdx_dir, min_days=args.min_days)
-    df = calculate_rps(df, periods=[120, 250], verbose=False)
+    df = calculate_rps(df, periods=[50, 120, 250], verbose=False)
     print(f"  数据加载 + RPS 完成: {time.time()-t0:.1f}s\n")
 
     all_dates = sorted(df["trade_date"].unique())
@@ -225,11 +240,12 @@ def main():
         rows = _scan_one_date(df, date_str, skip)
         long_rows.extend(rows)
         n_l1 = sum(1 for r in rows if r[2] == "L1")
-        n_super = sum(1 for r in rows if r[2] == "Super")
+        n_super_p = sum(1 for r in rows if r[2] == "Super_Premium")
+        n_super_e = sum(1 for r in rows if r[2] == "Super_Extended")
         n_huoche = sum(1 for r in rows if r[2] == "Huoche")
         print(
             f"  [{i}/{n_samples}] {date_str}  L1={n_l1:3d} "
-            f"Super={n_super:3d} Huoche={n_huoche:3d}  "
+            f"SuperP={n_super_p:3d} SuperE={n_super_e:3d} Huoche={n_huoche:3d}  "
             f"({time.time()-ts:.1f}s)"
         )
 
@@ -250,11 +266,11 @@ def main():
     print("\n" + "=" * 70)
     print(f"持续性榜 Top {min(args.top_n, len(agg))} (共 {len(agg)} 只入榜)")
     print("=" * 70)
-    show_cols = ["ts_code", "L1", "L2", "Super", "Huoche", "Early_L1",
+    show_cols = ["ts_code", "L1", "L2", "Super", "Super_Premium", "Huoche", "Early_L1",
                  "layers_covered", "super_rate", "score"]
     show = top[show_cols].copy()
     show["super_rate"] = (show["super_rate"] * 100).round(0)
-    show.columns = ["代码", "L1", "L2", "Super", "Huoche", "Early", "层数", "Super%", "评分"]
+    show.columns = ["代码", "L1", "L2", "Super", "SuperP", "Huoche", "Early", "层数", "Super%", "评分"]
     print(show.to_string(index=False))
 
     print(f"\n完整结果: {full_path}")

@@ -16,6 +16,8 @@ from datetime import datetime
 import pandas as pd
 import akshare as ak
 
+from project_paths import market_data_file
+
 # 强制 UTF-8
 if sys.platform == 'win32':
     sys.stdout.reconfigure(encoding='utf-8', errors='replace')
@@ -118,7 +120,7 @@ def run_intraday_monitor(force=False):
         
     # 2. 拿历史生态缓存
     try:
-        history_eco = pd.read_csv('backtest/data/ecology_cache.csv')
+        history_eco = pd.read_csv(market_data_file("ecology_cache.csv"))
     except Exception as e:
         logging.warning(f"无法加载历史生态缓存 (可能尚未初始化): {e}")
         history_eco = pd.DataFrame()

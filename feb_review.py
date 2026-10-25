@@ -9,25 +9,26 @@ if sys.platform == 'win32':
 import pandas as pd
 from pathlib import Path
 from daily_signal import score_to_target, score_to_zone, MIN_DAYS_BETWEEN, MIN_DELTA
+from project_paths import market_data_file, report_file
 
-scores = pd.read_csv('backtest/reports/emotion_validation/emotion_scores.csv', parse_dates=['trade_date'])
+scores = pd.read_csv(report_file("emotion_validation", "emotion_scores.csv"), parse_dates=['trade_date'])
 scores = scores.sort_values('trade_date').reset_index(drop=True)
 
 try:
-    ecology = pd.read_csv('backtest/data/ecology_cache.csv', parse_dates=['trade_date'])
+    ecology = pd.read_csv(market_data_file("ecology_cache.csv"), parse_dates=['trade_date'])
     ecology = ecology.sort_values('trade_date').reset_index(drop=True)
 except:
     ecology = None
 
 # ETF 轮动持仓
 try:
-    trades = pd.read_csv('backtest/reports/etf_rotation/rotation_trades.csv')
+    trades = pd.read_csv(report_file("etf_rotation", "rotation_trades.csv"))
 except:
     trades = None
 
 # ETF NAV
 try:
-    nav_df = pd.read_csv('backtest/reports/etf_rotation/rotation_nav_all.csv')
+    nav_df = pd.read_csv(report_file("etf_rotation", "rotation_nav_all.csv"))
 except:
     nav_df = None
 

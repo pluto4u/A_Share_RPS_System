@@ -29,10 +29,12 @@ from datetime import datetime
 import pandas as pd
 import numpy as np
 
+from project_paths import MARKET_DATA_DIR, REPORTS_DIR
+
 logger = logging.getLogger(__name__)
 
-DATA_DIR = Path(__file__).resolve().parent.parent / 'backtest' / 'data'
-REPORT_DIR = Path(__file__).resolve().parent.parent / 'backtest' / 'reports' / 'thermometer'
+DATA_DIR = MARKET_DATA_DIR
+REPORT_DIR = REPORTS_DIR / 'thermometer'
 
 # 温度档位 (阈值与 S5 量化步进保持一致)
 TEMPERATURE_LEVELS = [

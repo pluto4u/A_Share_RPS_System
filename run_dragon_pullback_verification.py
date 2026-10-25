@@ -4,6 +4,7 @@ from pathlib import Path
 import os
 import sys
 from config.dragon_strategy import DRAGON_STRATEGY
+from project_paths import REPORTS_DIR, market_data_file, report_file
 
 if sys.platform == 'win32':
     sys.stdout.reconfigure(encoding='utf-8', errors='replace')
@@ -16,7 +17,7 @@ from rps_analyzer.universe import get_universe_pool, get_pool_by_amount
 
 def get_emotion_scores():
     """读取每日情绪大盘评分，作为滤网"""
-    score_csv = Path('backtest/reports/emotion_validation/emotion_scores.csv')
+    score_csv = report_file("emotion_validation", "emotion_scores.csv")
     if not score_csv.exists():
         print(f"找不到情绪评分文件: {score_csv}")
         return None
@@ -31,7 +32,7 @@ def main():
     print("=" * 65)
     print("加载历史数据与情绪大盘滤网...")
     
-    data_path = Path("backtest/data/stock_daily.parquet")
+    data_path = market_data_file("stock_daily.parquet")
     if not data_path.exists():
         print(f"数据文件不存在: {data_path}")
         return
@@ -212,7 +213,7 @@ def main():
         print(f"平均亏损 : {avg_loss:.2f}% (小损)")
         print(f"极致盈亏比: {pnl_ratio:.2f}")
         
-        report_dir = Path("backtest/reports/dragon_pullback_backtest")
+        report_dir = REPORTS_DIR / "dragon_pullback_backtest"
         report_dir.mkdir(parents=True, exist_ok=True)
         trades_df.to_csv(report_dir / "dragon_trades.csv", index=False, encoding='utf-8-sig')
         nav_df.to_csv(report_dir / "dragon_nav.csv", index=False, encoding='utf-8-sig')

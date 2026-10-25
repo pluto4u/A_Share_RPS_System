@@ -14,6 +14,7 @@ from config.dragon_strategy import DRAGON_STRATEGY
 from rps_analyzer.dragon_pullback_finder import identify_dragon_pullback
 from rps_analyzer.rps_calculator import calculate_rps
 from rps_analyzer.universe import get_universe_pool
+from project_paths import market_data_file
 
 
 def get_dragon_pullback_candidates(emotion_score: float, limit: int = 5) -> tuple[list, dict]:
@@ -28,7 +29,7 @@ def get_dragon_pullback_candidates(emotion_score: float, limit: int = 5) -> tupl
     if emotion_score < min_score:
         return [], {"pool_mode": "", "pool_size": 0}
         
-    data_path = Path("backtest/data/stock_daily.parquet")
+    data_path = market_data_file("stock_daily.parquet")
     if not data_path.exists():
         return [], {"pool_mode": "", "pool_size": 0}
         
